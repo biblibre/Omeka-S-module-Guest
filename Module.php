@@ -7,9 +7,9 @@ use Zend\Mvc\Controller\AbstractController;
 use GuestUser\Form\ConfigGuestUserForm;
 use Zend\View\Model\ViewModel;
 use ArchiveRepertory\Service\FileArchiveManagerFactory;
-
+use Zend\Mvc\MvcEvent;
 use Zend\EventManager\SharedEventManagerInterface;
-use Omeka\Event\Event;
+//use Omeka\Event\Event;
 
 //include(FORM_DIR . '/User.php');
 
@@ -85,6 +85,17 @@ class Module extends AbstractModule
         $this->setOption('guest_user_login_text', $this->translate('Login'));
         $this->setOption('guest_user_register_text', $this->translate('Register'));
         $this->setOption('guest_user_dashboard_label', $this->translate('My Account'));
+    }
+
+
+    public function onBootstrap(MvcEvent $event)
+    {
+        parent::onBootstrap($event);
+
+        $acl = $this->getServiceLocator()->get('Omeka\Acl');
+        $acl->allow(null, 'GuestUser\Controller\GuestUser');
+
+
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)

@@ -29,10 +29,10 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
 
   public function datas() {
       return [
-              ['guest_user_capabilities', 'long description'],
-              ['guest_user_short_capabilities', 'short'],
-              ['guest_user_dashboard_label', 'dashboard label'],
-              ['guest_user_login_text', 'Log !'],
+              ['guest_user_capabilities', 'long description','textarea'],
+              ['guest_user_short_capabilities', 'short','textarea'],
+              ['guest_user_dashboard_label', 'dashboard label','input'],
+              ['guest_user_login_text', 'Log !','input'],
       ];}
 
 
@@ -41,20 +41,23 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
    * @dataProvider datas
    */
   public function postConfigurationShouldBeSaved($name,$value) {
-
-    $this->postDispatch('/admin/module/configure?id=GuestUser', [$name => $value]);
-    $this->assertEquals($value,$this->getApplicationServiceLocator()->get('Omeka\Settings')->get($name));
+      $this->postDispatch('/admin/module/configure?id=GuestUser', [$name => $value]);
+      $this->assertEquals($value,$this->getApplicationServiceLocator()->get('Omeka\Settings')->get($name));
 
   }
 
-  /** @test */
-  public function displayConfigurationPage() {
-    $this->dispatch('/admin/module/configure?id=GuestUser');
-    echo $this->getResponse()->getContent();
-    $this->assertXPathQuery('//style[@type="text/css"][@media="screen"]');
-    $this->assertContains('h1 {display:none}',$this->getResponse()->getContent());
+  /** @test
+   * @dataProvider datas
+   */
+  public function configurationPageShouldBeDisplayed($name,$value,$type) {
+      $this->dispatch('/admin/module/configure?id=GuestUser');
+      $this->assertXPathQuery('//div[@class="inputs"]//'.$type.'[@name="'.$name.'"]');
+
   }
 
-
+/** @test */
+  public function registerShouldDisplayLogin() {
+      $this->dispatch('/guest-user/user/register');
+  }
 
 }

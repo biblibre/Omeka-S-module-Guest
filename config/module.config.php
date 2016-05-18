@@ -8,13 +8,33 @@ return [
         ],
         'controllers' => [
         'invokables' => [
-                         'ArchiveRepertory\Controller\DownloadController' => 'ArchiveRepertory\Controller\DownloadController',
+                         'GuestUser\Controller\GuestUser' => 'GuestUser\Controller\GuestUserController',
         ],
     ],
+    'router' => [
+        'routes' => [
+            'site' => [
+                'child_routes' => [
+                                   'guestuser' => [
+                                                   'type' => 'Segment',
+                                                   'options' => [
+                                                                 'route' => '/guestuser/:action',
+
+                                                      'defaults' => [
+                                                                     '__NAMESPACE__' => 'GuestUser\Controller',
+                                                                     'controller' => 'GuestUser',
+                                                      ],                                      ],
+                ],
+                ],
+            ],
+        ],
+    ],
+
 
     'view_manager' => [
         'template_path_stack' => [
                                 __DIR__ . '/../view/admin/',
+                                __DIR__ . '/../view/public/',
 
         ],
     ],
