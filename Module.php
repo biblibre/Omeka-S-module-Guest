@@ -117,7 +117,7 @@ class Module extends AbstractModule
         $form = new ConfigGuestUserForm($this->getServiceLocator());
 
 
-        return $renderer->render( 'config_form',
+        return $renderer->render( 'config_guest_user_form',
                                  [
                                   'form' => $form
                                  ]);
