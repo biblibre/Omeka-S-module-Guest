@@ -1,9 +1,17 @@
 <?php
 namespace GuestUser;
 use Omeka\Module\AbstractModule;
+use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\View\Renderer\PhpRenderer;
+use Zend\Mvc\Controller\AbstractController;
+use GuestUser\Form\ConfigGuestUserForm;
+use Zend\View\Model\ViewModel;
+use ArchiveRepertory\Service\FileArchiveManagerFactory;
 
-define('GUEST_USER_PLUGIN_DIR', PLUGIN_DIR . '/GuestUser');
-include(FORM_DIR . '/User.php');
+use Zend\EventManager\SharedEventManagerInterface;
+use Omeka\Event\Event;
+
+//include(FORM_DIR . '/User.php');
 
 
 class Module extends AbstractModule
@@ -45,10 +53,11 @@ class Module extends AbstractModule
         Zend_Controller_Front::getInstance()->registerPlugin(new GuestUser_ControllerPlugin);
     }
 
-    public function hookInstall()
+    public function install(ServiceLocatorInterface $serviceLocator)
     {
-        $db = $this->_db;
-        $sql = "CREATE TABLE IF NOT EXISTS `$db->GuestUserTokens` (
+        $connection = $serviceLocator->get('Omeka\Connection');
+        $this->serviceLocator=$serviceLocator;
+        $sql = "CREATE TABLE IF NOT EXISTS `guest_user_tokens` (
                   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
                   `token` text COLLATE utf8_unicode_ci NOT NULL,
                   `user_id` int NOT NULL,
@@ -59,33 +68,33 @@ class Module extends AbstractModule
                 ) ENGINE=MyISAM CHARSET=utf8 COLLATE=utf8_unicode_ci;
                 ";
 
-        $db->query($sql);
+        $connection->exec($sql);
 
         //if plugin was uninstalled/reinstalled, reactivate the guest users
-        $guestUsers = $this->_db->getTable('User')->findBy(array('role'=>'guest'));
-        //skip activation emails when reinstalling
-        if(count($guestUsers) != 0) {
-            set_option('guest_user_skip_activation_email', true);
-            foreach($guestUsers as $user) {
-                $user->active = true;
-                $user->save();
-            }
-            set_option('guest_user_skip_activation_email', false);
-        }
+        /* $guestUsers = $this->_db->getTable('User')->findBy(array('role'=>'guest')); */
+        /* //skip activation emails when reinstalling */
+        /* if(count($guestUsers) != 0) { */
+        /*     set_option('guest_user_skip_activation_email', true); */
+        /*     foreach($guestUsers as $user) { */
+        /*         $user->active = true; */
+        /*         $user ->save(); */
+        /*     } */
+        /*     $this->setOption('guest_user_skip_activation_email', false); */
+        /* } */
 
-        set_option('guest_user_login_text', __('Login'));
-        set_option('guest_user_register_text', __('Register'));
-        set_option('guest_user_dashboard_label', __('My Account'));
+        $this->setOption('guest_user_login_text', $this->translate('Login'));
+        $this->setOption('guest_user_register_text', $this->translate('Register'));
+        $this->setOption('guest_user_dashboard_label', $this->translate('My Account'));
     }
 
-    public function hookUninstall($args)
+    public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
         //deactivate the guest users
-        $guestUsers = $this->_db->getTable('User')->findBy(array('role'=>'guest'));
-        foreach($guestUsers as $user) {
-            $user->active = false;
-            $user->save();
-        }
+        /* $guestUsers = $this->_db->getTable('User')->findBy(array('role'=>'guest')); */
+        /* foreach($guestUsers as $user) { */
+        /*     $user->active = false; */
+        /*     $user->save(); */
+        /* } */
     }
 
     public function hookDefineAcl($args)
@@ -94,17 +103,25 @@ class Module extends AbstractModule
         $acl->addRole(new Zend_Acl_Role('guest'), null);
     }
 
-    public function hookConfig($args)
+
+    public function handleConfigForm(AbstractController $controller)
     {
-        $post = $args['post'];
+        $post =$controller->getRequest()->getPost();
         foreach($post as $option=>$value) {
-            set_option($option, $value);
+            $this->setOption($option, $value);
         }
     }
 
-    public function hookConfigForm()
+    public function getConfigForm(PhpRenderer $renderer)
     {
-        include 'config_form.php';
+        $form = new ConfigGuestUserForm($this->getServiceLocator());
+
+
+        return $renderer->render( 'config_form',
+                                 [
+                                  'form' => $form
+                                 ]);
+
     }
 
     public function hookAdminThemeHeader($args)
@@ -130,7 +147,7 @@ class Module extends AbstractModule
         $html = "<div id='guest-user-register-info'>";
         $user = current_user();
         if(!$user) {
-            $shortCapabilities = get_option('guest_user_short_capabilities');
+            $shortCapabilities = $this->getOption('guest_user_short_capabilities');
             if($shortCapabilities != '') {
                 $html .= $shortCapabilities;
             }
@@ -141,7 +158,7 @@ class Module extends AbstractModule
 
     public function hookBeforeSaveUser($args)
     {
-        if(get_option('guest_user_skip_activation_email')) {
+        if($this->getOption('guest_user_skip_activation_email')) {
             return;
         }
         $post = $args['post'];
@@ -192,7 +209,7 @@ class Module extends AbstractModule
 
     public function filterAdminNavigationMain($navLinks)
     {
-        $navLinks['Guest User'] = array('label' => __("Guest Users"),
+        $navLinks['Guest User'] = array('label' => $this->translate("Guest Users"),
                                         'uri' => url("guest-user/user/browse?role=guest"));
         return $navLinks;
     }
@@ -208,15 +225,15 @@ class Module extends AbstractModule
             $navLinks[0]['id'] = 'admin-bar-welcome';
             $meLink = array('id'=>'guest-user-me',
                     'uri'=>url('guest-user/user/me'),
-                    'label' => get_option('guest_user_dashboard_label')
+                    'label' => $this->getOption('guest_user_dashboard_label')
             );
             $filteredLinks = apply_filters('guest_user_links' , array('guest-user-me'=>$meLink) );
             $navLinks[0]['pages'] = $filteredLinks;
 
             return $navLinks;
         }
-        $loginLabel = get_option('guest_user_login_text') ? get_option('guest_user_login_text') : __('Login');
-        $registerLabel = get_option('guest_user_register_text') ? get_option('guest_user_register_text') : __('Register');
+        $loginLabel = $this->getOption('guest_user_login_text') ? $this->getOption('guest_user_login_text') : $this->translate('Login');
+        $registerLabel = $this->getOption('guest_user_register_text') ? $this->getOption('guest_user_register_text') : $this->translate('Register');
         $navLinks = array(
                 'guest-user-login' => array(
                     'id' => 'guest-user-login',
@@ -234,11 +251,11 @@ class Module extends AbstractModule
 
     public function filterGuestUserWidgets($widgets)
     {
-        $widget = array('label'=> __('My Account'));
+        $widget = array('label'=> $this->translate('My Account'));
         $passwordUrl = url('guest-user/user/change-password');
         $accountUrl = url('guest-user/user/update-account');
         $html = "<ul>";
-        $html .= "<li><a href='$accountUrl'>" . __("Update account info and password") . "</a></li>";
+        $html .= "<li><a href='$accountUrl'>" . $this->translate("Update account info and password") . "</a></li>";
         $html .= "</ul>";
         $widget['content'] = $html;
         $widgets[] = $widget;
@@ -250,13 +267,13 @@ class Module extends AbstractModule
         $email = $record->email;
         $name = $record->name;
 
-        $siteTitle  = get_option('site_title');
-        $subject = __("Your %s account", $siteTitle);
+        $siteTitle  = $this->getOption('site_title');
+        $subject = $this->translate("Your %s account", $siteTitle);
         $body = "<p>";
-        $body .= __("An admin has made your account on %s active. You can now log in to with your password at this link:", $siteTitle );
+        $body .= $this->translate("An admin has made your account on %s active. You can now log in to with your password at this link:", $siteTitle );
         $body .= "</p>";
         $body .= "<p><a href='" . WEB_ROOT . "/users/login'>$siteTitle</a></p>";
-        $from = get_option('administrator_email');
+        $from = $this->getOption('administrator_email');
         $mail = new Zend_Mail('UTF-8');
         $mail->setBodyHtml($body);
         $mail->setFrom($from, "$siteTitle Administrator");
@@ -265,7 +282,7 @@ class Module extends AbstractModule
         $mail->addHeader('X-Mailer', 'PHP/' . phpversion());
         $mail->send();
     }
-    
+
     public static function guestUserWidget($widget)
     {
         if(is_array($widget)) {
@@ -276,13 +293,34 @@ class Module extends AbstractModule
         return $widget;
     }
     }
-}
 
-?
 
 
     public function getConfig() {
         return include __DIR__ . '/config/module.config.php';
+    }
+
+
+    public function setOption($name,$value,$serviceLocator = null) {
+        if (!$serviceLocator)
+            $serviceLocator = $this->getServiceLocator();
+
+        return  $serviceLocator->get('Omeka\Settings')->set($name,$value);
+    }
+
+    public function getOption($key,$serviceLocator=null) {
+        if (!$serviceLocator)
+            $serviceLocator = $this->getServiceLocator();
+        return $serviceLocator->get('Omeka\Settings')->get($key);
+    }
+
+
+    public function translate($string,$options='',$serviceLocator=null) {
+
+        if (!$serviceLocator)
+            $serviceLocator = $this->getServiceLocator();
+
+        return $serviceLocator->get('MvcTranslator')->translate($string,$options);
     }
 
 }
