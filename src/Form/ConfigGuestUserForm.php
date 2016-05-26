@@ -5,7 +5,6 @@ use Omeka\Form\AbstractForm;
 use Omeka\Form\Element\ResourceSelect;
 use Omeka\Form\Element\Ckeditor;
 use Zend\Form\Element;
-use Omeka\Form\Element\PropertySelect;
 use Zend\ServiceManager\ServiceLocatorInterface;
 class ConfigGuestUserForm extends AbstractForm {
     protected $local_storage='';

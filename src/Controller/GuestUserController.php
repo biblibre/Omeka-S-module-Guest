@@ -36,69 +36,52 @@ class GuestUserController extends AbstractActionController
 
     public function registerAction()
     {
-        if($this->identity()) {
-            return $this->getRequest()->getServer('HTTP_REFERER');
-        }
-        $openRegistration = ($this->getOption('guest_user_open') == 1);
-        $instantAccess = ($this->getOption('guest_user_instant_access') == 1);
+//        if($this->identity()) {
+        //          return $this->getRequest()->getServer('HTTP_REFERER');
+//        }
+
         $user = new User();
+        $user->setRole('guest');
+        $form = $this->_getForm(['user'=>$user, 'include_role' => false]);
 
-        $form = $this->_getForm(['user'=>$user]);
-        $this->view->form = $form;
-
-        if (!$this->getRequest()->isPost() || !$form->isValid($_POST)) {
-            $view = new ViewModel;
+        $view = new ViewModel;
         $view->setVariable('form', $form);
-        return $view;
+        xdebug_break();
 
-            return;
-        }
-        $user->role = 'guest';
-        if($openRegistration || $instantAccess) {
-            $user->active = true;
-        }
-        $user->setPassword($_POST['new_password']);
-        $user->setPostData($_POST);
-        try {
-            if ($user->save()) {
-                $token = $this->_createToken($user);
-                $this->_sendConfirmationEmail($user, $token); //confirms that they registration request is legit
-                if($instantAccess) {
-                    //log them right in, and return them to the previous page
-                    $authAdapter = new Omeka_Auth_Adapter_UserTable($this->_helper->db->getDb());
-                    $authAdapter->setIdentity($user->username)->setCredential($_POST['new_password']);
-                    $authResult = $this->_auth->authenticate($authAdapter);
-                    if (!$authResult->isValid()) {
-                        if ($log = $this->_getLog()) {
-                            $ip = $this->getRequest()->getClientIp();
-                            $log->info($this->translate("Failed login attempt from %s", $ip));
-                        }
-                        $this->_helper->flashMessenger($this->getLoginErrorMessages($authResult), 'error');
-                        return;
-                                        }
-                    $activation = UsersActivations::factory($user);
-                    $activation->save();
-                    $this->_helper->flashMessenger($this->translate("You are logged in temporarily. Please check your email for a confirmation message. Once you have confirmed your request, you can log in without time limits."));
-                    $session = new Zend_Session_Namespace;
-                    if ($session->redirect) {
-                        $this->_helper->redirector->gotoUrl($session->redirect);
-                    }
-                    return;
-                }
-                if($openRegistration) {
-                    $message = $this->translate("Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.");
-                    $this->_helper->flashMessenger($message, 'success');
-                    $activation = UsersActivations::factory($user);
-                    $activation->save();
+        if ($this->getRequest()->isPost()) {
+            $form->setData($this->params()->fromPost());
 
+            if ($form->isValid()) {
+                $formData = $form->getData();
+                $formData['o:role'] = 'guest';
+                $response = $this->api()->create('users', $formData);
+                if ($response->isError()) {
+                    $form->setMessages($response->getErrors());
                 } else {
-                    $message = $this->translate("Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and an administrator activates your account, you will be able to log in.");
-                    $this->_helper->flashMessenger($message, 'success');
+                    $user = $response->getContent()->getEntity();
+
+                    $user->setIsActive(true);
+
+                    $message = $this->translate("Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.");
+                    $this->messenger()->addSuccess($message);
+
+//                    $token = $this->_createToken($user);
+                    //                  $this->_sendConfirmationEmail($user, $token); //confirms that they registration request is legit
+
+                    $this->getServiceLocator()->get('Omeka\Mailer')->sendUserActivation($user);
+
+
+                    return $this->redirect()->toUrl($response->getContent()->url());
                 }
+            } else {
+
+                $this->messenger()->addError('There was an error during validation');
             }
-        } catch (Omeka_Validator_Exception $e) {
-            $this->flashValidationErrors($e);
         }
+
+
+
+        return $view;
     }
 
     public function updateAccountAction()
@@ -129,7 +112,7 @@ class GuestUserController extends AbstractActionController
         }
 
         if($user->password != $user->hashPassword($_POST['current_password'])) {
-            $this->_helper->flashMessenger($this->translate("Incorrect password"), 'error');
+            $this->messenger()->addError($this->translate("Incorrect password"), 'error');
             return;
         }
 
@@ -172,16 +155,17 @@ class GuestUserController extends AbstractActionController
             $this->_sendAdminNewConfirmedUserEmail($user);
             $this->_sendConfirmedEmail($user);
             $message = $this->translate("Please check the email we just sent you for the next steps! You're almost there!");
-            $this->_helper->flashMessenger($message, 'success');
+            $this->messenger()->addError($message, 'success');
             $this->redirect('users/login');
         } else {
-            $this->_helper->flashMessenger($this->translate('Invalid token'), 'error');
+            $this->messenger()->addError($this->translate('Invalid token'), 'error');
         }
     }
 
     protected function _getForm($options)
     {
         $form = new UserForm($this->getServiceLocator(),null,$options);
+
         //need to remove submit so I can add in new elements
 //        $form->removeElement('submit');
         /* $form->add('password', 'new_password', */
@@ -225,7 +209,8 @@ class GuestUserController extends AbstractActionController
                                   'required'      => true,
                                   'class'         => 'textinput',
                                   'errorMessages' => array($this->translate('New password must be typed correctly twice.'))
-                        ]
+                    ]
+
         ]);
 
         $form->add(['name' => 'new_password_confirm',

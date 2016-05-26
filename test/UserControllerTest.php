@@ -11,7 +11,7 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
     $module = $manager->getModule('GuestUser');
     $manager->install($module);
 
-//    $this->site_test=$this->addSite('test');
+    $this->site_test=$this->addSite('test');
     //  $this->site_test2=$this->addSite('test2');
     parent::setUp();
     $this->connectAdminUser();
@@ -57,7 +57,14 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
 
 /** @test */
   public function registerShouldDisplayLogin() {
-      $this->dispatch('/guest-user/user/register');
+      $this->postDispatch('/s/test/guestuser/register', ['o:email' => "test@test.fr",
+                                                          'o:name' => 'test',
+                                                          'new_password' => 'test',
+                                                          'new_passord_confirm' => 'test',
+                                                          'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+]
+);
+     $this->assertXPathQuery('//div[@class="inputs"]');
   }
 
 }
