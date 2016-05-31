@@ -33,7 +33,7 @@ use DateTime;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Omeka\Entity\AbstractEntity;
-
+use Omeka\Entity\User as User;
 /**
  * @Entity
  * @HasLifecycleCallbacks
@@ -59,7 +59,7 @@ class GuestUserToken extends AbstractEntity
 
 
     /**
-     * @ManyToOne(targetEntity="User")
+     * @ManyToOne(targetEntity="\Omeka\Entity\User")
      * @JoinColumn(nullable=false, onDelete="CASCADE")
      */
     protected $user;
@@ -89,6 +89,16 @@ class GuestUserToken extends AbstractEntity
     public function getEmail()
     {
         return $this->email;
+    }
+
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
     }
 
 

@@ -30,6 +30,11 @@ return [
         ],
     ],
 
+    'entity_manager' => [
+        'mapping_classes_paths' => [
+            __DIR__ . '/../src/Entity',
+        ],
+    ],
 
     'view_manager' => [
         'template_path_stack' => [

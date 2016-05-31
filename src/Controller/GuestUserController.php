@@ -9,8 +9,8 @@ use Omeka\Entity\User;
 use Omeka\Form\UserForm;
 use Omeka\Form\UserKeyForm;
 use Omeka\Form\UserPasswordForm;
-
-
+use GuestUser\Entity\GuestUserTokens;
+use Omeka\Service\Mailer;
 class GuestUserController extends AbstractActionController
 {
     public function init()
@@ -21,10 +21,12 @@ class GuestUserController extends AbstractActionController
 
     public function loginAction()
     {
-        $session = new Zend_Session_Namespace;
-        if(!$session->redirect) {
-            $session->redirect = $_SERVER['HTTP_REFERER'];
+
+        $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
+        if ($auth->hasIdentity()) {
+            return $this->redirect()->toRoute('admin');
         }
+
 
         $this->redirect('users/login');
     }
@@ -65,13 +67,14 @@ class GuestUserController extends AbstractActionController
                     $message = $this->translate("Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.");
                     $this->messenger()->addSuccess($message);
 
-//                    $token = $this->_createToken($user);
-                    //                  $this->_sendConfirmationEmail($user, $token); //confirms that they registration request is legit
-
-                    $this->getServiceLocator()->get('Omeka\Mailer')->sendUserActivation($user);
 
 
-                    return $this->redirect()->toUrl($response->getContent()->url());
+
+                    //$this->getServiceLocator()->get('Omeka\Mailer')->sendUserActivation($user);
+                    $this->createGuestUserAndSendMail($formData,$user);
+/*                    if ($redirectUrl = $this->params()->fromQuery('redirect'))
+                        return $this->redirect()->toUrl($redirectUrl);
+                        return $this->redirect('/');*/
                 }
             } else {
 
@@ -83,6 +86,25 @@ class GuestUserController extends AbstractActionController
 
         return $view;
     }
+
+    protected function save($entity) {
+        $em = $this->getServiceLocator()->get('Omeka\EntityManager');
+        $em->persist($entity);
+        $em->flush();
+
+    }
+
+
+    public function createGuestUserAndSendMail($formData,$user) {
+        $guest = new GuestUserTokens;
+        $guest->setEmail($formData['o:email']);
+        $guest->setUser($user);
+        $guest->setToken(sha1("tOkenS@1t" . microtime()));
+//        $token = $this->_createToken($user);
+        $this->save($guest);
+      $this->_sendConfirmationEmail($user, $guest); //confirms that they registration request is legit
+    }
+
 
     public function updateAccountAction()
     {
@@ -144,21 +166,23 @@ class GuestUserController extends AbstractActionController
 
     public function confirmAction()
     {
-        $db = get_db();
-        $token = $this->getRequest()->getParam('token');
-        $records = $db->getTable('GuestUserToken')->findBy(array('token'=>$token));
-        $record = $records[0];
-        if($record) {
-            $record->confirmed = true;
-            $record->save();
-            $user = $db->getTable('User')->find($record->user_id);
-            $this->_sendAdminNewConfirmedUserEmail($user);
-            $this->_sendConfirmedEmail($user);
-            $message = $this->translate("Please check the email we just sent you for the next steps! You're almost there!");
-            $this->messenger()->addError($message, 'success');
+        $token = $this->params()->fromQuery('token');
+        $em = $this->getServiceLocator()->get('Omeka\EntityManager');
+        $records = $em->getRepository('GuestUser\Entity\GuestUserTokens')->findBy(['token'=>$token]);
+
+        if($record = reset($records)) {
+            $record->setConfirmed(true);
+            $this->save($record);
+            $user = $em->find('Omeka\Entity\User',$record->getUser()->getId());
+            $siteUrl='';
+            $siteTitle='';
+            $body = $this->translate("Thanks for joining %s!", $siteTitle);
+            $body .= "<p>" . $this->translate("You can now log into %s using the password you chose.", "<a href='$siteUrl'>$siteTitle</a>") . "</p>";
+
+            $this->messenger()->addError($body, 'success');
             $this->redirect('users/login');
         } else {
-            $this->messenger()->addError($this->translate('Invalid token'), 'error');
+            $this->messenger()->addError($this->translate('Invalid token stop'), 'error');
         }
     }
 
@@ -166,42 +190,6 @@ class GuestUserController extends AbstractActionController
     {
         $form = new UserForm($this->getServiceLocator(),null,$options);
 
-        //need to remove submit so I can add in new elements
-//        $form->removeElement('submit');
-        /* $form->add('password', 'new_password', */
-        /*            [ */
-        /*             'label'         => $this->translate('Password'), */
-        /*             'required'      => true, */
-        /*             'class'         => 'textinput', */
-        /*             'validators'    => array( */
-        /*                 array('validator' => 'NotEmpty', 'breakChainOnFailure' => true, 'options' => */
-        /*                     array( */
-        /*                         'messages' => array( */
-        /*                             'isEmpty' => $this->translate("New password must be entered.") */
-        /*                         ) */
-        /*                     ) */
-        /*                 ), */
-        /*                 array( */
-        /*                     'validator' => 'Confirmation', */
-        /*                     'options'   => array( */
-        /*                         'field'     => 'new_password_confirm', */
-        /*                         'messages'  => array( */
-        /*                             Omeka_Validate_Confirmation::NOT_MATCH => $this->translate('New password must be typed correctly twice.') */
-        /*                         ) */
-        /*                      ) */
-        /*                 ), */
-        /*                 array( */
-        /*                     'validator' => 'StringLength', */
-        /*                     'options'   => array( */
-        /*                         'min' => User::PASSWORD_MIN_LENGTH, */
-        /*                         'messages' => array( */
-        /*                             Zend_Validate_StringLength::TOO_SHORT => $this->translate("New password must be at least %min% characters long.") */
-        /*                         ) */
-        /*                     ) */
-        /*                 ) */
-        /*             ) */
-        /*     ) */
-        /* ); */
         $form->add(['name' => 'new_password',
                     'type' => 'text',
                     'options' => [
@@ -240,92 +228,33 @@ class GuestUserController extends AbstractActionController
         return $form;
     }
 
-    protected function _sendConfirmedEmail($user)
-    {
-        $siteTitle = $this->getOption('site_title');
-        $body = $this->translate("Thanks for joining %s!", $siteTitle);
-        $siteUrl = absolute_url('/');
-        if($this->getOption('guest_user_open') == 1) {
-            $body .= "<p>" . $this->translate("You can now log into %s using the password you chose.", "<a href='$siteUrl'>$siteTitle</a>") . "</p>";
-        } else {
-            $body .= "<p>" . $this->translate("When an administrator approves your account, you will receive another message that you can use to log in with the password you chose.") . "</p>";
-        }
 
-        $subject = $this->translate("Registration for %s", $siteTitle);
-        $mail = $this->_getMail($user, $body, $subject);
-        try {
-            $mail->send();
-        } catch (Exception $e) {
-            _log($e);
-        }
-    }
 
     protected function _sendConfirmationEmail($user, $token)
     {
+
         $siteTitle = $this->getOption('site_title');
-        $url = WEB_ROOT . '/guest-user/user/confirm/token/' . $token->token;
-        $siteUrl = absolute_url('/');
+
         $subject = $this->translate("Your request to join %s", $siteTitle);
-        $body = $this->translate("You have registered for an account on %s. Please confirm your registration by following %s.  If you did not request to join %s please disregard this email.", "<a href='$siteUrl'>$siteTitle</a>", "<a href='$url'>" . $this->translate('this link') . "</a>", $siteTitle);
+        $url =  '/guestuser/confirm/token/' . $token->getToken();
 
-        if($this->getOption('guest_user_instant_access') == 1) {
-            $body .= "<p>" . $this->translate("You have temporary access to %s for twenty minutes. You will need to confirm your request to join after that time.", $siteTitle) . "</p>";
-        }
-        $mail = $this->_getMail($user, $body, $subject);
+        $body = $this->translate("You have registered for an account on %s. Please confirm your registration by following %s.  If you did not request to join %s please disregard this email.", "<a href='$url'>$siteTitle</a>", "<a href='$url'>" . $this->translate('this link') . "</a>", $siteTitle);
+
+        $mailer = $this->getServiceLocator()->get('Omeka\Mailer');
+        $message = $mailer->createMessage();
+        $message->addTo($user->getEmail(), $user->getName())
+            ->setSubject($subject)
+            ->setBody($body);
+
         try {
-            $mail->send();
+//            $mailer->send($message);
+            echo $body;
+
         } catch (Exception $e) {
             _log($e);
         }
     }
 
-    protected function _sendAdminNewConfirmedUserEmail($user)
-    {
-        $siteTitle = $this->getOption('site_title');
-        $url = WEB_ROOT . "/admin/users/edit/" . $user->id;
-        $subject = $this->translate("New request to join %s", $siteTitle);
-        $body = "<p>" . $this->translate("A new user has confirmed that they want to join %s : %s" , $siteTitle, "<a href='$url'>" . $user->username . "</a>") . "</p>";
-        if($this->getOption('guest_user_open') !== 1) {
-            if($this->getOption('guest_user_instant_access') == 1) {
-                $body .= "<p>" . $this->translate("%s has temporary access to the site.", $user->username) . "</p>";
-            }
-            $body .= "<p>" . $this->translate("You will need to make the user active and save the changes to complete registration for %s.", $user->username) . "</p>";
-        }
 
-        $mail = $this->_getMail($user, $body, $subject);
-        $mail->clearRecipients();
-        $mail->addTo($this->getOption('administrator_email'), "$siteTitle Administrator");
-         try {
-            $mail->send();
-        } catch (Exception $e) {
-            _log($e);
-        }
-    }
 
-    protected function _getMail($user, $body, $subject)
-    {
-        $siteTitle  = $this->getOption('site_title');
-        $from = $this->getOption('administrator_email');
-        $mail = new Zend_Mail('UTF-8');
-        $mail->setBodyHtml($body);
-        $mail->setFrom($from, $this->translate("%s Administrator", $siteTitle));
-        $mail->addTo($user->email, $user->name);
-        $mail->setSubject($subject);
-        $mail->addHeader('X-Mailer', 'PHP/' . phpversion());
-        return $mail;
-    }
-
-    protected function _createToken($user)
-    {
-        $token = new GuestUserToken();
-        $token->user_id = $user->id;
-        $token->token = sha1("tOkenS@1t" . microtime());
-        if(method_exists($user, 'getEntity')) {
-            $token->email = $user->getEntity()->email;
-        } else {
-            $token->email = $user->email;
-        }
-        $token->save();
-        return $token;
-    }
 }

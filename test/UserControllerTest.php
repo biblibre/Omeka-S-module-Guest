@@ -1,14 +1,24 @@
 <?php
 
 namespace OmekaTest\Controller;
-
+use Omeka\Installation\Installer;
 use Omeka\Test\AbstractHttpControllerTestCase;
 
 class UserControllerTest  extends AbstractHttpControllerTestCase{
   public function setUp() {
     $this->connectAdminUser();
+    $config = [];
+$config['service_manager']['factories']['Omeka\Mailer'] = 'MockMailer';
+$this->setApplicationConfig($config);
+    xdebug_break();
+
+
     $manager = $this->getApplicationServiceLocator()->get('Omeka\ModuleManager');
     $module = $manager->getModule('GuestUser');
+//    $config = $module->getConfig();
+
+//    $module->setConfig($config);
+
     $manager->install($module);
 
     $this->site_test=$this->addSite('test');
@@ -22,10 +32,25 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
     $manager = $this->getApplicationServiceLocator()->get('Omeka\ModuleManager');
     $module = $manager->getModule('GuestUser');
     $manager->uninstall($module);
-
+    $em = $this->getApplicationServiceLocator()->get('Omeka\EntityManager');
+    $guestUsers = $em->getRepository('Omeka\Entity\User')->findBy(['role'=>'guest']);
+    $this->cleanTable('guest_user_tokens');
+    foreach($guestUsers as $user) {
+        $em->remove($user);
+        $em->flush();
+    }
 //    $this->cleanTable('user');
   }
 
+    protected function getMockServiceLocator($config)
+    {
+        $serviceLocator = $this->getMock('Zend\ServiceManager\ServiceLocatorInterface');
+        $serviceLocator->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('Omeka\Mailer'))
+            ->will($this->returnValue(new MockMailer));
+        return $serviceLocator;
+    }
 
   public function datas() {
       return [

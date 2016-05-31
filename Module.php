@@ -36,7 +36,7 @@ class Module extends AbstractModule
         'guest_user_widgets',
         'admin_navigation_main'
     );
-
+    protected $config;
 
     /**
      * Add the translations.
@@ -94,6 +94,8 @@ class Module extends AbstractModule
 
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
         $acl->allow(null, 'GuestUser\Controller\GuestUser');
+        $acl->allow(null, 'Omeka\Entity\User');
+        $acl->allow(null, 'Omeka\Api\Adapter\UserAdapter');
 
 
     }
@@ -101,11 +103,13 @@ class Module extends AbstractModule
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
         //deactivate the guest users
-        /* $guestUsers = $this->_db->getTable('User')->findBy(array('role'=>'guest')); */
-        /* foreach($guestUsers as $user) { */
-        /*     $user->active = false; */
-        /*     $user->save(); */
-        /* } */
+        $em = $serviceLocator->get('Omeka\EntityManager');
+        $guestUsers = $em->getRepository('Omeka\Entity\User')->findBy(['role'=>'guest']);
+         foreach($guestUsers as $user) {
+             $user->setIsActive(false);
+             $em->persist($user);
+             $em->flush();
+         }
     }
 
     public function hookDefineAcl($args)
@@ -306,8 +310,13 @@ class Module extends AbstractModule
     }
 
 
+    public function setConfig($config) {
+        $this->config=$config;
+    }
 
     public function getConfig() {
+        if ($this->config)
+            return  $this->config;
         return include __DIR__ . '/config/module.config.php';
     }
 
