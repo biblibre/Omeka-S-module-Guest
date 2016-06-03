@@ -24,11 +24,11 @@ class GuestUserController extends AbstractActionController
 
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         if ($auth->hasIdentity()) {
-            return $this->redirect()->toRoute('admin');
+            return;
         }
 
 
-        $this->redirect('users/login');
+return         $this->redirect('/admin/login');
     }
 
     protected function getOption($key) {
@@ -48,6 +48,9 @@ class GuestUserController extends AbstractActionController
 
         $view = new ViewModel;
         $view->setVariable('form', $form);
+        $registerLabel = $this->getOption('guest_user_capabilities') ? $this->getOption('guest_user_capabilities') : $this->translate('Register');
+
+        $view->setVariable('registerLabel',$registerLabel);
         xdebug_break();
 
         if ($this->getRequest()->isPost()) {
@@ -61,14 +64,11 @@ class GuestUserController extends AbstractActionController
                     $form->setMessages($response->getErrors());
                 } else {
                     $user = $response->getContent()->getEntity();
-
+                    $user->setPassword($formData['new_password']);
                     $user->setIsActive(true);
 
                     $message = $this->translate("Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.");
                     $this->messenger()->addSuccess($message);
-
-
-
 
                     //$this->getServiceLocator()->get('Omeka\Mailer')->sendUserActivation($user);
                     $this->createGuestUserAndSendMail($formData,$user);
@@ -106,54 +106,13 @@ class GuestUserController extends AbstractActionController
     }
 
 
-    public function updateAccountAction()
-    {
-        $user = current_user();
-
-        $form = $this->_getForm(array('user'=>$user));
-        $form->getElement('new_password')->setLabel($this->translate("New Password"));
-        $form->getElement('new_password')->setRequired(false);
-        $form->getElement('new_password_confirm')->setRequired(false);
-        $form->addElement('password', 'current_password',
-                        array(
-                                'label'         => $this->translate('Current Password'),
-                                'required'      => true,
-                                'class'         => 'textinput',
-                        )
-        );
-
-        $oldPassword = $form->getElement('current_password');
-        $oldPassword->setOrder(0);
-        $form->addElement($oldPassword);
-
-        $form->setDefaults($user->toArray());
-        $this->view->form = $form;
-
-        if (!$this->getRequest()->isPost() || !$form->isValid($_POST)) {
-            return;
-        }
-
-        if($user->password != $user->hashPassword($_POST['current_password'])) {
-            $this->messenger()->addError($this->translate("Incorrect password"), 'error');
-            return;
-        }
-
-        $user->setPassword($_POST['new_password']);
-        $user->setPostData($_POST);
-        try {
-            $user->save($_POST);
-        } catch (Omeka_Validator_Exception $e) {
-            $this->flashValidationErrors($e);
-        }
-    }
-
     public function meAction()
     {
         $user = current_user();
         if(!$user) {
             $this->redirect('/');
         }
-        $widgets = array();
+        $widgets = [];
         $widgets = apply_filters('guest_user_widgets', $widgets);
         $this->view->widgets = $widgets;
     }
@@ -189,7 +148,6 @@ class GuestUserController extends AbstractActionController
     protected function _getForm($options)
     {
         $form = new UserForm($this->getServiceLocator(),null,$options);
-
         $form->add(['name' => 'new_password',
                     'type' => 'text',
                     'options' => [
@@ -209,6 +167,7 @@ class GuestUserController extends AbstractActionController
                                   'class'         => 'textinput',
                                   'errorMessages' => array($this->translate('New password must be typed correctly twice.')) ]
                     ]);
+
 
         /* if(Omeka_Captcha::isConfigured() && ($this->getOption('guest_user_recaptcha') == 1)) { */
         /*     $form->addElement('captcha', 'captcha',  array( */

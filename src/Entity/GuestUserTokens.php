@@ -34,11 +34,12 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Omeka\Entity\AbstractEntity;
 use Omeka\Entity\User as User;
+use Zend\Permissions\Acl\Role\RoleInterface;
 /**
  * @Entity
  * @HasLifecycleCallbacks
  */
-class GuestUserToken extends AbstractEntity
+class GuestUserTokens extends AbstractEntity
 {
     /**
      * @Id
@@ -102,6 +103,25 @@ class GuestUserToken extends AbstractEntity
     }
 
 
+    public function setToken($token)
+    {
+        $this->token = $token;
+    }
+
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    public function setConfirmed($confirmed)
+    {
+        $this->confirmed = $confirmed;
+    }
+
+    public function isConfirmed()
+    {
+        return $this->confirmed;
+    }
 
     /**
      * @PrePersist

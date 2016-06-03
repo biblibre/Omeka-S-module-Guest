@@ -277,26 +277,6 @@ class Module extends AbstractModule
         return $widgets;
     }
 
-    private function _sendMadeActiveEmail($record)
-    {
-        $email = $record->email;
-        $name = $record->name;
-
-        $siteTitle  = $this->getOption('site_title');
-        $subject = $this->translate("Your %s account", $siteTitle);
-        $body = "<p>";
-        $body .= $this->translate("An admin has made your account on %s active. You can now log in to with your password at this link:", $siteTitle );
-        $body .= "</p>";
-        $body .= "<p><a href='" . WEB_ROOT . "/users/login'>$siteTitle</a></p>";
-        $from = $this->getOption('administrator_email');
-        $mail = new Zend_Mail('UTF-8');
-        $mail->setBodyHtml($body);
-        $mail->setFrom($from, "$siteTitle Administrator");
-        $mail->addTo($email, $name);
-        $mail->setSubject($subject);
-        $mail->addHeader('X-Mailer', 'PHP/' . phpversion());
-        $mail->send();
-    }
 
     public static function guestUserWidget($widget)
     {

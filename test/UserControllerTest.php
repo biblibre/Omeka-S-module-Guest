@@ -3,7 +3,7 @@
 namespace OmekaTest\Controller;
 use Omeka\Installation\Installer;
 use Omeka\Test\AbstractHttpControllerTestCase;
-
+use Zend\Session\Container;
 class UserControllerTest  extends AbstractHttpControllerTestCase{
   public function setUp() {
     $this->connectAdminUser();
@@ -87,6 +87,21 @@ $this->setApplicationConfig($config);
                                                           'new_password' => 'test',
                                                           'new_passord_confirm' => 'test',
                                                           'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+]
+);
+     $this->assertXPathQuery('//div[@class="inputs"]');
+  }
+
+
+
+/** @test */
+  public function loginShouldDisplayLogin() {
+
+
+      $this->postDispatch('/login/login', ['email' => "test@test.fr",
+                                           'password' => 'test',
+                                           'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+                                           'submit' => 'Log+in'
 ]
 );
      $this->assertXPathQuery('//div[@class="inputs"]');

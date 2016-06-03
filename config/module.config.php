@@ -29,7 +29,19 @@ return [
             ],
         ],
     ],
-
+        'api_adapters' => [
+                           'invokables' => [
+//                                            'Omeka\Authentication\Adapter\PasswordAdapter'    => 'GuestUser\Athentication\Adapter\PasswordGuestUserAdapter',
+        ]],
+    'service_manager' => [
+        'factories' => [
+            'Omeka\AuthenticationService'    => 'GuestUser\Service\AuthenticationServiceFactory',
+        ]],
+    'navigation_links' =>[
+          'invokables' => [
+                           'register' => 'GuestUser\Site\Navigation\Link\Register',
+              'login' => 'GuestUser\Site\Navigation\Link\Login'
+          ]],
     'entity_manager' => [
         'mapping_classes_paths' => [
             __DIR__ . '/../src/Entity',
