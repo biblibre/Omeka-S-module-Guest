@@ -9,6 +9,11 @@ use Zend\View\Model\ViewModel;
 use ArchiveRepertory\Service\FileArchiveManagerFactory;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\SharedEventManagerInterface;
+use Zend\View\HelperPluginManager;
+use Zend\Permissions\Acl\Acl;
+use Zend\Permissions\Acl\Role\GenericRole;
+use Zend\Permissions\Acl\Resource\GenericResource;
+use Omeka\Event\Event;
 //use Omeka\Event\Event;
 
 //include(FORM_DIR . '/User.php');
@@ -90,7 +95,14 @@ class Module extends AbstractModule
 
     public function onBootstrap(MvcEvent $event)
     {
+
         parent::onBootstrap($event);
+        $services = $this->getServiceLocator();
+        $manager = $services->get('ViewHelperManager');
+
+//        $navigation = $manager->get('Navigation');
+        $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
+        //      if ($auth->hasIdentity())
 
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
         $acl->allow(null, 'GuestUser\Controller\GuestUser');
@@ -112,11 +124,6 @@ class Module extends AbstractModule
          }
     }
 
-    public function hookDefineAcl($args)
-    {
-        $acl = $args['acl'];
-        $acl->addRole(new Zend_Acl_Role('guest'), null);
-    }
 
 
     public function handleConfigForm(AbstractController $controller)
@@ -314,6 +321,15 @@ class Module extends AbstractModule
         return $serviceLocator->get('Omeka\Settings')->get($key);
     }
 
+    public function appendLoginNav(Event $event) {
+        $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
+        $view = $event->getTarget();
+        $newview=new ViewModel();
+        $newview->setTemplate('guest-user/guest-user/navigation.phtml');
+        if ($auth->hasIdentity())
+            return $view->headStyle()->appendStyle("li a.registerlink ,li a.loginlink { display:none;} ");
+        $view->headStyle()->appendStyle("li a.logoutlink { display:none;} ");
+    }
 
     public function translate($string,$options='',$serviceLocator=null) {
 
@@ -321,6 +337,11 @@ class Module extends AbstractModule
             $serviceLocator = $this->getServiceLocator();
 
         return $serviceLocator->get('MvcTranslator')->translate($string,$options);
+    }
+
+
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager) {
+        $sharedEventManager->attach('*', 'view.layout', [$this, 'appendLoginNav']);
     }
 
 }

@@ -3,14 +3,17 @@ namespace GuestUser\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Omeka\Form\LoginForm;
 use Search\Form\BasicForm;
 use Omeka\Entity\ApiKey;
 use Omeka\Entity\User;
 use Omeka\Form\UserForm;
+use Omeka\Form\ForgotPasswordForm;
 use Omeka\Form\UserKeyForm;
 use Omeka\Form\UserPasswordForm;
 use GuestUser\Entity\GuestUserTokens;
 use Omeka\Service\Mailer;
+use Zend\Session\Container;
 class GuestUserController extends AbstractActionController
 {
     public function init()
@@ -18,18 +21,115 @@ class GuestUserController extends AbstractActionController
 //        $this->_helper->db->setDefaultModelName('User');
         //      $this->_auth = $this->getInvokeArg('bootstrap')->getResource('Auth');
     }
+    protected function getSite() {
+        $readResponse = $this->api()->read('sites', [
+            'slug' => $this->params('site-slug')
+        ]);
+        return $readResponse->getContent();
+    }
 
     public function loginAction()
     {
 
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         if ($auth->hasIdentity()) {
-            return;
+//            return;
         }
 
+        $form = new LoginForm($this->getServiceLocator());
 
-return         $this->redirect('/admin/login');
+        if ($this->getRequest()->isPost()) {
+            $data = $this->getRequest()->getPost();
+            $form->setData($data);
+            if ($form->isValid()) {
+
+                $sessionManager = Container::getDefaultManager();
+                $sessionManager->regenerateId();
+                $validatedData = $form->getData();
+                $adapter = $auth->getAdapter();
+                $adapter->setIdentity($validatedData['email']);
+                $adapter->setCredential($validatedData['password']);
+                $result = $auth->authenticate();
+                if ($result->isValid()) {
+                    $this->messenger()->addSuccess('Successfully logged in');
+                    $redirectUrl = $this->params()->fromQuery('redirect');
+                    if ($redirectUrl) {
+                        return $this->redirect()->toUrl($redirectUrl);
+                    }
+                    return $this->redirect()->toUrl($this->getSite()->url());
+
+                } else {
+                    $this->messenger()->addError('Email or password is invalid');
+                }
+            } else {
+                $this->messenger()->addError('Email or password is invalid');
+            }
+        }
+
+        $view = new ViewModel;
+        $view->setVariable('form', $form);
+        return $view;
     }
+
+    public function logoutAction()
+    {
+        $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
+        $auth->clearIdentity();
+        $sessionManager = Container::getDefaultManager();
+        $sessionManager->destroy();
+        $this->messenger()->addSuccess('Successfully logged out');
+        $redirectUrl = $this->params()->fromQuery('redirect');
+        if ($redirectUrl) {
+            return $this->redirect()->toUrl($redirectUrl);
+        }
+
+        return $this->redirect()->toUrl($this->getSite()->url());
+    }
+
+
+    public function forgotPasswordAction()
+    {
+        $serviceLocator = $this->getServiceLocator();
+        $authentication = $serviceLocator->get('Omeka\AuthenticationService');
+        if ($authentication->hasIdentity()) {
+            return $this->redirect()->toRoute('admin');
+        }
+
+        $form = new ForgotPasswordForm($serviceLocator);
+
+        if ($this->getRequest()->isPost()) {
+            $data = $this->getRequest()->getPost();
+            $form->setData($data);
+            if ($form->isValid()) {
+                $entityManager = $serviceLocator->get('Omeka\EntityManager');
+                $user =  $entityManager->getRepository('Omeka\Entity\User')
+                    ->findOneBy([
+                        'email' => $data['email'],
+                        'isActive' => true,
+                    ]);
+                if ($user) {
+                    $passwordCreation = $entityManager
+                        ->getRepository('Omeka\Entity\PasswordCreation')
+                        ->findOneBy(['user' => $user]);
+                    if ($passwordCreation) {
+                        $entityManager->remove($passwordCreation);
+                        $entityManager->flush();
+                    }
+                    $serviceLocator->get('Omeka\Mailer')->sendResetPassword($user);
+                }
+                $this->messenger()->addSuccess('Check your email for instructions on how to reset your password');
+//                return $this->redirect()->toRoute('guestuser/');
+            } else {
+                $this->messenger()->addError('Activation unsuccessful');
+            }
+        }
+
+        $view = new ViewModel;
+        $view->setVariable('form', $form);
+        return $view;
+    }
+
+
 
     protected function getOption($key) {
         return $this->getServiceLocator()->get('Omeka\Settings')->get($key);

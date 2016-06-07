@@ -35,12 +35,15 @@ return [
         ]],
     'service_manager' => [
         'factories' => [
-            'Omeka\AuthenticationService'    => 'GuestUser\Service\AuthenticationServiceFactory',
+                        'Omeka\AuthenticationService'    => 'GuestUser\Service\AuthenticationServiceFactory',
+                        'Omeka\Acl'                   => 'GuestUser\Service\AclFactory',
+//
         ]],
     'navigation_links' =>[
           'invokables' => [
                            'register' => 'GuestUser\Site\Navigation\Link\Register',
-              'login' => 'GuestUser\Site\Navigation\Link\Login'
+                           'login' => 'GuestUser\Site\Navigation\Link\Login',
+                           'logout' => 'GuestUser\Site\Navigation\Link\Logout'
           ]],
     'entity_manager' => [
         'mapping_classes_paths' => [

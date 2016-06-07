@@ -1,0 +1,6 @@
+<?php
+
+?>
+<h1><?php echo $this->translate('Login'); ?></h1>
+<?php echo $this->form($form); ?>
+<p class="forgot-password"><?php echo $this->hyperlink($this->translate('Forgot password?'), $this->url(null, ['controller' => 'guestuser', 'action' =>'forgot-password'],true)); ?></p>
