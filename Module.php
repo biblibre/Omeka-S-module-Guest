@@ -21,19 +21,7 @@ use Omeka\Event\Event;
 
 class Module extends AbstractModule
 {
-    protected $_hooks = array(
-        'install',
-        'uninstall',
-        'define_acl',
-        'public_header',
-        'public_head',
-        'admin_theme_header',
-        'config',
-        'config_form',
-        'before_save_user',
-        'initialize',
-        'users_browse_sql'
-    );
+
 
     protected $_filters = array(
         'public_navigation_admin_bar',
@@ -43,20 +31,6 @@ class Module extends AbstractModule
     );
     protected $config;
 
-    /**
-     * Add the translations.
-     */
-    public function hookInitialize()
-    {
-        add_translation_source(dirname(__FILE__) . '/languages');
-    }
-
-    public function setUp()
-    {
-        parent::setUp();
-        require_once(GUEST_USER_PLUGIN_DIR . '/libraries/GuestUser_ControllerPlugin.php');
-        Zend_Controller_Front::getInstance()->registerPlugin(new GuestUser_ControllerPlugin);
-    }
 
     public function install(ServiceLocatorInterface $serviceLocator)
     {

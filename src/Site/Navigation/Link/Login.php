@@ -6,7 +6,12 @@ use Omeka\Stdlib\ErrorStore;
 
 class Login implements LinkInterface
 {
-    public function getLabel()
+    public function getName()
+    {
+        return 'Login'; // @translate
+    }
+
+    public function getLabel(array $data, SiteRepresentation $site)
     {
         return 'Login'; // @translate
     }

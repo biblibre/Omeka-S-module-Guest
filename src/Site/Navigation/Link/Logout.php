@@ -6,7 +6,13 @@ use Omeka\Stdlib\ErrorStore;
 
 class Logout implements LinkInterface
 {
-    public function getLabel()
+    public function getName()
+    {
+        return 'Logout'; // @translate
+    }
+
+    public function getLabel(array $data, SiteRepresentation $site)
+
     {
         return 'Logout'; // @translate
     }

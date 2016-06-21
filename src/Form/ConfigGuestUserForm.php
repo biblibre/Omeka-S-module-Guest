@@ -1,12 +1,12 @@
 <?php
 namespace GuestUser\Form;
 
-use Omeka\Form\AbstractForm;
 use Omeka\Form\Element\ResourceSelect;
 use Omeka\Form\Element\Ckeditor;
 use Zend\Form\Element;
+use Zend\Form\Form;
 use Zend\ServiceManager\ServiceLocatorInterface;
-class ConfigGuestUserForm extends AbstractForm {
+class ConfigGuestUserForm extends Form {
     protected $local_storage='';
     protected $allow_unicode=false;
 
