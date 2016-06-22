@@ -19,7 +19,7 @@ class Register implements LinkInterface
 
     public function getFormTemplate()
     {
-        return 'common/navigation-link-form/register';
+        return 'navigation-link-form/register';
     }
 
     public function isValid(array $data, ErrorStore $errorStore)

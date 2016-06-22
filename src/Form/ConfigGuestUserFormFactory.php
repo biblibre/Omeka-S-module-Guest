@@ -11,7 +11,6 @@ class ConfigGuestUserFormFactory implements FactoryInterface
     {
         $serviceLocator = $elements->getServiceLocator();
         $translator = $serviceLocator->get('MvcTranslator');
-        xdebug_break();
         $form = new ConfigGuestUserForm;
         $form->setSettings($serviceLocator->get('Omeka\Settings'));
         $form->setTranslator($translator);

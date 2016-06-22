@@ -24,7 +24,6 @@ class PasswordGuestUserAdapter extends PasswordAdapter
         }
 
         if ($user->getRole()=='guest') {
-            xdebug_break();
             $guest = $this->token_repository->findOneBy(['email' => $this->identity]);
 
             if (!$guest->isConfirmed())

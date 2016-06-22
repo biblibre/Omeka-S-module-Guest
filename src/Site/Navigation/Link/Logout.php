@@ -19,7 +19,7 @@ class Logout implements LinkInterface
 
     public function getFormTemplate()
     {
-        return 'common/navigation-link-form/login';
+        return 'navigation-link-form/login';
     }
 
     public function isValid(array $data, ErrorStore $errorStore)

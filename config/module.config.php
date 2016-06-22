@@ -31,13 +31,13 @@ return [
     ],
         'api_adapters' => [
                            'invokables' => [
-//                                            'Omeka\Authentication\Adapter\PasswordAdapter'    => 'GuestUser\Athentication\Adapter\PasswordGuestUserAdapter',
+
         ]],
     'service_manager' => [
         'factories' => [
                         'Omeka\AuthenticationService'    => 'GuestUser\Service\AuthenticationServiceFactory',
                         'Omeka\Acl'                   => 'GuestUser\Service\AclFactory',
-//
+
         ]],
     'navigation_links' =>[
           'invokables' => [
@@ -45,6 +45,17 @@ return [
                            'login' => 'GuestUser\Site\Navigation\Link\Login',
                            'logout' => 'GuestUser\Site\Navigation\Link\Logout'
           ]],
+'navigation' => [
+                 'site' => [
+
+                            [
+                             'label' => 'User information',
+                             'route' => '/guestuser/login',
+                             'resource' => 'GuestUser\Controller\GuestUserController',
+                             'visible' => true,
+
+]
+                 ]],
     'entity_manager' => [
         'mapping_classes_paths' => [
             __DIR__ . '/../src/Entity',

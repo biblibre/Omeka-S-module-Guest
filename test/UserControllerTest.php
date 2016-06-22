@@ -14,17 +14,12 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
   public function setUp() {
     $this->connectAdminUser();
     $config = [];
-    xdebug_break();
     $manager = $this->getApplicationServiceLocator()->get('Omeka\ModuleManager');
     $module = $manager->getModule('GuestUser');
-//    $config = $module->getConfig();
-
-//    $module->setConfig($config);
 
     $manager->install($module);
 
     $this->site_test=$this->addSite('test');
-    //  $this->site_test2=$this->addSite('test2');
     parent::setUp();
     $this->connectAdminUser();
     $this->createTestUser();
@@ -119,7 +114,6 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
 
       $serviceLocator = parent::getApplicationServiceLocator();
       $serviceLocator->setAllowOverride(true);
-      xdebug_break();
       $serviceLocator->setFactory('Omeka\Mailer',new MockMailerFactory);
 
       return $serviceLocator;
@@ -284,6 +278,14 @@ echo       $this->getResponse()->getBody();
  }
 
 
+  /** @disabled-test : works IRL but not in test */
+  public function logoutShouldLogoutUser() {
+      $this->dispatch('/s/test/guestuser/logout');
+      $auth = $this->getApplicationServiceLocator()->get('Omeka\AuthenticationService');
+      $this->assertFalse($auth->hasIdentity());
+
+  }
+
   /** @test */
   public function forgotPasswordShouldSendEmail() {
       $this->resetApplication();
@@ -291,7 +293,6 @@ echo       $this->getResponse()->getBody();
                                                                 'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue()]
 );
 
-      xdebug_break();
       $this->assertContains('To reset your password, click this link',$this->application->getServiceManager()->get('Omeka\Mailer')->getMessage()->getBody());
 
   }
@@ -326,7 +327,6 @@ class MockMailerFactory implements FactoryInterface {
  class MockMailer extends \Omeka\Service\Mailer {
      private $message = '';
      public function send($message) {
-         xdebug_break();
          $this->message=$message;
          return true;
      }

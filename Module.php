@@ -130,43 +130,7 @@ class Module extends AbstractModule
         }
 
     }
-    public function hookPublicHead($args)
-    {
-        queue_css_file('guest-user');
-        queue_js_file('guest-user');
-    }
 
-    public function hookPublicHeader($args)
-    {
-        $html = "<div id='guest-user-register-info'>";
-        $user = current_user();
-        if(!$user) {
-            $shortCapabilities = $this->getOption('guest_user_short_capabilities');
-            if($shortCapabilities != '') {
-                $html .= $shortCapabilities;
-            }
-        }
-        $html .= "</div>";
-        echo $html;
-    }
-
-    public function hookBeforeSaveUser($args)
-    {
-
-        $post = $args['post'];
-        $record = $args['record'];
-        //compare the active status being set with what's actually in the database
-        if($record->exists()) {
-            $dbUser = get_db()->getTable('User')->find($record->id);
-            if($record->role == 'guest' && $record->active && !$dbUser->active) {
-                try {
-                    $this->_sendMadeActiveEmail($record);
-                } catch (Exception $e) {
-                    _log($e);
-                }
-            }
-        }
-    }
 
     public function filterPublicShowAdminBar($show)
     {
@@ -268,8 +232,6 @@ class Module extends AbstractModule
     public function appendLoginNav(Event $event) {
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         $view = $event->getTarget();
-        $newview=new ViewModel();
-        $newview->setTemplate('guest-user/guest-user/navigation.phtml');
         if ($auth->hasIdentity())
             return $view->headStyle()->appendStyle("li a.registerlink ,li a.loginlink { display:none;} ");
         $view->headStyle()->appendStyle("li a.logoutlink { display:none;} ");
