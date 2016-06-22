@@ -13,7 +13,11 @@ class Login implements LinkInterface
 
     public function getLabel(array $data, SiteRepresentation $site)
     {
-        return 'Login'; // @translate
+
+        if (isset($data['label']) && '' !== trim($data['label'])) {
+            return $data['label'];
+        }
+        return 'Login';
     }
 
     public function getFormTemplate()

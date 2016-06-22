@@ -50,7 +50,7 @@ class GuestUserController extends AbstractActionController
         $adapter->setCredential($validatedData['password']);
         $result = $auth->authenticate();
         if (!$result->isValid()) {
-                   $this->messenger()->addError('Email or password is invalid');
+            $this->messenger()->addError(implode(';',$result->getMessages()));
                    return $view;
         }
 
@@ -82,7 +82,6 @@ class GuestUserController extends AbstractActionController
     public function forgotPasswordAction()
     {
 
-        xdebug_break();
         $serviceLocator = $this->getServiceLocator();
         $authentication = $serviceLocator->get('Omeka\AuthenticationService');
         if ($authentication->hasIdentity()) {
@@ -146,9 +145,6 @@ class GuestUserController extends AbstractActionController
 
     public function registerAction()
     {
-//        if($this->identity()) {
-        //          return $this->getRequest()->getServer('HTTP_REFERER');
-//        }
         xdebug_break();
         $user = new User();
         $user->setRole('guest');
@@ -202,9 +198,8 @@ class GuestUserController extends AbstractActionController
         $guest->setEmail($formData['o:email']);
         $guest->setUser($user);
         $guest->setToken(sha1("tOkenS@1t" . microtime()));
-//        $token = $this->_createToken($user);
         $this->save($guest);
-      $this->_sendConfirmationEmail($user, $guest); //confirms that they registration request is legit
+        $this->_sendConfirmationEmail($user, $guest); //confirms that they registration request is legit
     }
 
 
@@ -227,6 +222,7 @@ class GuestUserController extends AbstractActionController
 
     public function confirmAction()
     {
+        xdebug_break();
         $token = $this->params()->fromQuery('token');
         $em = $this->getServiceLocator()->get('Omeka\EntityManager');
         $records = $em->getRepository('GuestUser\Entity\GuestUserTokens')->findBy(['token'=>$token]);
@@ -294,12 +290,12 @@ class GuestUserController extends AbstractActionController
     protected function _sendConfirmationEmail($user, $token)
     {
 
-        $siteTitle = $this->getOption('site_title');
+        $siteTitle = $this->getSite()->title();
 
         $subject = $this->translate("Your request to join %s", $siteTitle);
-        $url =  '/guestuser/confirm/token/' . $token->getToken();
-
-        $body = $this->translate("You have registered for an account on %s. Please confirm your registration by following %s.  If you did not request to join %s please disregard this email.", "<a href='$url'>$siteTitle</a>", "<a href='$url'>" . $this->translate('this link') . "</a>", $siteTitle);
+        $url =  '/guestuser/confirm?token=' . $token->getToken();
+        xdebug_break();
+        $body = sprintf($this->translate("You have registered for an account on %s. Please confirm your registration by following %s.  If you did not request to join %s please disregard this email."), "<a href='$url'>$siteTitle</a>", "<a href='$url'>" . $this->translate('this link') . "</a>", $siteTitle);
 
         $mailer = $this->getServiceLocator()->get('Omeka\Mailer');
         $message = $mailer->createMessage();
@@ -308,8 +304,7 @@ class GuestUserController extends AbstractActionController
             ->setBody($body);
 
         try {
-//            $mailer->send($message);
-            echo $body;
+            $mailer->send($message);
 
         } catch (Exception $e) {
             _log($e);

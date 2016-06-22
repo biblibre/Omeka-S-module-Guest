@@ -6,12 +6,16 @@ use Omeka\Form\Element\Ckeditor;
 use Zend\Form\Element;
 use Zend\Form\Form;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\I18n\Translator\TranslatorAwareInterface;
+use Zend\I18n\Translator\TranslatorAwareTrait;
+
 class ConfigGuestUserForm extends Form {
     protected $local_storage='';
     protected $allow_unicode=false;
+    protected $settings;
+    use TranslatorAwareTrait;
 
-
-    public function buildForm() {
+    public function init() {
         $this->setAttribute('id', 'config-form');
 
 
@@ -121,13 +125,16 @@ class ConfigGuestUserForm extends Form {
     }
 
 
+    public function setSettings($settings) {
+        $this->settings = $settings;
+    }
+
     protected function getSetting($name) {
-        return $this->getServiceLocator()->get('Omeka\Settings')->get($name);
+        return $this->settings->get($name);
     }
 
 
     protected function translate($args) {
-        $serviceLocator = $this->getServiceLocator();
         $translator = $this->getTranslator();
         return $translator->translate($args);
     }

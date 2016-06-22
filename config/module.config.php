@@ -1,8 +1,8 @@
  <?php
 return [
-        'forms' => [
-        'invokables' => [
-                         'GuestUser\Form\ConfigGuestUserForm' => 'GuestUser\Form\ConfigRepertoryForm',
+        'form_elements' => [
+                            'factories' => [
+                         'GuestUser\Form\ConfigForm' => 'GuestUser\Form\ConfigGuestUserFormFactory',
         ],
 
         ],

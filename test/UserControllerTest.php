@@ -1,9 +1,11 @@
 <?php
 
 namespace OmekaTest\Controller;
+use DateTime;
 use Omeka\Installation\Installer;
 use Zend\Mail\Transport\Factory as TransportFactory;
 use Omeka\Test\AbstractHttpControllerTestCase;
+use GuestUser\Entity\GuestUserTokens;
 use Zend\Session\Container;
 use Omeka\Entity\User;
 use Zend\ServiceManager\FactoryInterface;
@@ -12,11 +14,7 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
   public function setUp() {
     $this->connectAdminUser();
     $config = [];
-$config['service_manager']['factories']['Omeka\Mailer'] = 'MockMailer';
-$this->setApplicationConfig($config);
     xdebug_break();
-
-
     $manager = $this->getApplicationServiceLocator()->get('Omeka\ModuleManager');
     $module = $manager->getModule('GuestUser');
 //    $config = $module->getConfig();
@@ -30,9 +28,15 @@ $this->setApplicationConfig($config);
     parent::setUp();
     $this->connectAdminUser();
     $this->createTestUser();
+
+
   }
 
   protected function createTestUser() {
+      $em= $this->getApplicationServiceLocator()->get('Omeka\EntityManager');
+      if ($em->getRepository('Omeka\Entity\User')->findBy(['email'=>'test@test.fr']))
+          return true;
+
       $user =  new \Omeka\Entity\User;
 
       $user->setIsActive(true);
@@ -40,11 +44,60 @@ $this->setApplicationConfig($config);
       $user->setName('Tester');
       $user->setEmail('test@test.fr');
       $user->setPassword('test');
-
+      $user->setCreated(new DateTime);
       $this->persistAndSave($user);
 
   }
 
+    public function getApplicationConfig()
+    {
+        return $this->applicationConfig;
+    }
+
+    protected function getUserToken($email) {
+      $em= $this->getApplicationServiceLocator()->get('Omeka\EntityManager');
+      if ($user = $em->getRepository('GuestUser\Entity\GuestUserTokens')->findBy(['email'=>$email]))
+          return array_shift($user);
+
+      return false;
+    }
+
+
+    public function getApplication()
+    {
+
+        // Return the application immediately if already set.
+        if ($this->application) {
+            return $this->application;
+        }
+
+        $config = require OMEKA_PATH . '/config/application.config.php';
+        $reader = new \Zend\Config\Reader\Ini;
+        $testConfig = [
+            'connection' => $reader->fromFile(OMEKA_PATH . '/application/test/config/database.ini')
+        ];
+        $config = array_merge($config, $testConfig);
+
+        \Zend\Console\Console::overrideIsConsole($this->getUseConsoleRequest());
+        $appConfig = $this->applicationConfig? $this->applicationConfig : [];
+
+        $config['service_manager']['factories']['Omeka\Mailer'] = 'MockMailerFactory';
+
+
+        $this->application = \Omeka\Mvc\Application::init(array_merge($config,$appConfig));
+
+        $serviceLocator = $this->application->getServiceManager();
+        $serviceLocator->setAllowOverride(true);
+
+        $serviceLocator->setService('Omeka\Mailer', new MockMailerFactory);
+
+        $serviceLocator->setFactory('Omeka\Mailer',new MockMailerFactory);
+
+        $events = $this->application->getEventManager();
+        $events->detach($this->application->getServiceManager()->get('SendResponseListener'));
+
+        return $this->application;
+    }
 
   public function tearDown() {
     $this->connectAdminUser();
@@ -62,7 +115,7 @@ $this->setApplicationConfig($config);
   }
 
 
-  public function getApplicationServiceLocator() {
+  public function getApplicationServiceLocatorUnavailable() {
 
       $serviceLocator = parent::getApplicationServiceLocator();
       $serviceLocator->setAllowOverride(true);
@@ -119,27 +172,101 @@ $this->setApplicationConfig($config);
 /** @test */
   public function registerShouldDisplayLogin() {
       $this->resetApplication();
-      $this->postDispatch('/s/test/guestuser/register', ['o:email' => "test@test.fr",
+      $this->postDispatch('/s/test/guestuser/register', ['o:email' => "test3@test.fr",
                                                           'o:name' => 'test',
                                                           'new_password' => 'test',
                                                           'new_passord_confirm' => 'test',
                                                           'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
 ]
 );
-     $this->assertXPathQuery('//div[@class="inputs"]');
+
+      $this->assertXPathQueryContentContains('//li[@class="success"]','Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.');
+      $link = '<a href=\'/guestuser/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
+      $this->assertContains('You have registered for an account on '.$link.'test</a>. Please confirm your registration by following '.$link.'this link</a>.  If you did not request to join test please disregard this email.',$this->application->getServiceManager()->get('Omeka\Mailer')->getMessage()->getBody());
+
+  }
+
+
+  /** @test */
+  public function tokenlinkShouldValidateGuestUser() {
+
+      $user = $this->createGuestUser();
+      $this->resetApplication();
+      $this->dispatch('/s/test/guestuser/confirm?token='.$this->getUserToken($user->getEmail())->getToken());
+
+      $this->assertTrue($this->getUserToken($user->getEmail())->isConfirmed());
+
   }
 
 
 
   /** @test */
+  public function wrongTokenlinkShouldNotValidateGuestUser() {
+
+      $user = $this->createGuestUser();
+      $this->resetApplication();
+      $this->dispatch('/s/test/guestuser/confirm?token=1234');
+
+      $this->assertFalse($this->getUserToken($user->getEmail())->isConfirmed());
+
+  }
+
+  protected function createGuestUser() {
+      $formUser = ['o:email' => "guest@test.fr",
+                   'o:name' => 'guestuser',
+                   'new_password' => 'test',
+                   'new_passord_confirm' => 'test',
+                   'o:role' => 'guest',
+                   'o:is_active' => true,
+                   'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue()];
+      $user=$this->getApplicationServiceLocator()->get('Omeka\ApiManager')->create('users', $formUser);
+      $guest = new GuestUserTokens;
+      $guest->setEmail($formUser['o:email']);
+      $guest->setUser($user->getContent()->getEntity());
+      $guest->setToken(sha1("tOkenS@1t" . microtime()));
+      $this->persistAndSave($guest);
+      return $user->getContent()->getEntity();
+
+  }
+
+
+  /** @test */
+  public function activeUserEnableLogin() {
+      $this->resetApplication();
+      $user = $this->createGuestUser();
+
+
+  }
+
+  /** @test */
+  public function registerNeedsValidation() {
+      $this->resetApplication();
+      $this->createGuestUser();
+
+      $this->postDispatch('/s/test/guestuser/login', ['email' => "guest@test.fr",
+                                                      'password' => 'test',
+                                                      'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+                                                      'submit' => 'Log+in'
+                                                      ]
+      );
+
+
+      $this->assertXPathQueryContentContains('//li[@class="error"]', 'Your account has not been activated');
+
+
+  }
+
+  /** @test */
   public function loginShouldDisplayWrongEmailOrPassword() {
       $this->resetApplication();
+
       $this->postDispatch('/s/test/guestuser/login', ['email' => "test@test.fr",
-                                           'password' => 'test',
+                                           'password' => 'test2',
                                            'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
                                            'submit' => 'Log+in'
 ]
 );
+echo       $this->getResponse()->getBody();
       $this->assertXPathQueryContentContains('//li[@class="error"]', 'Email or password is invalid');
 
  }
@@ -147,15 +274,27 @@ $this->setApplicationConfig($config);
 
 
   /** @test */
-  public function forgotPasswordShouldDisplay() {
+  public function forgotPasswordShouldDisplayEmailSent() {
       $this->resetApplication();
       $this->postDispatch('/s/test/guestuser/forgot-password', ['email' => "test@test.fr",
                                                                 'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue()]
 );
-      echo $this->getResponse()->getBody();
-      $this->assertXPathQueryContentContains('//li[@class="error"]', 'Email or password is invalid');
+      $this->assertXPathQueryContentContains('//li[@class="success"]', 'Check your email for instructions on how to reset your password');
 
  }
+
+
+  /** @test */
+  public function forgotPasswordShouldSendEmail() {
+      $this->resetApplication();
+      $this->postDispatch('/s/test/guestuser/forgot-password', ['email' => "test@test.fr",
+                                                                'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue()]
+);
+
+      xdebug_break();
+      $this->assertContains('To reset your password, click this link',$this->application->getServiceManager()->get('Omeka\Mailer')->getMessage()->getBody());
+
+  }
 
 
   /** @test */
@@ -185,14 +324,13 @@ class MockMailerFactory implements FactoryInterface {
 
 }
  class MockMailer extends \Omeka\Service\Mailer {
-
+     private $message = '';
      public function send($message) {
          xdebug_break();
+         $this->message=$message;
          return true;
      }
-
-
-     public function sendResetPassword(User $user) {
-         return true;
+     public function getMessage() {
+         return $this->message;
      }
   }

@@ -24,10 +24,10 @@ class Module extends AbstractModule
 
 
     protected $_filters = array(
-        'public_navigation_admin_bar',
-        'public_show_admin_bar',
-        'guest_user_widgets',
-        'admin_navigation_main'
+                                'public_navigation_admin_bar',
+                                'public_show_admin_bar',
+                                'guest_user_widgets',
+                                'admin_navigation_main'
     );
     protected $config;
 
@@ -91,11 +91,11 @@ class Module extends AbstractModule
         //deactivate the guest users
         $em = $serviceLocator->get('Omeka\EntityManager');
         $guestUsers = $em->getRepository('Omeka\Entity\User')->findBy(['role'=>'guest']);
-         foreach($guestUsers as $user) {
-             $user->setIsActive(false);
-             $em->persist($user);
-             $em->flush();
-         }
+        foreach($guestUsers as $user) {
+            $user->setIsActive(false);
+            $em->persist($user);
+            $em->flush();
+        }
     }
 
 
@@ -110,9 +110,7 @@ class Module extends AbstractModule
 
     public function getConfigForm(PhpRenderer $renderer)
     {
-        $form = new ConfigGuestUserForm($this->getServiceLocator());
-
-
+        $form =  $this->getServiceLocator()->get('FormElementManager')->get('GuestUser\Form\ConfigForm');
         return $renderer->render( 'config_guest_user_form',
                                  [
                                   'form' => $form
@@ -154,9 +152,7 @@ class Module extends AbstractModule
 
     public function hookBeforeSaveUser($args)
     {
-        if($this->getOption('guest_user_skip_activation_email')) {
-            return;
-        }
+
         $post = $args['post'];
         $record = $args['record'];
         //compare the active status being set with what's actually in the database
@@ -169,32 +165,6 @@ class Module extends AbstractModule
                     _log($e);
                 }
             }
-        }
-    }
-
-    public function hookUsersBrowseSql($args)
-    {
-        $select = $args['select'];
-        $params = $args['params'];
-
-        if(isset($params['sort_field']) && $params['sort_field'] == 'added') {
-            $db = get_db();
-            $sortDir = 'ASC';
-            if (array_key_exists('sort_dir', $params)) {
-                $sortDir = trim($params['sort_dir']);
-
-                if ($sortDir === 'a') {
-                    $dir = 'ASC';
-                } else if ($sortDir === 'd') {
-                    $dir = 'DESC';
-                }
-            } else {
-                $dir = 'ASC';
-            }
-            $uaAlias = $db->getTable('UsersActivations')->getTableAlias();
-            $select->join(array($uaAlias => $db->UsersActivations),
-                            "$uaAlias.user_id = users.id", array());
-            $select->order("$uaAlias.added $dir");
         }
     }
 
@@ -220,8 +190,8 @@ class Module extends AbstractModule
             }
             $navLinks[0]['id'] = 'admin-bar-welcome';
             $meLink = array('id'=>'guest-user-me',
-                    'uri'=>url('guest-user/user/me'),
-                    'label' => $this->getOption('guest_user_dashboard_label')
+                            'uri'=>url('guest-user/user/me'),
+                            'label' => $this->getOption('guest_user_dashboard_label')
             );
             $filteredLinks = apply_filters('guest_user_links' , array('guest-user-me'=>$meLink) );
             $navLinks[0]['pages'] = $filteredLinks;
@@ -231,17 +201,17 @@ class Module extends AbstractModule
         $loginLabel = $this->getOption('guest_user_login_text') ? $this->getOption('guest_user_login_text') : $this->translate('Login');
         $registerLabel = $this->getOption('guest_user_register_text') ? $this->getOption('guest_user_register_text') : $this->translate('Register');
         $navLinks = array(
-                'guest-user-login' => array(
-                    'id' => 'guest-user-login',
-                    'label' => $loginLabel,
-                    'uri' => url('guest-user/user/login')
-                ),
-                'guest-user-register' => array(
-                    'id' => 'guest-user-register',
-                    'label' => $registerLabel,
-                    'uri' => url('guest-user/user/register'),
-                    )
-                );
+                          'guest-user-login' => array(
+                                                      'id' => 'guest-user-login',
+                                                      'label' => $loginLabel,
+                                                      'uri' => url('guest-user/user/login')
+                          ),
+                          'guest-user-register' => array(
+                                                         'id' => 'guest-user-register',
+                                                         'label' => $registerLabel,
+                                                         'uri' => url('guest-user/user/register'),
+                          )
+        );
         return $navLinks;
     }
 
@@ -262,12 +232,12 @@ class Module extends AbstractModule
     public static function guestUserWidget($widget)
     {
         if(is_array($widget)) {
-        $html = "<h2 class='guest-user-widget-label'>" . $widget['label'] . "</h2>";
-        $html .= $widget['content'];
-        return $html;
-    } else {
-        return $widget;
-    }
+            $html = "<h2 class='guest-user-widget-label'>" . $widget['label'] . "</h2>";
+            $html .= $widget['content'];
+            return $html;
+        } else {
+            return $widget;
+        }
     }
 
 

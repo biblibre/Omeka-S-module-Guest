@@ -24,10 +24,11 @@ class PasswordGuestUserAdapter extends PasswordAdapter
         }
 
         if ($user->getRole()=='guest') {
+            xdebug_break();
             $guest = $this->token_repository->findOneBy(['email' => $this->identity]);
 
             if (!$guest->isConfirmed())
-                return new Result(Result::FAILURE, null, ['You account has not been  activated']);
+                return new Result(Result::FAILURE, null, ['Your account has not been activated']);
 
         }
         if (!$user->verifyPassword($this->credential)) {

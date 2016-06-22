@@ -73,7 +73,7 @@ class GuestUserTokens extends AbstractEntity
     /**
      * @Column(type="boolean")
      */
-    protected $confirmed;
+    protected $confirmed = false;
 
 
 
