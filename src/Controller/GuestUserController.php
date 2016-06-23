@@ -15,15 +15,10 @@ use Omeka\Service\Mailer;
 use Zend\Session\Container;
 class GuestUserController extends AbstractActionController
 {
-    public function init()
-    {
-//        $this->_helper->db->setDefaultModelName('User');
-        //      $this->_auth = $this->getInvokeArg('bootstrap')->getResource('Auth');
-    }
     protected function getSite() {
         $readResponse = $this->api()->read('sites', [
-            'slug' => $this->params('site-slug')
-        ]);
+                                                     'slug' => $this->params('site-slug')
+                                                     ]);
         return $readResponse->getContent();
     }
 
@@ -50,7 +45,7 @@ class GuestUserController extends AbstractActionController
         $result = $auth->authenticate();
         if (!$result->isValid()) {
             $this->messenger()->addError(implode(';',$result->getMessages()));
-                   return $view;
+            return $view;
         }
 
         $this->messenger()->addSuccess('Successfully logged in');
@@ -171,11 +166,7 @@ class GuestUserController extends AbstractActionController
         $message = $this->translate("Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.");
         $this->messenger()->addSuccess($message);
 
-        //$this->getServiceLocator()->get('Omeka\Mailer')->sendUserActivation($user);
         $this->createGuestUserAndSendMail($formData,$user);
-/*                    if ($redirectUrl = $this->params()->fromQuery('redirect'))
-                      return $this->redirect()->toUrl($redirectUrl);
-                      return $this->redirect('/');*/
 
 
         return $view;
@@ -186,7 +177,6 @@ class GuestUserController extends AbstractActionController
         $em = $this->getServiceLocator()->get('Omeka\EntityManager');
         $em->persist($entity);
         $em->flush();
-
     }
 
 
@@ -196,6 +186,7 @@ class GuestUserController extends AbstractActionController
         $guest->setUser($user);
         $guest->setToken(sha1("tOkenS@1t" . microtime()));
         $this->save($guest);
+
         $this->_sendConfirmationEmail($user, $guest); //confirms that they registration request is legit
     }
 
@@ -251,7 +242,7 @@ class GuestUserController extends AbstractActionController
                                   'errorMessages' => array($this->translate('New password must be typed correctly twice.'))
                     ]
 
-        ]);
+                    ]);
 
         $form->add(['name' => 'new_password_confirm',
                     'type' => 'text',
@@ -279,8 +270,8 @@ class GuestUserController extends AbstractActionController
         $mailer = $this->getServiceLocator()->get('Omeka\Mailer');
         $message = $mailer->createMessage();
         $message->addTo($user->getEmail(), $user->getName())
-            ->setSubject($subject)
-            ->setBody($body);
+                ->setSubject($subject)
+                ->setBody($body);
 
         try {
             $mailer->send($message);

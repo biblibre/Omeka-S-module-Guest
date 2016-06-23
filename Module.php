@@ -50,16 +50,8 @@ class Module extends AbstractModule
         $connection->exec($sql);
 
         //if plugin was uninstalled/reinstalled, reactivate the guest users
-        /* $guestUsers = $this->_db->getTable('User')->findBy(array('role'=>'guest')); */
-        /* //skip activation emails when reinstalling */
-        /* if(count($guestUsers) != 0) { */
-        /*     set_option('guest_user_skip_activation_email', true); */
-        /*     foreach($guestUsers as $user) { */
-        /*         $user->active = true; */
-        /*         $user ->save(); */
-        /*     } */
-        /*     $this->setOption('guest_user_skip_activation_email', false); */
-        /* } */
+        $sql = "UPDATE user set is_active=true WHERE role='guest'";
+        $connection->exec($sql);
 
         $this->setOption('guest_user_login_text', $this->translate('Login'));
         $this->setOption('guest_user_register_text', $this->translate('Register'));
@@ -73,10 +65,6 @@ class Module extends AbstractModule
         parent::onBootstrap($event);
         $services = $this->getServiceLocator();
         $manager = $services->get('ViewHelperManager');
-
-//        $navigation = $manager->get('Navigation');
-        $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
-        //      if ($auth->hasIdentity())
 
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
         $acl->allow(null, 'GuestUser\Controller\GuestUser');
