@@ -273,7 +273,7 @@ class GuestUserController extends AbstractActionController
         $siteTitle = $this->getSite()->title();
 
         $subject = $this->translate("Your request to join %s", $siteTitle);
-        $url =  '/guestuser/confirm?token=' . $token->getToken();
+        $url =  $this->getSite()->siteUrl(null,true).'/guestuser/confirm?token=' . $token->getToken();
         $body = sprintf($this->translate("You have registered for an account on %s. Please confirm your registration by following %s.  If you did not request to join %s please disregard this email."), "<a href='$url'>$siteTitle</a>", "<a href='$url'>" . $this->translate('this link') . "</a>", $siteTitle);
 
         $mailer = $this->getServiceLocator()->get('Omeka\Mailer');

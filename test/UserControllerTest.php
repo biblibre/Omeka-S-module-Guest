@@ -175,7 +175,12 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
 );
 
       $this->assertXPathQueryContentContains('//li[@class="success"]','Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.');
-      $link = '<a href=\'/guestuser/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
+      $readResponse = $this->getApplicationServiceLocator()->get('Omeka\ApiManager')->read('sites', [
+            'slug' => 'test'
+        ]);
+      $siteRepresentation =  $readResponse->getContent();
+
+      $link = '<a href=\''.$siteRepresentation->siteUrl(null,true).'/guestuser/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
       $this->assertContains('You have registered for an account on '.$link.'test</a>. Please confirm your registration by following '.$link.'this link</a>.  If you did not request to join test please disregard this email.',$this->application->getServiceManager()->get('Omeka\Mailer')->getMessage()->getBody());
 
   }
