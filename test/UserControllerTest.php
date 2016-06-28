@@ -192,9 +192,9 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
       $user = $this->createGuestUser();
       $this->resetApplication();
       $this->dispatch('/s/test/guestuser/confirm?token='.$this->getUserToken($user->getEmail())->getToken());
-
       $this->assertTrue($this->getUserToken($user->getEmail())->isConfirmed());
-
+      $this->assertRedirect('guestuser/login');
+      $this->assertXPathQueryContentContains('//li[@class="success"]','Thanks for joining test! You can now log using the password you chose.');
   }
 
 
@@ -213,18 +213,19 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
   protected function createGuestUser() {
       $formUser = ['o:email' => "guest@test.fr",
                    'o:name' => 'guestuser',
-                   'new_password' => 'test',
-                   'new_passord_confirm' => 'test',
                    'o:role' => 'guest',
                    'o:is_active' => true,
                    'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue()];
-      $user=$this->getApplicationServiceLocator()->get('Omeka\ApiManager')->create('users', $formUser);
+      $user_manager=$this->getApplicationServiceLocator()->get('Omeka\ApiManager')->create('users', $formUser);
+      $user = $user_manager->getContent()->getEntity();
+      $user->setPassword('test');
+      $this->persistAndSave($user);
       $guest = new GuestUserTokens;
       $guest->setEmail($formUser['o:email']);
-      $guest->setUser($user->getContent()->getEntity());
+      $guest->setUser($user);
       $guest->setToken(sha1("tOkenS@1t" . microtime()));
       $this->persistAndSave($guest);
-      return $user->getContent()->getEntity();
+      return $user;
 
   }
 
@@ -233,8 +234,35 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
   public function activeUserEnableLogin() {
       $this->resetApplication();
       $user = $this->createGuestUser();
+  }
 
+  /** @test */
+  public function updateAccountWithNoPassword() {
+      $user = $this->createGuestUser();
+      $em = $this->getApplicationServiceLocator()->get('Omeka\EntityManager');
+      $this->getUserToken($user->getEmail())->setConfirmed(true);
+      $this->persistAndSave($user);
+      $this->resetApplication();
+      $this->login('guest@test.fr','test');
 
+      $this->postDispatch('/s/test/guestuser/update-account', ['o:email' => "test3@test.fr",
+                                                          'o:name' => 'test2',
+                                                          'new_password' => '',
+                                                          'new_passord_confirm' => '',
+                                                          'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+]
+);
+      $em->flush();
+      $this->assertNotNull($em->getRepository('Omeka\Entity\User')->findOneBy(['email'=> 'test3@test.fr', 'name'=> 'test2']));
+
+  }
+  /** @test */
+  public function deleteUnconfirmedUserShouldRemoveToken() {
+      $user = $this->createGuestUser();
+      $em = $this->getApplicationServiceLocator()->get('Omeka\EntityManager');
+      $api = $this->getApplicationServiceLocator()->get('Omeka\ApiManager');
+      $api->delete('users', $user->getId());
+      $this->assertNull($em->getRepository('GuestUser\Entity\GuestUserTokens')->findOneBy(['user'=>$user->getId()]));
   }
 
   /** @test */

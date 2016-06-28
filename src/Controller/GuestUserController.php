@@ -191,16 +191,74 @@ class GuestUserController extends AbstractActionController
     }
 
 
+
+    public function updateAccountAction() {
+        if (!($user = $this->getServiceLocator()->get('Omeka\AuthenticationService')->getIdentity()))
+
+            return  $this->redirect()->toUrl($this->getSite()->url());
+
+        $view = new ViewModel;
+        $readResponse = $this->api()->read('users', $user->getId());
+        $user_content = $readResponse->getContent();
+        $em = $this->getServiceLocator()->get('Omeka\EntityManager');
+        $label = $this->getOption('guest_user_dashboard_label') ? $this->getOption('guest_user_dashboard_label') : $this->translate('My account');
+        $form = $this->_getForm(['user'=>$user, 'include_role' => false]);
+
+        $form->setData($user_content->jsonSerialize());
+        $view->setVariable('form', $form);
+        $view->setVariable('label',$label);
+        if (!$this->getRequest()->isPost())
+            return $view;
+        $data_post=$this->params()->fromPost();
+        if ($data_post['new_password']=='') {
+            unset($data_post['new_password']);
+            unset($data_post['new_password_confirm']);
+        }
+        else if ($data_post['new_password']===$data_post['new_password_confirm']) {
+            $user->setPassword($data_post['new_password']);
+            $em->flush();
+        }
+        $form->setData(array_merge($user_content->jsonSerialize(),$data_post));
+
+        if (!$form->isValid()) {
+            $this->messenger()->addError('Email or Password invalid');
+            return false;
+        }
+
+        $response = $this->api()->update('users', $user->getId(),$form->getData());
+        if ($response->isError()) {
+            $form->setMessages($response->getErrors());
+            return $view;
+        }
+
+
+        $message = $this->translate("Your modifications has been saved.");
+        $this->messenger()->addSuccess($message);
+        return $view;
+
+    }
+
+
     public function meAction()
     {
 
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         if (!$auth->hasIdentity())
-            $this->redirect('/');
+            $this->redirect()->toUrl($this->getSite()->url());
 
         $widgets = [];
-        $widgets = apply_filters('guest_user_widgets', $widgets);
-        $this->view->widgets = $widgets;
+
+        $widget = ['label'=> $this->translate('My Account')];
+        $accountUrl = $this->getSite()->url().'/guestuser/update-account';
+        $html = "<ul>";
+        $html .= "<li><a href='$accountUrl'>" . $this->translate("Update account info and password") . "</a></li>";
+        $html .= "</ul>";
+        $widget['content'] = $html;
+        $widgets[] = $widget;
+        $view = new ViewModel;
+
+        $view->setVariable('widgets', $widgets);
+        return $view;
     }
 
     public function staleTokenAction()
@@ -221,20 +279,19 @@ class GuestUserController extends AbstractActionController
         $record->setConfirmed(true);
         $this->save($record);
         $user = $em->find('Omeka\Entity\User',$record->getUser()->getId());
-        $siteUrl='';
-        $siteTitle='';
-        $body = $this->translate("Thanks for joining %s!", $siteTitle);
-        $body .= "<p>" . $this->translate("You can now log into %s using the password you chose.", "<a href='$siteUrl'>$siteTitle</a>") . "</p>";
+        $siteTitle= $this->getSite()->title();
+        $body = sprintf($this->translate("Thanks for joining %s! "), $siteTitle);
+        $body .= $this->translate("You can now log using the password you chose.");
 
-        $this->messenger()->addError($body, 'success');
-        $this->redirect('users/login');
+        $this->messenger()->addSuccess($body);
+        $this->redirect()->toUrl($this->getSite()->url().'/guestuser/login');
     }
 
     protected function _getForm($options)
     {
         $form = $this->getForm(UserForm::class);//new UserForm('userform',$options);
         $form->add(['name' => 'new_password',
-                    'type' => 'text',
+                    'type' => 'password',
                     'options' => [
                                   'label'         => $this->translate('Password'),
                                   'required'      => true,
@@ -245,7 +302,7 @@ class GuestUserController extends AbstractActionController
                     ]);
 
         $form->add(['name' => 'new_password_confirm',
-                    'type' => 'text',
+                    'type' => 'password',
                     'options' => [
                                   'label'         => $this->translate('Password again for match'),
                                   'required'      => true,
@@ -263,7 +320,7 @@ class GuestUserController extends AbstractActionController
 
         $siteTitle = $this->getSite()->title();
 
-        $subject = $this->translate("Your request to join %s", $siteTitle);
+        $subject = sprintf($this->translate("Your request to join %s"), $siteTitle);
         $url =  $this->getSite()->siteUrl(null,true).'/guestuser/confirm?token=' . $token->getToken();
         $body = sprintf($this->translate("You have registered for an account on %s. Please confirm your registration by following %s.  If you did not request to join %s please disregard this email."), "<a href='$url'>$siteTitle</a>", "<a href='$url'>" . $this->translate('this link') . "</a>", $siteTitle);
 
@@ -272,12 +329,11 @@ class GuestUserController extends AbstractActionController
         $message->addTo($user->getEmail(), $user->getName())
                 ->setSubject($subject)
                 ->setBody($body);
-
         try {
             $mailer->send($message);
-
         } catch (Exception $e) {
-            _log($e);
+            $logger = $this->getServiceLocator()->get('Omeka\Logger');
+            $logger->err((string) $e);
         }
     }
 

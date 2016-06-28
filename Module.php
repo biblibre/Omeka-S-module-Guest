@@ -23,14 +23,7 @@ class Module extends AbstractModule
 {
 
 
-    protected $_filters = array(
-                                'public_navigation_admin_bar',
-                                'public_show_admin_bar',
-                                'guest_user_widgets',
-                                'admin_navigation_main'
-    );
     protected $config;
-
 
     public function install(ServiceLocatorInterface $serviceLocator)
     {
@@ -132,54 +125,6 @@ class Module extends AbstractModule
         return $navLinks;
     }
 
-    public function filterPublicNavigationAdminBar($navLinks)
-    {
-        //Clobber the default admin link if user is guest
-        $user = current_user();
-        if($user) {
-            if($user->role == 'guest') {
-                unset($navLinks[1]);
-            }
-            $navLinks[0]['id'] = 'admin-bar-welcome';
-            $meLink = array('id'=>'guest-user-me',
-                            'uri'=>url('guest-user/user/me'),
-                            'label' => $this->getOption('guest_user_dashboard_label')
-            );
-            $filteredLinks = apply_filters('guest_user_links' , array('guest-user-me'=>$meLink) );
-            $navLinks[0]['pages'] = $filteredLinks;
-
-            return $navLinks;
-        }
-        $loginLabel = $this->getOption('guest_user_login_text') ? $this->getOption('guest_user_login_text') : $this->translate('Login');
-        $registerLabel = $this->getOption('guest_user_register_text') ? $this->getOption('guest_user_register_text') : $this->translate('Register');
-        $navLinks = array(
-                          'guest-user-login' => array(
-                                                      'id' => 'guest-user-login',
-                                                      'label' => $loginLabel,
-                                                      'uri' => url('guest-user/user/login')
-                          ),
-                          'guest-user-register' => array(
-                                                         'id' => 'guest-user-register',
-                                                         'label' => $registerLabel,
-                                                         'uri' => url('guest-user/user/register'),
-                          )
-        );
-        return $navLinks;
-    }
-
-    public function filterGuestUserWidgets($widgets)
-    {
-        $widget = array('label'=> $this->translate('My Account'));
-        $passwordUrl = url('guest-user/user/change-password');
-        $accountUrl = url('guest-user/user/update-account');
-        $html = "<ul>";
-        $html .= "<li><a href='$accountUrl'>" . $this->translate("Update account info and password") . "</a></li>";
-        $html .= "</ul>";
-        $widget['content'] = $html;
-        $widgets[] = $widget;
-        return $widgets;
-    }
-
 
     public static function guestUserWidget($widget)
     {
@@ -234,8 +179,20 @@ class Module extends AbstractModule
     }
 
 
+    public function deleteGuestToken($event) {
+        $request = $event->getParam('request');
+
+        $em = $this->getServiceLocator()->get('Omeka\EntityManager');
+        $id = $request->getId();
+        if ($user = $em->getRepository('GuestUser\Entity\GuestUserTokens')->findOneBy(['user' => $id])) {
+            $em->remove($user);
+            $em->flush();
+        }
+    }
+
     public function attachListeners(SharedEventManagerInterface $sharedEventManager) {
         $sharedEventManager->attach('*', 'view.layout', [$this, 'appendLoginNav']);
+        $sharedEventManager->attach(['Omeka\Api\Adapter\UserAdapter'], 'api.delete.post', [$this, 'deleteGuestToken']);
     }
 
 }
