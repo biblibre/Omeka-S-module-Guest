@@ -277,7 +277,6 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
                                                       ]
       );
 
-
       $this->assertXPathQueryContentContains('//li[@class="error"]', 'Your account has not been activated');
 
 
@@ -293,8 +292,8 @@ class UserControllerTest  extends AbstractHttpControllerTestCase{
                                            'submit' => 'Log+in'
 ]
 );
-echo       $this->getResponse()->getBody();
-      $this->assertXPathQueryContentContains('//li[@class="error"]', 'Email or password is invalid');
+
+      $this->assertXPathQueryContentContains('//li[@class="error"]', 'Invalid password.');
 
  }
 

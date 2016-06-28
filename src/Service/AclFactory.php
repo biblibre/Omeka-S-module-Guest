@@ -1,7 +1,7 @@
 <?php
 namespace GuestUser\Service;
 
-use Omeka\Permissions\Acl;
+use GuestUser\Permissions\Acl as GuestUserAcl;
 use Omeka\Permissions\Assertion\AssertionNegation;
 use Omeka\Permissions\Assertion\HasSitePermissionAssertion;
 use Omeka\Permissions\Assertion\SiteIsPublicAssertion;
@@ -18,20 +18,33 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 class AclFactory extends \Omeka\Service\AclFactory
 {
 
-    /**
-     * Add ACL roles.
-     *
-     * @param Acl $acl
-     * @param ServiceLocatorInterface $serviceLocator
-     */
-    protected function addRoles(Acl $acl, ServiceLocatorInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator)
+    {
+        $acl = new GuestUserAcl;
+
+        $auth = $serviceLocator->get('Omeka\AuthenticationService');
+        $acl->setAuthenticationService($auth);
+
+        $this->addGuestRoles($acl, $serviceLocator);
+        $this->addResources($acl, $serviceLocator);
+
+        $status = $serviceLocator->get('Omeka\Status');
+        if (!$status->isInstalled()
+            || ($status->needsVersionUpdate() && $status->needsMigration())
+        ) {
+            $acl->allow();
+        } else {
+            $this->addRules($acl, $serviceLocator);
+        }
+
+        return $acl;
+    }
+
+
+    protected function addGuestRoles($acl,$serviceLocator)
     {
         parent::addRoles($acl,$serviceLocator);
         $acl->addRole('guest');
         $acl->addRoleLabel('guest', 'Guest');
     }
-
-
-
-
 }
