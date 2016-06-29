@@ -1,8 +1,8 @@
 <?php
-//$pageTitle =  get_option('guest_user_dashboard_label');
-// echo head(array('title' => $pageTitle));
+    $pageTitle =  $this->setting('guest_user_dashboard_label');
+    echo $this->pageTitle($pageTitle);
 ?>
-<h1><?php  ?></h1>
+<h1><?php $this->pageTitle(); ?></h1>
 
 
 <?php foreach($this->widgets as $index=>$widget): ?>
