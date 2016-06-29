@@ -1,5 +1,10 @@
  <?php
 return [
+    'view_helpers' => [
+        'invokables' => [
+            'guestUserWidget' => 'GuestUser\View\Helper\GuestUserWidget',
+        ],
+    ],
         'form_elements' => [
                             'factories' => [
                          'GuestUser\Form\ConfigForm' => 'GuestUser\Form\ConfigGuestUserFormFactory',
