@@ -75,7 +75,7 @@ abstract class GuestUserControllerTestCase extends AbstractHttpControllerTestCas
         return $user;
     }
 
-    protected function postDispatch($url, $data) {
+    public function postDispatch($url, $data) {
         return $this->dispatch($url, HttpRequest::METHOD_POST, $data);
     }
 
@@ -108,6 +108,7 @@ abstract class GuestUserControllerTestCase extends AbstractHttpControllerTestCas
 
     protected function getEntityManager()
     {
+
         return $this->getServiceLocator()->get('Omeka\EntityManager');
     }
 
