@@ -26,29 +26,18 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 
-
 namespace GuestUser;
 
 use Omeka\Module\AbstractModule;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
 use Zend\Mvc\Controller\AbstractController;
-use GuestUser\Form\ConfigGuestUserForm;
-use Zend\View\Model\ViewModel;
-use ArchiveRepertory\Service\FileArchiveManagerFactory;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\SharedEventManagerInterface;
-use Zend\View\HelperPluginManager;
-use Zend\Permissions\Acl\Acl;
-use Zend\Permissions\Acl\Role\GenericRole;
-use Zend\Permissions\Acl\Resource\GenericResource;
 use Omeka\Event\Event;
-
 
 class Module extends AbstractModule
 {
-
-
     protected $config;
 
     public function install(ServiceLocatorInterface $serviceLocator)
@@ -77,10 +66,8 @@ class Module extends AbstractModule
         $this->setOption('guest_user_dashboard_label', $this->translate('My Account'));
     }
 
-
     public function onBootstrap(MvcEvent $event)
     {
-
         parent::onBootstrap($event);
         $services = $this->getServiceLocator();
         $manager = $services->get('ViewHelperManager');
@@ -89,15 +76,12 @@ class Module extends AbstractModule
         $acl->allow(null, 'GuestUser\Controller\GuestUser');
         $acl->allow(null, 'Omeka\Entity\User');
         $acl->allow(null, 'Omeka\Api\Adapter\UserAdapter');
-
-
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
         $this->deactivateGuestUsers($serviceLocator);
     }
-
 
     protected function deactivateGuestUsers($serviceLocator) {
         $em = $serviceLocator->get('Omeka\EntityManager');
@@ -108,7 +92,6 @@ class Module extends AbstractModule
             $em->flush();
         }
     }
-
 
     public function handleConfigForm(AbstractController $controller)
     {
@@ -125,7 +108,6 @@ class Module extends AbstractModule
                                  [
                                   'form' => $form
                                  ]);
-
     }
 
 
@@ -134,34 +116,41 @@ class Module extends AbstractModule
     }
 
     public function getConfig() {
-        if ($this->config)
-            return  $this->config;
+        if ($this->config) {
+            return $this->config;
+        }
         return include __DIR__ . '/config/module.config.php';
     }
 
 
     public function setOption($name,$value,$serviceLocator = null) {
-        if (!$serviceLocator)
+        if (!$serviceLocator) {
             $serviceLocator = $this->getServiceLocator();
+        }
 
         return  $serviceLocator->get('Omeka\Settings')->set($name,$value);
     }
 
-    public function getOption($key,$serviceLocator=null) {
-        if (!$serviceLocator)
+    public function getOption($key,$serviceLocator=null)
+    {
+        if (!$serviceLocator) {
             $serviceLocator = $this->getServiceLocator();
+        }
         return $serviceLocator->get('Omeka\Settings')->get($key);
     }
 
-    public function appendLoginNav(Event $event) {
+    public function appendLoginNav(Event $event)
+    {
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         $view = $event->getTarget();
-        if ($auth->hasIdentity())
+        if ($auth->hasIdentity()) {
             return $view->headStyle()->appendStyle("li a.registerlink ,li a.loginlink { display:none;} ");
+        }
         $view->headStyle()->appendStyle("li a.logoutlink { display:none;} ");
     }
 
-    public function translate($string,$options='',$serviceLocator=null) {
+    public function translate($string,$options='',$serviceLocator=null)
+    {
         if (!$serviceLocator)
             $serviceLocator = $this->getServiceLocator();
 
@@ -169,7 +158,8 @@ class Module extends AbstractModule
     }
 
 
-    public function deleteGuestToken($event) {
+    public function deleteGuestToken($event)
+    {
         $request = $event->getParam('request');
 
         $em = $this->getServiceLocator()->get('Omeka\EntityManager');
@@ -180,7 +170,8 @@ class Module extends AbstractModule
         }
     }
 
-    public function attachListeners(SharedEventManagerInterface $sharedEventManager) {
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager)
+    {
         $sharedEventManager->attach('*', 'view.layout', [$this, 'appendLoginNav']);
         $sharedEventManager->attach(['Omeka\Api\Adapter\UserAdapter'], 'api.delete.post', [$this, 'deleteGuestToken']);
     }
