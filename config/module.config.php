@@ -11,8 +11,8 @@ return [
         ],
     ],
     'controllers' => [
-        'invokables' => [
-            'GuestUser\Controller\GuestUser' => 'GuestUser\Controller\GuestUserController',
+        'factories' => [
+            'GuestUser\Controller\GuestUser' => 'GuestUser\Service\Controller\GuestUserControllerFactory',
         ],
     ],
     'router' => [
