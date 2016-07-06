@@ -3,10 +3,10 @@
 namespace GuestUserTest\Controller;
 
 use Zend\Http\Request as HttpRequest;
-use Omeka\Test\AbstractHttpControllerTestCase;
+use OmekaTestHelper\Controller\OmekaControllerTestCase;
 use GuestUserTest\Service\MockMailerFactory;
 
-abstract class GuestUserControllerTestCase extends AbstractHttpControllerTestCase
+abstract class GuestUserControllerTestCase extends OmekaControllerTestCase
 {
     protected $testSite;
     protected $testUser;
@@ -75,51 +75,10 @@ abstract class GuestUserControllerTestCase extends AbstractHttpControllerTestCas
         return $user;
     }
 
-    public function postDispatch($url, $data) {
-        return $this->dispatch($url, HttpRequest::METHOD_POST, $data);
-    }
-
-    protected function loginAsAdmin()
-    {
-        $this->login('admin@example.com', 'root');
-    }
-
-    protected function login($username, $password)
-    {
-        $serviceLocator = $this->getServiceLocator();
-        $auth = $serviceLocator->get('Omeka\AuthenticationService');
-        $adapter = $auth->getAdapter();
-        $adapter->setIdentity($username);
-        $adapter->setCredential($password);
-        $auth->authenticate();
-    }
-
-    protected function logout()
-    {
-        $serviceLocator = $this->getServiceLocator();
-        $auth = $serviceLocator->get('Omeka\AuthenticationService');
-        $auth->clearIdentity();
-    }
-
-    protected function getServiceLocator()
-    {
-        return $this->getApplication()->getServiceManager();
-    }
-
-    protected function getEntityManager()
-    {
-
-        return $this->getServiceLocator()->get('Omeka\EntityManager');
-    }
-
-    protected function api()
-    {
-        return $this->getServiceLocator()->get('Omeka\ApiManager');
-    }
-
     protected function resetApplication()
     {
-        $this->application = null;
+        parent::resetApplication();
+
         $this->setupMockMailer();
     }
 }
