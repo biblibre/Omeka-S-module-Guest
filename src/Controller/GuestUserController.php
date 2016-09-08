@@ -288,7 +288,7 @@ class GuestUserController extends AbstractActionController
 
     protected function _getForm($options)
     {
-        $form = $this->getForm(UserForm::class);//new UserForm('userform',$options);
+        $form = $this->getForm(UserForm::class, $options);
         $form->add(['name' => 'new_password',
                     'type' => 'password',
                     'options' => [

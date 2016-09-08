@@ -31,10 +31,10 @@ class ForgotPasswordControllerTest extends GuestUserControllerTestCase
      */
     public function forgotPasswordShouldDisplayEmailSent()
     {
-        $csrf = new \Zend\Form\Element\Csrf('forgotpasswordform_csrf');
+        $csrf = new \Zend\Form\Element\Csrf('csrf');
         $this->postDispatch('/s/test/guestuser/forgot-password', [
             'email' => "test@test.fr",
-            'forgotpasswordform_csrf' => $csrf->getValue(),
+            'csrf' => $csrf->getValue(),
         ]);
 
         $this->assertXPathQueryContentContains('//li[@class="success"]', 'Check your email for instructions on how to reset your password');
@@ -45,14 +45,17 @@ class ForgotPasswordControllerTest extends GuestUserControllerTestCase
      */
     public function forgotPasswordShouldSendEmail()
     {
-        $csrf = new \Zend\Form\Element\Csrf('forgotpasswordform_csrf');
+        $csrf = new \Zend\Form\Element\Csrf('csrf');
         $this->postDispatch('/s/test/guestuser/forgot-password', [
             'email' => "test@test.fr",
-            'forgotpasswordform_csrf' => $csrf->getValue(),
+            'csrf' => $csrf->getValue(),
         ]);
 
         $mailer = $this->getServiceLocator()->get('Omeka\Mailer');
-        $body = $mailer->getMessage()->getBody();
+        $message = $mailer->getMessage();
+        $this->assertNotNull($message);
+
+        $body = $message->getBody();
         $this->assertContains('To reset your password, click this link', $body);
     }
 

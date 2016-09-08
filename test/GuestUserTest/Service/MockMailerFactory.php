@@ -2,18 +2,18 @@
 
 namespace GuestUserTest\Service;
 
+use Interop\Container\ContainerInterface;
 use Zend\Mail\Transport\Factory as TransportFactory;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 use GuestUserTest\Service\MockMailer;
 
 class MockMailerFactory implements FactoryInterface
 {
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
         $transport = TransportFactory::create([]);
-        $viewHelpers = $serviceLocator->get('ViewHelperManager');
-        $entityManager = $serviceLocator->get('Omeka\EntityManager');
+        $viewHelpers = $services->get('ViewHelperManager');
+        $entityManager = $services->get('Omeka\EntityManager');
 
         return new MockMailer($transport, $viewHelpers, $entityManager, []);
     }

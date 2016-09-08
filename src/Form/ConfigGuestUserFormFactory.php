@@ -1,21 +1,18 @@
 <?php
 namespace GuestUser\Form;
 
-use Search\Form\Admin\SearchPageForm;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 class ConfigGuestUserFormFactory implements FactoryInterface
 {
-    public function createService(ServiceLocatorInterface $elements)
+    public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
-        $serviceLocator = $elements->getServiceLocator();
-        $translator = $serviceLocator->get('MvcTranslator');
+        $translator = $services->get('MvcTranslator');
         $form = new ConfigGuestUserForm;
-        $form->setSettings($serviceLocator->get('Omeka\Settings'));
+        $form->setSettings($services->get('Omeka\Settings'));
         $form->setTranslator($translator);
         $form->init();
-
 
         return $form;
     }

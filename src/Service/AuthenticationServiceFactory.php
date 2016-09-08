@@ -1,17 +1,15 @@
 <?php
 namespace GuestUser\Service;
 
-
-
 use Omeka\Authentication\Adapter\KeyAdapter;
 use GuestUser\Authentication\Adapter\PasswordGuestUserAdapter as PasswordAdapter;
 use Omeka\Authentication\Storage\DoctrineWrapper;
+use Interop\Container\ContainerInterface;
 use Zend\Authentication\AuthenticationService;
 use Zend\Authentication\Adapter\Callback;
 use Zend\Authentication\Storage\NonPersistent;
 use Zend\Authentication\Storage\Session;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Authentication service factory.
@@ -21,13 +19,13 @@ class AuthenticationServiceFactory implements FactoryInterface
     /**
      * Create the authentication service.
      *
-     * @param ServiceLocatorInterface $serviceLocator
+     * @param ContainerInterface $services
      * @return ApiManager
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
-        $entityManager = $serviceLocator->get('Omeka\EntityManager');
-        $status = $serviceLocator->get('Omeka\Status');
+        $entityManager = $services->get('Omeka\EntityManager');
+        $status = $services->get('Omeka\Status');
 
         // Skip auth retrieval entirely if we're installing or migrating.
         if (!$status->isInstalled() ||

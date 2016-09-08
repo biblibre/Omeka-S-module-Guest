@@ -21,7 +21,7 @@ class ConfigGuestUserForm extends Form {
 
         $this->add([
                     'name' => 'guest_user_capabilities',
-                    'type' => 'TextArea',
+                    'type' => 'Textarea',
                     'options' => [
                                   'label' => $this->translate('Registration Features'),
                                   'info' => $this->translate("Add some text to the registration screen so people will know what they get for registering. As you enable and configure plugins that make use of the guest user, please give them guidance about what they can and cannot do.")
@@ -38,7 +38,7 @@ class ConfigGuestUserForm extends Form {
 
         $this->add([
                     'name' => 'guest_user_short_capabilities',
-                    'type' => 'TextArea',
+                    'type' => 'Textarea',
                     'options' => [
                                   'label' => $this->translate("Short Registration Features"),
                                   'info' => $this->translate ("Add a shorter version to use as a dropdown from the user bar. If empty, no dropdown will appear.")]
@@ -99,7 +99,7 @@ class ConfigGuestUserForm extends Form {
 
         $this->add([
                     'name' => 'guest_user_open',
-                    'type' =>'CheckBox',
+                    'type' =>'Checkbox',
                     'options' => [
                                   'label' =>$this->translate("Allow open registration ?"),
                                   'info' => $this->translate("Allow guest user registration without administrator approval?")
@@ -111,7 +111,7 @@ class ConfigGuestUserForm extends Form {
 
         $this->add([
                     'name' => 'guest_user_recaptcha',
-                    'type' =>'CheckBox',
+                    'type' =>'Checkbox',
                     'options' => [
                                   'label' =>$this->translate("Require ReCaptcha ?"),
                                   'info' => $this->translate("Check this to require passing a ReCaptcha test when registering")

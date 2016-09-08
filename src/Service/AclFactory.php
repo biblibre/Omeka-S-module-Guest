@@ -8,33 +8,32 @@ use Omeka\Permissions\Assertion\SiteIsPublicAssertion;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
 use Omeka\Permissions\Assertion\OwnsEntityAssertion;
 use Omeka\Permissions\Assertion\UserIsAdminAssertion;
+use Interop\Container\ContainerInterface;
 use Zend\Permissions\Acl\Assertion\AssertionAggregate;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Access control list factory.
  */
 class AclFactory extends \Omeka\Service\AclFactory
 {
-
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
         $acl = new GuestUserAcl;
 
-        $auth = $serviceLocator->get('Omeka\AuthenticationService');
+        $auth = $services->get('Omeka\AuthenticationService');
         $acl->setAuthenticationService($auth);
 
-        $this->addGuestRoles($acl, $serviceLocator);
-        $this->addResources($acl, $serviceLocator);
+        $this->addGuestRoles($acl, $services);
+        $this->addResources($acl, $services);
 
-        $status = $serviceLocator->get('Omeka\Status');
+        $status = $services->get('Omeka\Status');
         if (!$status->isInstalled()
             || ($status->needsVersionUpdate() && $status->needsMigration())
         ) {
             $acl->allow();
         } else {
-            $this->addRules($acl, $serviceLocator);
+            $this->addRules($acl, $services);
         }
 
         return $acl;

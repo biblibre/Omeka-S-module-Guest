@@ -2,16 +2,20 @@
 
 namespace GuestUserTest\Service;
 
+use Zend\Mail\Message;
 use Omeka\Service\Mailer;
 
 class MockMailer extends Mailer
 {
-    protected $message = '';
+    protected $message;
 
     public function send($message)
     {
-        $this->message = $message;
-        return true;
+        if ($message instanceof Message) {
+            $this->message = $message;
+        } else {
+            $this->message = $this->createMessage($message);
+        }
     }
 
     public function getMessage()

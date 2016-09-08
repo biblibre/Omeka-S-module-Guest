@@ -173,7 +173,7 @@ class Module extends AbstractModule
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
         $sharedEventManager->attach('*', 'view.layout', [$this, 'appendLoginNav']);
-        $sharedEventManager->attach(['Omeka\Api\Adapter\UserAdapter'], 'api.delete.post', [$this, 'deleteGuestToken']);
+        $sharedEventManager->attach('Omeka\Api\Adapter\UserAdapter', 'api.delete.post', [$this, 'deleteGuestToken']);
     }
 
 }
