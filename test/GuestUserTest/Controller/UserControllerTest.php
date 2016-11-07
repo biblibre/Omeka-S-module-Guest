@@ -24,10 +24,14 @@ class UserControllerTest extends GuestUserControllerTestCase
     public function registerShouldDisplayLogin()
     {
         $this->postDispatch('/s/test/guestuser/register', [
-            'o:email' => "test3@test.fr",
-            'o:name' => 'test',
-            'new_password' => 'test',
-            'new_passord_confirm' => 'test',
+            'user-information' => [
+                'o:email' => "test3@test.fr",
+                'o:name' => 'test',
+            ],
+            'change-password' => [
+                'password' => 'foobar',
+                'password-confirm' => 'foobar',
+            ],
             'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
         ]);
 
@@ -75,10 +79,10 @@ class UserControllerTest extends GuestUserControllerTestCase
         $this->login('guest@test.fr', 'test');
 
         $this->postDispatch('/s/test/guestuser/update-account', [
-            'o:email' => "test4@test.fr",
-            'o:name' => 'test2',
-            'new_password' => '',
-            'new_passord_confirm' => '',
+            'user-information' => [
+                'o:email' => "test4@test.fr",
+                'o:name' => 'test2',
+            ],
             'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
         ]);
 
@@ -114,7 +118,7 @@ class UserControllerTest extends GuestUserControllerTestCase
         $this->postDispatch('/s/test/guestuser/login', [
             'email' => "guest@test.fr",
             'password' => 'test',
-            'loginform_csrf' => (new \Zend\Form\Element\Csrf('loginform_csrf'))->getValue(),
+            'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
             'submit' => 'Log+in'
         ]);
 

@@ -151,20 +151,21 @@ class GuestUserController extends AbstractActionController
             return $view;
 
         $formData = $form->getData();
-        $formData['o:role'] = 'guest';
-        $response = $this->api()->create('users', $formData);
+        $userInfo = $formData['user-information'];
+        $userInfo['o:role'] = 'guest';
+        $response = $this->api()->create('users', $userInfo);
         if ($response->isError()) {
             $form->setMessages($response->getErrors());
             return $view;
         }
         $user = $response->getContent()->getEntity();
-        $user->setPassword($formData['new_password']);
+        $user->setPassword($formData['change-password']['password']);
         $user->setIsActive(true);
 
         $message = $this->translate("Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.");
         $this->messenger()->addSuccess($message);
 
-        $this->createGuestUserAndSendMail($formData,$user);
+        $this->createGuestUserAndSendMail($user);
 
 
         return $view;
@@ -179,9 +180,9 @@ class GuestUserController extends AbstractActionController
     }
 
 
-    public function createGuestUserAndSendMail($formData,$user) {
+    public function createGuestUserAndSendMail($user) {
         $guest = new GuestUserTokens;
-        $guest->setEmail($formData['o:email']);
+        $guest->setEmail($user->getEmail());
         $guest->setUser($user);
         $guest->setToken(sha1("tOkenS@1t" . microtime()));
         $this->save($guest);
@@ -191,45 +192,45 @@ class GuestUserController extends AbstractActionController
 
 
 
-    public function updateAccountAction() {
+    public function updateAccountAction()
+    {
         if (!($user = $this->getAuthenticationService()->getIdentity())) {
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
         $view = new ViewModel;
-        $readResponse = $this->api()->read('users', $user->getId());
-        $user_content = $readResponse->getContent();
-        $em = $this->getEntityManager();
+        $userRepr = $this->api()->read('users', $user->getId())->getContent();
         $label = $this->getOption('guest_user_dashboard_label') ? $this->getOption('guest_user_dashboard_label') : $this->translate('My account');
         $form = $this->_getForm(['user'=>$user, 'include_role' => false]);
 
-        $form->setData($user_content->jsonSerialize());
+        $form->setData($userRepr->jsonSerialize());
         $view->setVariable('form', $form);
-        $view->setVariable('label',$label);
-        if (!$this->getRequest()->isPost())
+        $view->setVariable('label', $label);
+
+        if (!$this->getRequest()->isPost()) {
             return $view;
-        $data_post=$this->params()->fromPost();
-        if ($data_post['new_password']=='') {
-            unset($data_post['new_password']);
-            unset($data_post['new_password_confirm']);
         }
-        else if ($data_post['new_password']===$data_post['new_password_confirm']) {
-            $user->setPassword($data_post['new_password']);
-            $em->flush();
-        }
-        $form->setData(array_merge($user_content->jsonSerialize(),$data_post));
+
+        $data_post = $this->params()->fromPost();
+        $form->setData(array_merge($userRepr->jsonSerialize(), $data_post));
 
         if (!$form->isValid()) {
             $this->messenger()->addError('Email or Password invalid');
             return false;
         }
 
-        $response = $this->api()->update('users', $user->getId(),$form->getData());
+        $formData = $form->getData();
+
+        $response = $this->api()->update('users', $user->getId(), $formData['user-information']);
         if ($response->isError()) {
             $form->setMessages($response->getErrors());
             return $view;
         }
 
+        if (isset($formData['change-password']['password'])) {
+            $user->setPassword($formData['change-password']['password']);
+            $this->getEntityManager()->flush();
+        }
 
         $message = $this->translate("Your modifications has been saved.");
         $this->messenger()->addSuccess($message);
@@ -288,26 +289,11 @@ class GuestUserController extends AbstractActionController
 
     protected function _getForm($options)
     {
+        $options = array_merge($options, [
+            'include_password' => true,
+        ]);
+
         $form = $this->getForm(UserForm::class, $options);
-        $form->add(['name' => 'new_password',
-                    'type' => 'password',
-                    'options' => [
-                                  'label'         => $this->translate('Password'),
-                                  'required'      => true,
-                                  'class'         => 'textinput',
-                                  'errorMessages' => array($this->translate('New password must be typed correctly twice.'))
-                    ]
-
-                    ]);
-
-        $form->add(['name' => 'new_password_confirm',
-                    'type' => 'password',
-                    'options' => [
-                                  'label'         => $this->translate('Password again for match'),
-                                  'required'      => true,
-                                  'class'         => 'textinput',
-                                  'errorMessages' => array($this->translate('New password must be typed correctly twice.')) ]
-                    ]);
 
         return $form;
     }
