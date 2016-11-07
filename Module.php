@@ -34,7 +34,7 @@ use Zend\View\Renderer\PhpRenderer;
 use Zend\Mvc\Controller\AbstractController;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\SharedEventManagerInterface;
-use Omeka\Event\Event;
+use Zend\EventManager\Event;
 
 class Module extends AbstractModule
 {
