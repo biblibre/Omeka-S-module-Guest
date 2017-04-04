@@ -47,10 +47,6 @@ abstract class GuestUserControllerTestCase extends OmekaControllerTestCase
             'o:title' => $title,
             'o:is_public' => '1',
         ]);
-        if ($response->isError()) {
-            error_log('Failed creating site');
-            error_log(var_export($response->getErrors(), true));
-        }
         return $response->getContent();
     }
 
@@ -62,10 +58,6 @@ abstract class GuestUserControllerTestCase extends OmekaControllerTestCase
             'o:role' => 'global_admin',
             'o:is_active' => '1',
         ]);
-        if ($response->isError()) {
-            error_log('Failed creating test user');
-            error_log(var_export($response->getErrors(), true));
-        }
         $user = $response->getContent();
         $userEntity = $user->getEntity();
         $userEntity->setPassword('test');

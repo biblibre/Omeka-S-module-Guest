@@ -182,10 +182,6 @@ class UserControllerTest extends GuestUserControllerTestCase
             'o:role' => 'guest',
             'o:is_active' => true,
         ]);
-        if ($response->isError()) {
-            error_log('Failed creating guest user');
-            error_log(var_export($response->getErrors(), true));
-        }
         $user = $response->getContent();
         $userEntity = $user->getEntity();
         $userEntity->setPassword('test');

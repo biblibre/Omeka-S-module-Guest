@@ -154,10 +154,6 @@ class GuestUserController extends AbstractActionController
         $userInfo = $formData['user-information'];
         $userInfo['o:role'] = 'guest';
         $response = $this->api()->create('users', $userInfo);
-        if ($response->isError()) {
-            $form->setMessages($response->getErrors());
-            return $view;
-        }
         $user = $response->getContent()->getEntity();
         $user->setPassword($formData['change-password']['password']);
         $user->setIsActive(true);
@@ -222,10 +218,6 @@ class GuestUserController extends AbstractActionController
         $formData = $form->getData();
 
         $response = $this->api()->update('users', $user->getId(), $formData['user-information']);
-        if ($response->isError()) {
-            $form->setMessages($response->getErrors());
-            return $view;
-        }
 
         if (isset($formData['change-password']['password'])) {
             $user->setPassword($formData['change-password']['password']);
