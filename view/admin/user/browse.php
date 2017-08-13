@@ -1,5 +1,5 @@
 <?php
-$pageTitle = __('Browse Users') . ' ' . __('(%s total)', $total_results);
+$pageTitle = $this->translate('Browse Users') . ' ' . sprintf($this->translate('(%s total)', $total_results));
 echo head(array('title'=>$pageTitle, 'bodyclass'=>'users'));
 echo flash();
 ?>
@@ -10,13 +10,13 @@ echo flash();
         <li>
         <?php switch($_GET['search-type']) {
                         case "name":
-                            echo __("Name") . ': ';
+                            echo $this->translate("Name") . ': ';
                         break;
                         case "username":
-                            echo __("Username") . ': ';
+                            echo $this->translate("Username") . ': ';
                         break;
                         case "email":
-                            echo __("Email") . ': ';
+                            echo $this->translate("Email") . ': ';
                         break;
                     }
         ?>
@@ -31,7 +31,7 @@ echo flash();
 <div id='search-filters'>
     <ul>
         <li>
-        <?php echo html_escape(__($_GET['role'])); ?>
+        <?php echo html_escape($this->translate($_GET['role'])); ?>
         </li>
     </ul>
 
@@ -41,32 +41,32 @@ echo flash();
 
 
 <form id='search-users' method='GET'>
-<button><?php echo __('Search users'); ?></button><input type='text' name='search'/>
-<input type='radio' name='search-type' value='username' checked='checked' /><span><?php echo __('Usernames'); ?></span>
-<input type='radio' name='search-type' value='name' /><span><?php echo __('Real names'); ?></span>
-<input type='radio' name='search-type' value='email' /><span><?php echo __('Email addresses'); ?></span>
+<button><?php echo $this->translate('Search users'); ?></button><input type='text' name='search'/>
+<input type='radio' name='search-type' value='username' checked='checked' /><span><?php echo $this->translate('Usernames'); ?></span>
+<input type='radio' name='search-type' value='name' /><span><?php echo $this->translate('Real names'); ?></span>
+<input type='radio' name='search-type' value='email' /><span><?php echo $this->translate('Email addresses'); ?></span>
 </form>
 
 <ul class='quick-filter-wrapper'>
     <li>
-        <a tabindex="0" href="#"><?php echo __("Quick Filter"); ?></a>
+        <a tabindex="0" href="#"><?php echo $this->translate("Quick Filter"); ?></a>
         <ul class="dropdown">
             <li>
-                <span class="quick-filter-heading"><?php echo __("Quick Filter"); ?></span>
+                <span class="quick-filter-heading"><?php echo $this->translate("Quick Filter"); ?></span>
             </li>
             <li>
-                <a href="<?php echo url('guest-user/user/browse'); ?>"><?php echo __("View All"); ?></a>
+                <a href="<?php echo url('guest-user/user/browse'); ?>"><?php echo $this->translate("View All"); ?></a>
             </li>
             <?php foreach(get_user_roles() as $value => $name): ?>
             <li>
-                <a href="<?php echo url('guest-user/user/browse', array('role' => $value)); ?>"><?php echo __("%s", $name); ?></a>
+                <a href="<?php echo url('guest-user/user/browse', array('role' => $value)); ?>"><?php echo $this->translate($name); ?></a>
             </li>
             <?php endforeach; ?>
             <li>
-                <a href="<?php echo url('guest-user/user/browse', array('active' => 'true')); ?>"><?php echo __("Active"); ?></a>
+                <a href="<?php echo url('guest-user/user/browse', array('active' => 'true')); ?>"><?php echo $this->translate("Active"); ?></a>
             </li>
             <li>
-                <a href="<?php echo url('guest-user/user/browse', array('active' => 'false')); ?>"><?php echo __("Not Active"); ?></a>
+                <a href="<?php echo url('guest-user/user/browse', array('active' => 'false')); ?>"><?php echo $this->translate("Not Active"); ?></a>
             </li>
         </ul>
     </li>
@@ -77,11 +77,11 @@ echo flash();
     <thead>
         <tr>
         <?php $sortLinks = array(
-                __('ID') => 'id',
-                __('Username') => 'username',
-                __('Real Name') => 'name',
-                __('Email') => 'email',
-                __('Role') => 'role',
+                $this->translate('ID') => 'id',
+                $this->translate('Username') => 'username',
+                $this->translate('Real Name') => 'name',
+                $this->translate('Email') => 'email',
+                $this->translate('Role') => 'role',
                 );
         ?>
         <?php echo browse_sort_links($sortLinks,  array('link_tag' => 'th scope="col"', 'list_tag' => '')); ?>
@@ -94,20 +94,20 @@ echo flash();
             <?php echo metadata($user, 'id'); ?>
             </td>
             <td>
-            <?php echo html_escape($user->username); ?> <?php if(!$user->active): ?>(<?php echo __('inactive'); ?>)<?php endif; ?>
+            <?php echo html_escape($user->username); ?> <?php if(!$user->active): ?>(<?php echo $this->translate('inactive'); ?>)<?php endif; ?>
             <ul class="action-links group">
                 <?php if (is_allowed($user, 'edit')): ?>
-                <li><?php echo link_to($user, 'edit', __('Edit'), array('class'=>'edit')); ?></li>
+                <li><?php echo link_to($user, 'edit', $this->translate('Edit'), array('class'=>'edit')); ?></li>
                 <?php endif; ?>
                 <?php if (is_allowed($user, 'delete')): ?>
-                <li><?php echo link_to($user, 'delete-confirm', __('Delete'), array('class'=>'delete')); ?></li>
+                <li><?php echo link_to($user, 'delete-confirm', $this->translate('Delete'), array('class'=>'delete')); ?></li>
                 <?php endif; ?>
             </ul>
             <?php fire_plugin_hook('admin_users_browse_each', array('user' => $user, 'view' => $this)); ?>
            </td>
             <td><?php echo html_escape($user->name); ?></td>
             <td><?php echo html_escape($user->email); ?></td>
-            <td><span class="<?php echo html_escape($user->role); ?>"><?php echo html_escape(__(Inflector::humanize($user->role))); ?></span></td>
+            <td><span class="<?php echo html_escape($user->role); ?>"><?php echo html_escape($this->translate(Inflector::humanize($user->role))); ?></span></td>
         </tr>
     <?php endforeach; ?>
     </tbody>
