@@ -1,6 +1,7 @@
 <?php
-namespace GuestUser\Form;
+namespace GuestUser\Service\Form;
 
+use GuestUser\Form\ConfigGuestUserForm;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
