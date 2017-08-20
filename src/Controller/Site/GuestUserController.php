@@ -1,15 +1,15 @@
 <?php
 
-namespace GuestUser\Controller;
+namespace GuestUser\Controller\Site;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Omeka\Form\LoginForm;
-use Omeka\Entity\User;
-use Omeka\Form\UserForm;
-use Omeka\Form\ForgotPasswordForm;
 use GuestUser\Entity\GuestUserTokens;
+use Omeka\Entity\User;
+use Omeka\Form\ForgotPasswordForm;
+use Omeka\Form\LoginForm;
+use Omeka\Form\UserForm;
+use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Session\Container;
+use Zend\View\Model\ViewModel;
 
 class GuestUserController extends AbstractActionController
 {
@@ -232,7 +232,10 @@ class GuestUserController extends AbstractActionController
         $widgets = [];
 
         $widget = ['label' => $this->translate('My Account')];
-        $accountUrl = $this->currentSite()->url().'/guestuser/update-account';
+        $accountUrl = $this->url('site/guest-user', [
+            'site-slug' => $this->currentSite()->slug(),
+            'action' => 'update-account',
+        ]);
         $html = "<ul>";
         $html .= "<li><a href='$accountUrl'>" . $this->translate("Update account info and password") . "</a></li>";
         $html .= "</ul>";
@@ -268,7 +271,11 @@ class GuestUserController extends AbstractActionController
         $body .= $this->translate("You can now log using the password you chose.");
 
         $this->messenger()->addSuccess($body);
-        $this->redirect()->toUrl($this->currentSite()->url().'/guestuser/login');
+        $redirectUrl = $this->url('site/guest-user', [
+            'site-slug' => $this->currentSite()->slug(),
+            'action' => 'login',
+        ]);
+        $this->redirect()->toUrl($redirectUrl);
     }
 
     protected function _getForm($options)
@@ -287,7 +294,17 @@ class GuestUserController extends AbstractActionController
         $siteTitle = $this->currentSite()->title();
 
         $subject = sprintf($this->translate("Your request to join %s"), $siteTitle);
-        $url = $this->currentSite()->siteUrl(null, true).'/guestuser/confirm?token=' . $token->getToken();
+        $url = $this->url('site/guest-user',
+            [
+                'site-slug' => $this->currentSite()->slug(),
+                'action' => 'confirm',
+            ],
+            [
+                'query' => [
+                    'token' => $token->getToken(),
+                ],
+            ]
+        );
         $body = sprintf($this->translate("You have registered for an account on %s. Please confirm your registration by following %s.  If you did not request to join %s please disregard this email."), "<a href='$url'>$siteTitle</a>", "<a href='$url'>" . $this->translate('this link') . "</a>", $siteTitle);
 
         $mailer = $this->mailer();

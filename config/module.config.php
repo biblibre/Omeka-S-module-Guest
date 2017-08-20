@@ -24,7 +24,7 @@ return [
     ],
     'controllers' => [
         'factories' => [
-            'GuestUser\Controller\GuestUser' => Service\Controller\GuestUserControllerFactory::class,
+            'GuestUser\Controller\Site\GuestUser' => Service\Controller\Site\GuestUserControllerFactory::class,
         ],
     ],
     'service_manager' => [
@@ -44,8 +44,8 @@ return [
         'site' => [
             [
                 'label' => 'User information',
-                'route' => '/guestuser/login',
-                'resource' => Controller\GuestUserController::class,
+                'route' => '/guest-user/login',
+                'resource' => Controller\Site\GuestUserController::class,
                 'visible' => true,
             ],
         ],
@@ -54,13 +54,16 @@ return [
         'routes' => [
             'site' => [
                 'child_routes' => [
-                    'guestuser' => [
+                    'guest-user' => [
                         'type' => 'Segment',
                         'options' => [
-                            'route' => '/guestuser/:action',
+                            'route' => '/guest-user/:action',
                             'defaults' => [
-                                '__NAMESPACE__' => 'GuestUser\Controller',
+                                '__NAMESPACE__' => 'GuestUser\Controller\Site',
                                 'controller' => 'GuestUser',
+                            ],
+                            'constraints' => [
+                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                             ],
                         ],
                     ],

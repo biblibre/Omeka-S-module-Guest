@@ -30,7 +30,7 @@ class ForgotPasswordControllerTest extends GuestUserControllerTestCase
     public function forgotPasswordShouldDisplayEmailSent()
     {
         $csrf = new \Zend\Form\Element\Csrf('csrf');
-        $this->postDispatch('/s/test/guestuser/forgot-password', [
+        $this->postDispatch('/s/test/guest-user/forgot-password', [
             'email' => "test@test.fr",
             'csrf' => $csrf->getValue(),
         ]);
@@ -44,7 +44,7 @@ class ForgotPasswordControllerTest extends GuestUserControllerTestCase
     public function forgotPasswordShouldSendEmail()
     {
         $csrf = new \Zend\Form\Element\Csrf('csrf');
-        $this->postDispatch('/s/test/guestuser/forgot-password', [
+        $this->postDispatch('/s/test/guest-user/forgot-password', [
             'email' => "test@test.fr",
             'csrf' => $csrf->getValue(),
         ]);

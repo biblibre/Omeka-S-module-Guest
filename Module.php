@@ -114,7 +114,7 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $acl = $services->get('Omeka\Acl');
 
-        $acl->allow(null, 'GuestUser\Controller\GuestUser');
+        $acl->allow(null, 'GuestUser\Controller\Site\GuestUser');
         $acl->allow(null, 'Omeka\Entity\User');
         $acl->allow(null, 'Omeka\Api\Adapter\UserAdapter');
     }

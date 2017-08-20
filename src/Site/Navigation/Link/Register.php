@@ -40,7 +40,7 @@ class Register implements LinkInterface
                 'class' => 'registerlink',
                 'params' => [
                              'site-slug' => $site->slug(),
-                             'controller' => 'guestuser',
+                             'controller' => 'guest-user',
                              'action' => 'register',
             ],
         ];

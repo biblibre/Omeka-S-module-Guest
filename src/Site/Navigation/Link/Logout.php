@@ -39,7 +39,7 @@ class Logout implements LinkInterface
                 'class' => 'logoutlink',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => 'guestuser',
+                'controller' => 'guest-user',
                 'action' => 'logout',
             ],
         ];

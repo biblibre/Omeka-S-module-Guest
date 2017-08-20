@@ -42,7 +42,7 @@ class Login implements LinkInterface
                 'class' => 'loginlink',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => 'guestuser',
+                'controller' => 'guest-user',
                 'action' => 'login',
             ],
         ];
