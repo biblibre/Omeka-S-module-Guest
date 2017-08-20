@@ -31,6 +31,6 @@ class ConfigFormControllerTest extends GuestUserControllerTestCase
     public function configurationPageShouldBeDisplayed($name, $value, $type)
     {
         $this->dispatch('/admin/module/configure?id=GuestUser');
-        $this->assertXPathQuery('//div[@class="inputs"]//'.$type.'[@name="'.$name.'"]');
+        $this->assertXPathQuery('//div[@class="inputs"]//' . $type . '[@name="' . $name . '"]');
     }
 }

@@ -28,6 +28,7 @@
 
 namespace GuestUser;
 
+use GuestUser\Form\Config as ConfigForm;
 use Omeka\Module\AbstractModule;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
@@ -44,9 +45,13 @@ class Module extends AbstractModule
      * @var array
      */
     protected $settings = [
+        'guest_user_capabilities' => '',
+        'guest_user_short_capabilities' => '',
         'guest_user_login_text' => 'Login', // @translate
         'guest_user_register_text' => 'Register', // @translate
         'guest_user_dashboard_label' => 'My Account', // @translate
+        'guest_user_open' => false,
+        'guest_user_recaptcha' => false,
     ];
 
     public function getConfig()
@@ -131,9 +136,9 @@ class Module extends AbstractModule
     public function getConfigForm(PhpRenderer $renderer)
     {
         $form = $this->getServiceLocator()->get('FormElementManager')
-            ->get('GuestUser\Form\ConfigForm');
-        $vars = ['form' => $form];
-        return $renderer->render('guest-user/module/config.phtml', $vars);
+            ->get(ConfigForm::class);
+        $html = $renderer->formCollection($form);
+        return $html;
     }
 
     public function handleConfigForm(AbstractController $controller)

@@ -4,7 +4,7 @@ namespace GuestUser\Form;
 use Zend\Form\Form;
 use Zend\I18n\Translator\TranslatorAwareTrait;
 
-class ConfigGuestUserForm extends Form
+class Config extends Form
 {
     protected $local_storage = '';
     protected $allow_unicode = false;
