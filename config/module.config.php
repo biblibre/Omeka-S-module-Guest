@@ -2,6 +2,16 @@
 namespace GuestUser;
 
 return [
+    'entity_manager' => [
+        'mapping_classes_paths' => [
+            __DIR__ . '/../src/Entity',
+        ],
+    ],
+    'view_manager' => [
+        'template_path_stack' => [
+            __DIR__ . '/../view',
+        ],
+    ],
     'view_helpers' => [
         'invokables' => [
             'guestUserWidget' => View\Helper\GuestUserWidget::class,
@@ -38,18 +48,6 @@ return [
                 'resource' => Controller\GuestUserController::class,
                 'visible' => true,
             ],
-        ],
-    ],
-    'entity_manager' => [
-        'mapping_classes_paths' => [
-            __DIR__ . '/../src/Entity',
-        ],
-    ],
-    'view_manager' => [
-        'template_path_stack' => [
-            __DIR__ . '/../view/admin/',
-            __DIR__ . '/../view/public/',
-
         ],
     ],
     'router' => [
