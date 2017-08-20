@@ -2,11 +2,8 @@
 
 namespace GuestUserTest\Controller;
 
-use DateTime;
-use Zend\Session\Container;
 use Omeka\Entity\User;
 use GuestUser\Entity\GuestUserTokens;
-use GuestUserTest\Controller\GuestUserControllerTestCase;
 
 class UserControllerTest extends GuestUserControllerTestCase
 {
@@ -35,27 +32,27 @@ class UserControllerTest extends GuestUserControllerTestCase
             'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
         ]);
 
-        $this->assertXPathQueryContentContains('//li[@class="success"]','Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.');
+        $this->assertXPathQueryContentContains('//li[@class="success"]', 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.');
         $readResponse = $this->api()->read('sites', [
-            'slug' => 'test'
+            'slug' => 'test',
         ]);
         $siteRepresentation = $readResponse->getContent();
 
         $mailer = $this->getServiceLocator()->get('Omeka\Mailer');
         $body = $mailer->getMessage()->getBody();
-        $link = '<a href=\''.$siteRepresentation->siteUrl(null,true).'/guestuser/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
+        $link = '<a href=\''.$siteRepresentation->siteUrl(null, true).'/guestuser/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
         $this->assertContains('You have registered for an account on '.$link.'Test</a>. Please confirm your registration by following '.$link.'this link</a>.  If you did not request to join Test please disregard this email.', $body);
     }
 
     /** @test */
-    public function tokenlinkShouldValidateGuestUser() {
-
+    public function tokenlinkShouldValidateGuestUser()
+    {
         $user = $this->createGuestUser();
         $userToken = $this->getUserToken($user->email());
         $this->dispatch('/s/test/guestuser/confirm?token='.$userToken->getToken());
         $this->assertTrue($userToken->isConfirmed());
         $this->assertRedirect('guestuser/login');
-        $this->assertXPathQueryContentContains('//li[@class="success"]','Thanks for joining Test! You can now log using the password you chose.');
+        $this->assertXPathQueryContentContains('//li[@class="success"]', 'Thanks for joining Test! You can now log using the password you chose.');
     }
 
     /**
@@ -86,7 +83,7 @@ class UserControllerTest extends GuestUserControllerTestCase
             'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
         ]);
 
-        $this->assertNotNull($em->getRepository('Omeka\Entity\User')->findOneBy(['email'=> 'test4@test.fr', 'name'=> 'test2']));
+        $this->assertNotNull($em->getRepository('Omeka\Entity\User')->findOneBy(['email' => 'test4@test.fr', 'name' => 'test2']));
     }
 
     /**
@@ -119,7 +116,7 @@ class UserControllerTest extends GuestUserControllerTestCase
             'email' => "guest@test.fr",
             'password' => 'test',
             'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
-            'submit' => 'Log+in'
+            'submit' => 'Log+in',
         ]);
 
         $this->assertXPathQueryContentContains('//li[@class="error"]', 'Your account has not been activated');
@@ -137,12 +134,11 @@ class UserControllerTest extends GuestUserControllerTestCase
             'email' => "test@test.fr",
             'password' => 'test2',
             'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
-            'submit' => 'Log+in'
+            'submit' => 'Log+in',
         ]);
 
         $this->assertXPathQueryContentContains('//li[@class="error"]', 'Email or Password invalid');
     }
-
 
     /**
      * @test
@@ -165,7 +161,7 @@ class UserControllerTest extends GuestUserControllerTestCase
             'email' => "test@test.fr",
             'password' => 'test',
             'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
-            'submit' => 'Log+in'
+            'submit' => 'Log+in',
         ]);
 
         $this->assertRedirect('/s/test');

@@ -43,7 +43,7 @@ class Module extends AbstractModule
     public function install(ServiceLocatorInterface $serviceLocator)
     {
         $connection = $serviceLocator->get('Omeka\Connection');
-        $this->serviceLocator=$serviceLocator;
+        $this->serviceLocator = $serviceLocator;
         $sql = "CREATE TABLE IF NOT EXISTS `guest_user_tokens` (
                   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
                   `token` text COLLATE utf8_unicode_ci NOT NULL,
@@ -83,10 +83,11 @@ class Module extends AbstractModule
         $this->deactivateGuestUsers($serviceLocator);
     }
 
-    protected function deactivateGuestUsers($serviceLocator) {
+    protected function deactivateGuestUsers($serviceLocator)
+    {
         $em = $serviceLocator->get('Omeka\EntityManager');
-        $guestUsers = $em->getRepository('Omeka\Entity\User')->findBy(['role'=>'guest']);
-        foreach($guestUsers as $user) {
+        $guestUsers = $em->getRepository('Omeka\Entity\User')->findBy(['role' => 'guest']);
+        foreach ($guestUsers as $user) {
             $user->setIsActive(false);
             $em->persist($user);
             $em->flush();
@@ -95,43 +96,46 @@ class Module extends AbstractModule
 
     public function handleConfigForm(AbstractController $controller)
     {
-        $post =$controller->getRequest()->getPost();
-        foreach($post as $option=>$value) {
+        $post = $controller->getRequest()->getPost();
+        foreach ($post as $option => $value) {
             $this->setOption($option, $value);
         }
     }
 
     public function getConfigForm(PhpRenderer $renderer)
     {
-        $form =  $this->getServiceLocator()->get('FormElementManager')->get('GuestUser\Form\ConfigForm');
-        return $renderer->render( 'config_guest_user_form',
-                                 [
-                                  'form' => $form
-                                 ]);
+        $form = $this->getServiceLocator()->get('FormElementManager')->get('GuestUser\Form\ConfigForm');
+        return $renderer->render(
+            'config_guest_user_form',
+             [
+                  'form' => $form,
+             ]
+        );
     }
 
-
-    public function setConfig($config) {
-        $this->config=$config;
+    public function setConfig($config)
+    {
+        $this->config = $config;
     }
 
-    public function getConfig() {
+    public function getConfig()
+    {
         if ($this->config) {
             return $this->config;
         }
         return include __DIR__ . '/config/module.config.php';
     }
 
-
-    public function setOption($name,$value,$serviceLocator = null) {
+    public function setOption($name, $value, $serviceLocator = null)
+    {
         if (!$serviceLocator) {
             $serviceLocator = $this->getServiceLocator();
         }
 
-        return  $serviceLocator->get('Omeka\Settings')->set($name,$value);
+        return  $serviceLocator->get('Omeka\Settings')->set($name, $value);
     }
 
-    public function getOption($key,$serviceLocator=null)
+    public function getOption($key, $serviceLocator = null)
     {
         if (!$serviceLocator) {
             $serviceLocator = $this->getServiceLocator();
@@ -149,14 +153,14 @@ class Module extends AbstractModule
         $view->headStyle()->appendStyle("li a.logoutlink { display:none;} ");
     }
 
-    public function translate($string,$options='',$serviceLocator=null)
+    public function translate($string, $options = '', $serviceLocator = null)
     {
-        if (!$serviceLocator)
+        if (!$serviceLocator) {
             $serviceLocator = $this->getServiceLocator();
+        }
 
-        return $serviceLocator->get('MvcTranslator')->translate($string,$options);
+        return $serviceLocator->get('MvcTranslator')->translate($string, $options);
     }
-
 
     public function deleteGuestToken($event)
     {
@@ -175,5 +179,4 @@ class Module extends AbstractModule
         $sharedEventManager->attach('*', 'view.layout', [$this, 'appendLoginNav']);
         $sharedEventManager->attach('Omeka\Api\Adapter\UserAdapter', 'api.delete.post', [$this, 'deleteGuestToken']);
     }
-
 }

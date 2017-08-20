@@ -27,7 +27,7 @@ return [
         'invokables' => [
             'register' => Site\Navigation\Link\Register::class,
             'login' => Site\Navigation\Link\Login::class,
-            'logout' => Site\Navigation\Link\Logout::class
+            'logout' => Site\Navigation\Link\Logout::class,
         ],
     ],
     'navigation' => [

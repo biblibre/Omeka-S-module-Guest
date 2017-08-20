@@ -23,7 +23,7 @@ class PasswordAdapter extends OmekaPasswordAdapter
                 ['User not found.']);
         }
 
-        if ($user->getRole()=='guest') {
+        if ($user->getRole() == 'guest') {
             $guest = $this->token_repository->findOneBy(['email' => $this->identity]);
             // There is no token if the guest is created directly (the role is
             // set to a user).
@@ -42,6 +42,6 @@ class PasswordAdapter extends OmekaPasswordAdapter
 
     public function setTokenRepository($token_repository)
     {
-        $this->token_repository=$token_repository;
+        $this->token_repository = $token_repository;
     }
 }

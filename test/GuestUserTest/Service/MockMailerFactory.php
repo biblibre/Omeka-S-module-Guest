@@ -5,7 +5,6 @@ namespace GuestUserTest\Service;
 use Interop\Container\ContainerInterface;
 use Zend\Mail\Transport\Factory as TransportFactory;
 use Zend\ServiceManager\Factory\FactoryInterface;
-use GuestUserTest\Service\MockMailer;
 
 class MockMailerFactory implements FactoryInterface
 {

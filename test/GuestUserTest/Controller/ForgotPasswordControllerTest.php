@@ -2,8 +2,6 @@
 
 namespace GuestUserTest\Controller;
 
-use GuestUserTest\Controller\GuestUserControllerTestCase;
-
 class ForgotPasswordControllerTest extends GuestUserControllerTestCase
 {
     public function setUp()
@@ -58,5 +56,4 @@ class ForgotPasswordControllerTest extends GuestUserControllerTestCase
         $body = $message->getBody();
         $this->assertContains('To reset your password, click this link', $body);
     }
-
 }

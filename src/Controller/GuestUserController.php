@@ -5,15 +5,10 @@ namespace GuestUser\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Omeka\Form\LoginForm;
-use Search\Form\BasicForm;
-use Omeka\Entity\ApiKey;
 use Omeka\Entity\User;
 use Omeka\Form\UserForm;
 use Omeka\Form\ForgotPasswordForm;
-use Omeka\Form\UserKeyForm;
-use Omeka\Form\UserPasswordForm;
 use GuestUser\Entity\GuestUserTokens;
-use Omeka\Service\Mailer;
 use Zend\Session\Container;
 
 class GuestUserController extends AbstractActionController
@@ -32,8 +27,9 @@ class GuestUserController extends AbstractActionController
         $form = $this->getForm(LoginForm::class);
         $view = new ViewModel;
         $view->setVariable('form', $form);
-        if (!$this->checkPostAndValidForm($form))
+        if (!$this->checkPostAndValidForm($form)) {
             return $view;
+        }
 
         $validatedData = $form->getData();
         $sessionManager = Container::getDefaultManager();
@@ -44,7 +40,7 @@ class GuestUserController extends AbstractActionController
         $adapter->setCredential($validatedData['password']);
         $result = $auth->authenticate();
         if (!$result->isValid()) {
-            $this->messenger()->addError(implode(';',$result->getMessages()));
+            $this->messenger()->addError(implode(';', $result->getMessages()));
             return $view;
         }
 
@@ -71,7 +67,6 @@ class GuestUserController extends AbstractActionController
         return $this->redirect()->toUrl($this->currentSite()->url());
     }
 
-
     public function forgotPasswordAction()
     {
         $authentication = $this->getAuthenticationService();
@@ -95,11 +90,11 @@ class GuestUserController extends AbstractActionController
             return $view;
         }
         $entityManager = $this->getEntityManager();
-        $user =  $entityManager->getRepository('Omeka\Entity\User')
-                               ->findOneBy([
-                                            'email' => $data['email'],
-                                            'isActive' => true,
-                                            ]);
+        $user = $entityManager->getRepository('Omeka\Entity\User')
+            ->findOneBy([
+                'email' => $data['email'],
+                'isActive' => true,
+            ]);
         $entityManager->persist($user);
         if ($user) {
             $passwordCreation = $entityManager
@@ -117,10 +112,11 @@ class GuestUserController extends AbstractActionController
         return $view;
     }
 
-
-    protected function checkPostAndValidForm($form) {
-        if (!$this->getRequest()->isPost())
+    protected function checkPostAndValidForm($form)
+    {
+        if (!$this->getRequest()->isPost()) {
             return false;
+        }
 
         $form->setData($this->params()->fromPost());
         if (!$form->isValid()) {
@@ -139,16 +135,17 @@ class GuestUserController extends AbstractActionController
     {
         $user = new User();
         $user->setRole('guest');
-        $form = $this->_getForm(['user'=>$user, 'include_role' => false]);
+        $form = $this->_getForm(['user' => $user, 'include_role' => false]);
 
         $view = new ViewModel;
         $view->setVariable('form', $form);
         $registerLabel = $this->getOption('guest_user_capabilities') ? $this->getOption('guest_user_capabilities') : $this->translate('Register');
 
-        $view->setVariable('registerLabel',$registerLabel);
+        $view->setVariable('registerLabel', $registerLabel);
 
-        if (!$this->checkPostAndValidForm($form))
+        if (!$this->checkPostAndValidForm($form)) {
             return $view;
+        }
 
         $formData = $form->getData();
         $userInfo = $formData['user-information'];
@@ -163,9 +160,7 @@ class GuestUserController extends AbstractActionController
 
         $this->createGuestUserAndSendMail($user);
 
-
         return $view;
-
     }
 
     protected function save($entity)
@@ -175,8 +170,8 @@ class GuestUserController extends AbstractActionController
         $em->flush();
     }
 
-
-    public function createGuestUserAndSendMail($user) {
+    public function createGuestUserAndSendMail($user)
+    {
         $guest = new GuestUserTokens;
         $guest->setEmail($user->getEmail());
         $guest->setUser($user);
@@ -185,8 +180,6 @@ class GuestUserController extends AbstractActionController
 
         $this->_sendConfirmationEmail($user, $guest); //confirms that they registration request is legit
     }
-
-
 
     public function updateAccountAction()
     {
@@ -197,7 +190,7 @@ class GuestUserController extends AbstractActionController
         $view = new ViewModel;
         $userRepr = $this->api()->read('users', $user->getId())->getContent();
         $label = $this->getOption('guest_user_dashboard_label') ? $this->getOption('guest_user_dashboard_label') : $this->translate('My account');
-        $form = $this->_getForm(['user'=>$user, 'include_role' => false]);
+        $form = $this->_getForm(['user' => $user, 'include_role' => false]);
 
         $form->setData($userRepr->jsonSerialize());
         $view->setVariable('form', $form);
@@ -227,20 +220,18 @@ class GuestUserController extends AbstractActionController
         $message = $this->translate("Your modifications has been saved.");
         $this->messenger()->addSuccess($message);
         return $view;
-
     }
-
 
     public function meAction()
     {
-
         $auth = $this->getAuthenticationService();
-        if (!$auth->hasIdentity())
+        if (!$auth->hasIdentity()) {
             $this->redirect()->toUrl($this->currentSite()->url());
+        }
 
         $widgets = [];
 
-        $widget = ['label'=> $this->translate('My Account')];
+        $widget = ['label' => $this->translate('My Account')];
         $accountUrl = $this->currentSite()->url().'/guestuser/update-account';
         $html = "<ul>";
         $html .= "<li><a href='$accountUrl'>" . $this->translate("Update account info and password") . "</a></li>";
@@ -263,15 +254,16 @@ class GuestUserController extends AbstractActionController
     {
         $token = $this->params()->fromQuery('token');
         $em = $this->getEntityManager();
-        $records = $em->getRepository('GuestUser\Entity\GuestUserTokens')->findBy(['token'=>$token]);
+        $records = $em->getRepository('GuestUser\Entity\GuestUserTokens')->findBy(['token' => $token]);
 
-        if(!($record = reset($records)))
+        if (!($record = reset($records))) {
             return $this->messenger()->addError($this->translate('Invalid token stop'), 'error');
+        }
 
         $record->setConfirmed(true);
         $this->save($record);
-        $user = $em->find('Omeka\Entity\User',$record->getUser()->getId());
-        $siteTitle= $this->currentSite()->title();
+        $user = $em->find('Omeka\Entity\User', $record->getUser()->getId());
+        $siteTitle = $this->currentSite()->title();
         $body = sprintf($this->translate("Thanks for joining %s! "), $siteTitle);
         $body .= $this->translate("You can now log using the password you chose.");
 
@@ -290,22 +282,19 @@ class GuestUserController extends AbstractActionController
         return $form;
     }
 
-
-
     protected function _sendConfirmationEmail($user, $token)
     {
-
         $siteTitle = $this->currentSite()->title();
 
         $subject = sprintf($this->translate("Your request to join %s"), $siteTitle);
-        $url =  $this->currentSite()->siteUrl(null,true).'/guestuser/confirm?token=' . $token->getToken();
+        $url = $this->currentSite()->siteUrl(null, true).'/guestuser/confirm?token=' . $token->getToken();
         $body = sprintf($this->translate("You have registered for an account on %s. Please confirm your registration by following %s.  If you did not request to join %s please disregard this email."), "<a href='$url'>$siteTitle</a>", "<a href='$url'>" . $this->translate('this link') . "</a>", $siteTitle);
 
         $mailer = $this->mailer();
         $message = $mailer->createMessage();
         $message->addTo($user->getEmail(), $user->getName())
-                ->setSubject($subject)
-                ->setBody($body);
+            ->setSubject($subject)
+            ->setBody($body);
         try {
             $mailer->send($message);
         } catch (Exception $e) {

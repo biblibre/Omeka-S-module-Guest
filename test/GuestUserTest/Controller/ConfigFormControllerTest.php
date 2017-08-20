@@ -7,10 +7,10 @@ class ConfigFormControllerTest extends GuestUserControllerTestCase
     public function datas()
     {
         return [
-            ['guest_user_capabilities', 'long description','textarea'],
-            ['guest_user_short_capabilities', 'short','textarea'],
-            ['guest_user_dashboard_label', 'dashboard label','input'],
-            ['guest_user_login_text', 'Log !','input'],
+            ['guest_user_capabilities', 'long description', 'textarea'],
+            ['guest_user_short_capabilities', 'short', 'textarea'],
+            ['guest_user_dashboard_label', 'dashboard label', 'input'],
+            ['guest_user_login_text', 'Log !', 'input'],
         ];
     }
 
@@ -22,7 +22,6 @@ class ConfigFormControllerTest extends GuestUserControllerTestCase
     {
         $this->postDispatch('/admin/module/configure?id=GuestUser', [$name => $value]);
         $this->assertEquals($value, $this->getServiceLocator()->get('Omeka\Settings')->get($name));
-
     }
 
     /**
