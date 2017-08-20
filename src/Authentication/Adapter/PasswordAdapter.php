@@ -25,7 +25,9 @@ class PasswordAdapter extends OmekaPasswordAdapter
 
         if ($user->getRole()=='guest') {
             $guest = $this->token_repository->findOneBy(['email' => $this->identity]);
-            if (!$guest->isConfirmed()) {
+            // There is no token if the guest is created directly (the role is
+            // set to a user).
+            if ($guest && !$guest->isConfirmed()) {
                 return new Result(Result::FAILURE, null, ['Your account has not been activated']);
             }
         }
