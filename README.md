@@ -26,9 +26,9 @@ Usage
 ```
     <?php
     if ($this->identity()):
-        echo $this->hyperlink($this->translate('Logout'), $this->url('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'logout']), ['class' => 'logout']);
+        echo $this->hyperlink($this->translate('Logout'), $this->url()->fromRoute('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'logout']), ['class' => 'logout']);
     else:
-        echo $this->hyperlink($this->translate('Login'), $this->url('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'login']), ['class' => 'login']);
+        echo $this->hyperlink($this->translate('Login'), $this->url()->fromRoute('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'login']), ['class' => 'login']);
     endif;
     ?>
 ```

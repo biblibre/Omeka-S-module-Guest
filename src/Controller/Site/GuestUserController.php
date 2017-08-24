@@ -232,7 +232,7 @@ class GuestUserController extends AbstractActionController
         $widgets = [];
 
         $widget = ['label' => $this->translate('My Account')];
-        $accountUrl = $this->url('site/guest-user', [
+        $accountUrl = $this->url()->fromRoute('site/guest-user', [
             'site-slug' => $this->currentSite()->slug(),
             'action' => 'update-account',
         ]);
@@ -271,7 +271,7 @@ class GuestUserController extends AbstractActionController
         $body .= $this->translate("You can now log using the password you chose.");
 
         $this->messenger()->addSuccess($body);
-        $redirectUrl = $this->url('site/guest-user', [
+        $redirectUrl = $this->url()->fromRoute('site/guest-user', [
             'site-slug' => $this->currentSite()->slug(),
             'action' => 'login',
         ]);
@@ -294,7 +294,7 @@ class GuestUserController extends AbstractActionController
         $siteTitle = $this->currentSite()->title();
 
         $subject = sprintf($this->translate("Your request to join %s"), $siteTitle);
-        $url = $this->url('site/guest-user',
+        $url = $this->url()->fromRoute('site/guest-user',
             [
                 'site-slug' => $this->currentSite()->slug(),
                 'action' => 'confirm',

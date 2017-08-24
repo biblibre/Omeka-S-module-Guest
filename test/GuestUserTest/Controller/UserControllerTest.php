@@ -2,8 +2,11 @@
 
 namespace GuestUserTest\Controller;
 
+use Zend\Form\Element\Csrf;
+use Zend\Session\Container;
 use Omeka\Entity\User;
 use GuestUser\Entity\GuestUserTokens;
+use GuestUserTest\Session\SaveHandler;
 
 class UserControllerTest extends GuestUserControllerTestCase
 {
@@ -29,7 +32,7 @@ class UserControllerTest extends GuestUserControllerTestCase
                 'password' => 'foobar',
                 'password-confirm' => 'foobar',
             ],
-            'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+            'csrf' => (new Csrf('csrf'))->getValue(),
         ]);
 
         $this->assertXPathQueryContentContains('//li[@class="success"]', 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.');
@@ -40,7 +43,7 @@ class UserControllerTest extends GuestUserControllerTestCase
 
         $mailer = $this->getServiceLocator()->get('Omeka\Mailer');
         $body = $mailer->getMessage()->getBody();
-        $link = '<a href=\''.$siteRepresentation->siteUrl(null, true).'/guest-user/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
+        $link = '<a href=\''.$siteRepresentation->siteUrl().'/guest-user/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
         $this->assertContains('You have registered for an account on '.$link.'Test</a>. Please confirm your registration by following '.$link.'this link</a>.  If you did not request to join Test please disregard this email.', $body);
     }
 
@@ -80,7 +83,7 @@ class UserControllerTest extends GuestUserControllerTestCase
                 'o:email' => "test4@test.fr",
                 'o:name' => 'test2',
             ],
-            'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+            'csrf' => (new Csrf('csrf'))->getValue(),
         ]);
 
         $this->assertNotNull($em->getRepository('Omeka\Entity\User')->findOneBy(['email' => 'test4@test.fr', 'name' => 'test2']));
@@ -107,15 +110,19 @@ class UserControllerTest extends GuestUserControllerTestCase
      */
     public function registerNeedsValidation()
     {
+        // This avoids warning:
+        // session_destroy(): Session object destruction failed
+        session_write_close();
+        session_start();
+
         $user = $this->createGuestUser();
         $this->logout();
 
-        $this->markTestIncomplete('This test has a "headers already sent" problem');
-
+        $csrf = new Csrf('loginform_csrf');
         $this->postDispatch('/s/test/guest-user/login', [
             'email' => "guest@test.fr",
             'password' => 'test',
-            'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+            'loginform_csrf' => $csrf->getValue(),
             'submit' => 'Log+in',
         ]);
 
@@ -127,13 +134,16 @@ class UserControllerTest extends GuestUserControllerTestCase
      */
     public function loginShouldDisplayWrongEmailOrPassword()
     {
-        $this->markTestIncomplete('This test has a "headers already sent" problem');
+        // This avoids warning:
+        // session_destroy(): Session object destruction failed
+        session_write_close();
+        session_start();
 
         $this->logout();
         $this->postDispatch('/s/test/guest-user/login', [
             'email' => "test@test.fr",
             'password' => 'test2',
-            'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+            'csrf' => (new Csrf('csrf'))->getValue(),
             'submit' => 'Log+in',
         ]);
 
@@ -160,7 +170,7 @@ class UserControllerTest extends GuestUserControllerTestCase
         $this->postDispatch('/s/test/guest-user/login', [
             'email' => "test@test.fr",
             'password' => 'test',
-            'csrf' => (new \Zend\Form\Element\Csrf('csrf'))->getValue(),
+            'csrf' => (new Csrf('csrf'))->getValue(),
             'submit' => 'Log+in',
         ]);
 
