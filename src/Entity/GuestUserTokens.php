@@ -31,10 +31,9 @@ namespace GuestUser\Entity;
 
 use DateTime;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Omeka\Entity\AbstractEntity;
 use Omeka\Entity\User as User;
-use Zend\Permissions\Acl\Role\RoleInterface;
+
 /**
  * @Entity
  * @HasLifecycleCallbacks
@@ -58,7 +57,6 @@ class GuestUserTokens extends AbstractEntity
      */
     protected $email;
 
-
     /**
      * @ManyToOne(targetEntity="\Omeka\Entity\User")
      * @JoinColumn(nullable=false, onDelete="CASCADE")
@@ -74,8 +72,6 @@ class GuestUserTokens extends AbstractEntity
      * @Column(type="boolean")
      */
     protected $confirmed = false;
-
-
 
     public function getId()
     {
@@ -101,7 +97,6 @@ class GuestUserTokens extends AbstractEntity
     {
         return $this->user;
     }
-
 
     public function setToken($token)
     {
@@ -130,6 +125,4 @@ class GuestUserTokens extends AbstractEntity
     {
         $this->created = new DateTime('now');
     }
-
-
 }

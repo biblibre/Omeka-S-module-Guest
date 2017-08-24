@@ -1,14 +1,13 @@
 <?php
 namespace GuestUser\Authentication\Adapter;
-use Omeka\Authentication\Adapter\PasswordAdapter;
-use Doctrine\ORM\EntityRepository;
-use Zend\Authentication\Adapter\AbstractAdapter;
+
+use Omeka\Authentication\Adapter\PasswordAdapter as OmekaPasswordAdapter;
 use Zend\Authentication\Result;
 
 /**
  * Auth adapter for checking passwords through Doctrine.
  */
-class PasswordGuestUserAdapter extends PasswordAdapter
+class PasswordAdapter extends OmekaPasswordAdapter
 {
     protected $token_repository;
 
@@ -18,20 +17,22 @@ class PasswordGuestUserAdapter extends PasswordAdapter
     public function authenticate()
     {
         $user = $this->repository->findOneBy(['email' => $this->identity]);
+
         if (!$user || !$user->isActive()) {
             return new Result(Result::FAILURE_IDENTITY_NOT_FOUND, null,
                 ['User not found.']);
         }
 
-        if ($user->getRole()=='guest') {
+        if ($user->getRole() == 'guest') {
             $guest = $this->token_repository->findOneBy(['email' => $this->identity]);
-
-            if (!$guest->isConfirmed())
+            // There is no token if the guest is created directly (the role is
+            // set to a user).
+            if ($guest && !$guest->isConfirmed()) {
                 return new Result(Result::FAILURE, null, ['Your account has not been activated']);
-
+            }
         }
-        if (!$user->verifyPassword($this->credential)) {
 
+        if (!$user->verifyPassword($this->credential)) {
             return new Result(Result::FAILURE_CREDENTIAL_INVALID, null,
                 ['Invalid password.']);
         }
@@ -39,8 +40,8 @@ class PasswordGuestUserAdapter extends PasswordAdapter
         return new Result(Result::SUCCESS, $user);
     }
 
-    public function setTokenRepository($token_repository) {
-        $this->token_repository=$token_repository;
+    public function setTokenRepository($token_repository)
+    {
+        $this->token_repository = $token_repository;
     }
-
 }

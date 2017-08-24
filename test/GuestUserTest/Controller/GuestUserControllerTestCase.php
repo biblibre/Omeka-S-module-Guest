@@ -2,7 +2,6 @@
 
 namespace GuestUserTest\Controller;
 
-use Zend\Http\Request as HttpRequest;
 use OmekaTestHelper\Controller\OmekaControllerTestCase;
 use GuestUserTest\Service\MockMailerFactory;
 

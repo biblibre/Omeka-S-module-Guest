@@ -1,5 +1,6 @@
 <?php
 namespace GuestUser\Site\Navigation\Link;
+
 use Omeka\Site\Navigation\Link\LinkInterface;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Stdlib\ErrorStore;
@@ -12,7 +13,6 @@ class Logout implements LinkInterface
     }
 
     public function getLabel(array $data, SiteRepresentation $site)
-
     {
         return 'Logout'; // @translate
     }
@@ -39,7 +39,7 @@ class Logout implements LinkInterface
                 'class' => 'logoutlink',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => 'guestuser',
+                'controller' => 'guest-user',
                 'action' => 'logout',
             ],
         ];

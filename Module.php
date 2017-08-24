@@ -28,6 +28,7 @@
 
 namespace GuestUser;
 
+use GuestUser\Form\Config as ConfigForm;
 use Omeka\Module\AbstractModule;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
@@ -38,12 +39,36 @@ use Zend\EventManager\Event;
 
 class Module extends AbstractModule
 {
-    protected $config;
+    /**
+     * Settings and their default values.
+     *
+     * @var array
+     */
+    protected $settings = [
+        'guest_user_capabilities' => '',
+        'guest_user_short_capabilities' => '',
+        'guest_user_login_text' => 'Login', // @translate
+        'guest_user_register_text' => 'Register', // @translate
+        'guest_user_dashboard_label' => 'My Account', // @translate
+        'guest_user_open' => false,
+        'guest_user_recaptcha' => false,
+    ];
+
+    public function getConfig()
+    {
+        return include __DIR__ . '/config/module.config.php';
+    }
+
+    public function onBootstrap(MvcEvent $event)
+    {
+        parent::onBootstrap($event);
+        $this->addAclRules();
+    }
 
     public function install(ServiceLocatorInterface $serviceLocator)
     {
         $connection = $serviceLocator->get('Omeka\Connection');
-        $this->serviceLocator=$serviceLocator;
+        $this->serviceLocator = $serviceLocator;
         $sql = "CREATE TABLE IF NOT EXISTS `guest_user_tokens` (
                   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
                   `token` text COLLATE utf8_unicode_ci NOT NULL,
@@ -61,21 +86,11 @@ class Module extends AbstractModule
         $sql = "UPDATE user set is_active=true WHERE role='guest'";
         $connection->exec($sql);
 
-        $this->setOption('guest_user_login_text', $this->translate('Login'));
-        $this->setOption('guest_user_register_text', $this->translate('Register'));
-        $this->setOption('guest_user_dashboard_label', $this->translate('My Account'));
-    }
-
-    public function onBootstrap(MvcEvent $event)
-    {
-        parent::onBootstrap($event);
-        $services = $this->getServiceLocator();
-        $manager = $services->get('ViewHelperManager');
-
-        $acl = $this->getServiceLocator()->get('Omeka\Acl');
-        $acl->allow(null, 'GuestUser\Controller\GuestUser');
-        $acl->allow(null, 'Omeka\Entity\User');
-        $acl->allow(null, 'Omeka\Api\Adapter\UserAdapter');
+        $settings = $serviceLocator->get('Omeka\Settings');
+        $t = $serviceLocator->get('MvcTranslator');
+        foreach ($this->settings as $name => $value) {
+            $settings->set($name, $t->translate($value));
+        }
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
@@ -83,60 +98,60 @@ class Module extends AbstractModule
         $this->deactivateGuestUsers($serviceLocator);
     }
 
-    protected function deactivateGuestUsers($serviceLocator) {
+    protected function deactivateGuestUsers($serviceLocator)
+    {
         $em = $serviceLocator->get('Omeka\EntityManager');
-        $guestUsers = $em->getRepository('Omeka\Entity\User')->findBy(['role'=>'guest']);
-        foreach($guestUsers as $user) {
+        $guestUsers = $em->getRepository('Omeka\Entity\User')->findBy(['role' => 'guest']);
+        foreach ($guestUsers as $user) {
             $user->setIsActive(false);
             $em->persist($user);
             $em->flush();
         }
     }
 
-    public function handleConfigForm(AbstractController $controller)
+    protected function addAclRules()
     {
-        $post =$controller->getRequest()->getPost();
-        foreach($post as $option=>$value) {
-            $this->setOption($option, $value);
-        }
+        $services = $this->getServiceLocator();
+        $acl = $services->get('Omeka\Acl');
+
+        $acl->allow(null, 'GuestUser\Controller\Site\GuestUser');
+        $acl->allow(null, 'Omeka\Entity\User');
+        $acl->allow(null, 'Omeka\Api\Adapter\UserAdapter');
+    }
+
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager)
+    {
+        $sharedEventManager->attach(
+            '*',
+            'view.layout',
+            [$this, 'appendLoginNav']
+        );
+        $sharedEventManager->attach(
+            'Omeka\Api\Adapter\UserAdapter',
+            'api.delete.post',
+            [$this, 'deleteGuestToken']
+        );
     }
 
     public function getConfigForm(PhpRenderer $renderer)
     {
-        $form =  $this->getServiceLocator()->get('FormElementManager')->get('GuestUser\Form\ConfigForm');
-        return $renderer->render( 'config_guest_user_form',
-                                 [
-                                  'form' => $form
-                                 ]);
+        $form = $this->getServiceLocator()->get('FormElementManager')
+            ->get(ConfigForm::class);
+        $html = $renderer->formCollection($form);
+        return $html;
     }
 
-
-    public function setConfig($config) {
-        $this->config=$config;
-    }
-
-    public function getConfig() {
-        if ($this->config) {
-            return $this->config;
-        }
-        return include __DIR__ . '/config/module.config.php';
-    }
-
-
-    public function setOption($name,$value,$serviceLocator = null) {
-        if (!$serviceLocator) {
-            $serviceLocator = $this->getServiceLocator();
-        }
-
-        return  $serviceLocator->get('Omeka\Settings')->set($name,$value);
-    }
-
-    public function getOption($key,$serviceLocator=null)
+    public function handleConfigForm(AbstractController $controller)
     {
-        if (!$serviceLocator) {
-            $serviceLocator = $this->getServiceLocator();
+        $services = $this->getServiceLocator();
+        $settings = $services->get('Omeka\Settings');
+
+        $params = $controller->getRequest()->getPost();
+        foreach ($params as $name => $value) {
+            if (isset($this->settings[$name])) {
+                $settings->set($name, $value);
+            }
         }
-        return $serviceLocator->get('Omeka\Settings')->get($key);
     }
 
     public function appendLoginNav(Event $event)
@@ -144,19 +159,10 @@ class Module extends AbstractModule
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         $view = $event->getTarget();
         if ($auth->hasIdentity()) {
-            return $view->headStyle()->appendStyle("li a.registerlink ,li a.loginlink { display:none;} ");
+            return $view->headStyle()->appendStyle("li a.registerlink, li a.loginlink { display:none;} ");
         }
         $view->headStyle()->appendStyle("li a.logoutlink { display:none;} ");
     }
-
-    public function translate($string,$options='',$serviceLocator=null)
-    {
-        if (!$serviceLocator)
-            $serviceLocator = $this->getServiceLocator();
-
-        return $serviceLocator->get('MvcTranslator')->translate($string,$options);
-    }
-
 
     public function deleteGuestToken($event)
     {
@@ -169,11 +175,4 @@ class Module extends AbstractModule
             $em->flush();
         }
     }
-
-    public function attachListeners(SharedEventManagerInterface $sharedEventManager)
-    {
-        $sharedEventManager->attach('*', 'view.layout', [$this, 'appendLoginNav']);
-        $sharedEventManager->attach('Omeka\Api\Adapter\UserAdapter', 'api.delete.post', [$this, 'deleteGuestToken']);
-    }
-
 }

@@ -1,5 +1,6 @@
 <?php
 namespace GuestUser\Site\Navigation\Link;
+
 use Omeka\Site\Navigation\Link\LinkInterface;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Stdlib\ErrorStore;
@@ -13,7 +14,6 @@ class Login implements LinkInterface
 
     public function getLabel(array $data, SiteRepresentation $site)
     {
-
         if (isset($data['label']) && '' !== trim($data['label'])) {
             return $data['label'];
         }
@@ -42,7 +42,7 @@ class Login implements LinkInterface
                 'class' => 'loginlink',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => 'guestuser',
+                'controller' => 'guest-user',
                 'action' => 'login',
             ],
         ];

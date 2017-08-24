@@ -1,12 +1,12 @@
 <?php
 namespace GuestUser\Site\Navigation\Link;
+
 use Omeka\Site\Navigation\Link\LinkInterface;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Stdlib\ErrorStore;
 
 class Register implements LinkInterface
 {
-
     public function getName()
     {
         return 'Register'; // @translate
@@ -37,10 +37,10 @@ class Register implements LinkInterface
         return [
                 'label' => $data['label'],
                 'route' => 'site/resource',
-                'class'=>'registerlink',
+                'class' => 'registerlink',
                 'params' => [
                              'site-slug' => $site->slug(),
-                             'controller' => 'guestuser',
+                             'controller' => 'guest-user',
                              'action' => 'register',
             ],
         ];

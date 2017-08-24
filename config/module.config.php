@@ -1,73 +1,74 @@
 <?php
+namespace GuestUser;
+
 return [
+    'entity_manager' => [
+        'mapping_classes_paths' => [
+            __DIR__ . '/../src/Entity',
+        ],
+    ],
+    'view_manager' => [
+        'template_path_stack' => [
+            __DIR__ . '/../view',
+        ],
+    ],
     'view_helpers' => [
         'invokables' => [
-            'guestUserWidget' => 'GuestUser\View\Helper\GuestUserWidget',
+            'guestUserWidget' => View\Helper\GuestUserWidget::class,
         ],
     ],
     'form_elements' => [
         'factories' => [
-            'GuestUser\Form\ConfigForm' => 'GuestUser\Form\ConfigGuestUserFormFactory',
+            'GuestUser\Form\Config' => Service\Form\ConfigFactory::class,
         ],
     ],
     'controllers' => [
         'factories' => [
-            'GuestUser\Controller\GuestUser' => 'GuestUser\Service\Controller\GuestUserControllerFactory',
-        ],
-    ],
-    'router' => [
-        'routes' => [
-            'site' => [
-                'child_routes' => [
-                    'guestuser' => [
-                        'type' => 'Segment',
-                        'options' => [
-                            'route' => '/guestuser/:action',
-                            'defaults' => [
-                                '__NAMESPACE__' => 'GuestUser\Controller',
-                                'controller' => 'GuestUser',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
+            'GuestUser\Controller\Site\GuestUser' => Service\Controller\Site\GuestUserControllerFactory::class,
         ],
     ],
     'service_manager' => [
         'factories' => [
-            'Omeka\AuthenticationService' => 'GuestUser\Service\AuthenticationServiceFactory',
-            'Omeka\Acl' => 'GuestUser\Service\AclFactory',
-
+            'Omeka\AuthenticationService' => Service\AuthenticationServiceFactory::class,
+            'Omeka\Acl' => Service\AclFactory::class,
         ],
     ],
     'navigation_links' => [
         'invokables' => [
-            'register' => 'GuestUser\Site\Navigation\Link\Register',
-            'login' => 'GuestUser\Site\Navigation\Link\Login',
-            'logout' => 'GuestUser\Site\Navigation\Link\Logout'
+            'register' => Site\Navigation\Link\Register::class,
+            'login' => Site\Navigation\Link\Login::class,
+            'logout' => Site\Navigation\Link\Logout::class,
         ],
     ],
     'navigation' => [
         'site' => [
             [
                 'label' => 'User information',
-                'route' => '/guestuser/login',
-                'resource' => 'GuestUser\Controller\GuestUserController',
+                'route' => '/guest-user/login',
+                'resource' => Controller\Site\GuestUserController::class,
                 'visible' => true,
             ],
         ],
     ],
-    'entity_manager' => [
-        'mapping_classes_paths' => [
-            __DIR__ . '/../src/Entity',
-        ],
-    ],
-
-    'view_manager' => [
-        'template_path_stack' => [
-            __DIR__ . '/../view/admin/',
-            __DIR__ . '/../view/public/',
-
+    'router' => [
+        'routes' => [
+            'site' => [
+                'child_routes' => [
+                    'guest-user' => [
+                        'type' => 'Segment',
+                        'options' => [
+                            'route' => '/guest-user/:action',
+                            'defaults' => [
+                                '__NAMESPACE__' => 'GuestUser\Controller\Site',
+                                'controller' => 'GuestUser',
+                            ],
+                            'constraints' => [
+                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ],
     ],
     'translator' => [

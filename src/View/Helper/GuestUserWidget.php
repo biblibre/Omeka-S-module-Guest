@@ -10,7 +10,7 @@ class GuestUserWidget extends AbstractHtmlElement
     {
         $escape = $this->getView()->plugin('escapeHtml');
 
-        if(is_array($widget)) {
+        if (is_array($widget)) {
             $attribs = [
                 'class' => 'guest-user-widget-label',
             ];

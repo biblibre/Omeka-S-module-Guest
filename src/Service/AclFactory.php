@@ -2,15 +2,7 @@
 namespace GuestUser\Service;
 
 use GuestUser\Permissions\Acl as GuestUserAcl;
-use Omeka\Permissions\Assertion\AssertionNegation;
-use Omeka\Permissions\Assertion\HasSitePermissionAssertion;
-use Omeka\Permissions\Assertion\SiteIsPublicAssertion;
-use Omeka\Permissions\Assertion\IsSelfAssertion;
-use Omeka\Permissions\Assertion\OwnsEntityAssertion;
-use Omeka\Permissions\Assertion\UserIsAdminAssertion;
 use Interop\Container\ContainerInterface;
-use Zend\Permissions\Acl\Assertion\AssertionAggregate;
-use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Access control list factory.
@@ -39,10 +31,9 @@ class AclFactory extends \Omeka\Service\AclFactory
         return $acl;
     }
 
-
-    protected function addGuestRoles($acl,$serviceLocator)
+    protected function addGuestRoles($acl, $serviceLocator)
     {
-        parent::addRoles($acl,$serviceLocator);
+        parent::addRoles($acl, $serviceLocator);
         $acl->addRole('guest');
         $acl->addRoleLabel('guest', 'Guest');
     }
