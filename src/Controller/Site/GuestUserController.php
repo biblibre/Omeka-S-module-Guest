@@ -314,7 +314,7 @@ class GuestUserController extends AbstractActionController
             ->setBody($body);
         try {
             $mailer->send($message);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $logger = $this->getLogger();
             $logger->err((string) $e);
         }
