@@ -115,8 +115,8 @@ class Module extends AbstractModule
         $acl = $services->get('Omeka\Acl');
 
         $acl->allow(null, 'GuestUser\Controller\Site\GuestUser');
-        $acl->allow(null, 'Omeka\Entity\User');
-        $acl->allow(null, 'Omeka\Api\Adapter\UserAdapter');
+        $acl->allow(Permissions\Acl::ROLE_GUEST, 'Omeka\Entity\User');
+        $acl->allow(Permissions\Acl::ROLE_GUEST, 'Omeka\Api\Adapter\UserAdapter');
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
