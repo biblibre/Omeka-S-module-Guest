@@ -1,8 +1,9 @@
-
+<?php
+$this->htmlElement('body')->appendAttribute('class', 'guest-user account');
+$form->prepare();
+?>
 
 <?php echo $this->messages(); ?>
-
-<?php $form->prepare(); ?>
 
 <?php echo $this->pageTitle($this->label); ?>
 

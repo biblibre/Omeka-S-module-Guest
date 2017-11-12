@@ -1,12 +1,13 @@
 <?php
-    $pageTitle =  $this->setting('guestuser_dashboard_label');
-    echo $this->pageTitle($pageTitle);
+$this->htmlElement('body')->appendAttribute('class', 'guest-user account');
+
+$pageTitle =  $this->setting('guestuser_dashboard_label');
+echo $this->pageTitle($pageTitle);
 ?>
-<h1><?php $this->pageTitle(); ?></h1>
+<h1><?php $this->pageTitle($pageTitle); ?></h1>
 
-
-<?php foreach($this->widgets as $index=>$widget): ?>
-<div class='guest-user-widget <?php if($index & 1): ?>guest-user-widget-odd <?php else:?>guest-user-widget-even<?php endif;?>'>
+<?php foreach ($this->widgets as $index=>$widget): ?>
+<div class="guest-user-widget <?php if ($index & 1): ?>guest-user-widget-odd <?php else:?>guest-user-widget-even<?php endif;?>">
 <?php echo $this->guestUserWidget($widget); ?>
 </div>
 <?php endforeach; ?>
