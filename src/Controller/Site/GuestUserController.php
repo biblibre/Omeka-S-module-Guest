@@ -155,16 +155,18 @@ class GuestUserController extends AbstractActionController
         return $view;
     }
 
-    public function createGuestUserAndSendMail($user)
+    protected function createGuestUserAndSendMail(User $user)
     {
-        $guest = new GuestUserToken;
-        $guest->setEmail($user->getEmail());
-        $guest->setUser($user);
-        $guest->setToken(sha1("tOkenS@1t" . microtime()));
-        $this->save($guest);
+        $guestUserToken = new GuestUserToken;
+        $guestUserToken->setEmail($user->getEmail());
+        $guestUserToken->setUser($user);
+        $guestUserToken->setToken(sha1("tOkenS@1t" . microtime()));
+        $em = $this->getEntityManager();
+        $em->persist($guestUserToken);
+        $em->flush();
 
         // Confirms that they registration request is legit.
-        $this->_sendConfirmationEmail($user, $guest);
+        $this->_sendConfirmationEmail($user, $guestUserToken);
     }
 
     public function updateAccountAction()
@@ -252,15 +254,18 @@ class GuestUserController extends AbstractActionController
     {
         $token = $this->params()->fromQuery('token');
         $em = $this->getEntityManager();
-        $records = $em->getRepository(GuestUserToken::class)->findBy(['token' => $token]);
-        $record = reset($records);
-        if (empty($record)) {
+        $guestUserToken = $em->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
+        if (empty($guestUserToken)) {
             return $this->messenger()->addError($this->translate('Invalid token stop'), 'error'); // @translate
         }
 
-        $record->setConfirmed(true);
-        $this->save($record);
-        $user = $em->find(User::class, $record->getUser()->getId());
+        $guestUserToken->setConfirmed(true);
+        $em->persist($guestUserToken);
+        $user = $em->find(User::class, $guestUserToken->getUser()->getId());
+        // Bypass api, so no check of acl 'activate-user' for the user himself.
+        $user->setIsActive(true);
+        $em->persist($user);
+        $em->flush();
 
         $siteTitle = $this->currentSite()->title();
         $body = new Message('Thanks for joining %s! You can now log using the password you chose.', // @translate
@@ -271,16 +276,17 @@ class GuestUserController extends AbstractActionController
             'site-slug' => $this->currentSite()->slug(),
             'action' => 'login',
         ]);
-        $this->redirect()->toUrl($redirectUrl);
+        return $this->redirect()->toUrl($redirectUrl);
     }
 
-    protected function checkPostAndValidForm($form)
+    protected function checkPostAndValidForm(\Zend\Form\Form $form)
     {
         if (!$this->getRequest()->isPost()) {
             return false;
         }
 
-        $form->setData($this->params()->fromPost());
+        $postData = $this->params()->fromPost();
+        $form->setData($postData);
         if (!$form->isValid()) {
             $this->messenger()->addError('Email or Password invalid'); // @translate
             return false;
@@ -320,7 +326,7 @@ class GuestUserController extends AbstractActionController
         return $form;
     }
 
-    protected function _sendConfirmationEmail($user, $token)
+    protected function _sendConfirmationEmail(User $user, $token)
     {
         $siteTitle = $this->currentSite()->title();
 
@@ -338,7 +344,7 @@ class GuestUserController extends AbstractActionController
         );
         $body = new Message(
             'You have registered for an account on %s. Please confirm your registration by following %sthis link%s. If you did not request to join %s please disregard this email.', // @translate
-            $this->currentSite()->link(),
+            $this->currentSite()->link($siteTitle),
             '<a href=' . $url . '>',
             '</a>',
             $siteTitle);
@@ -353,13 +359,6 @@ class GuestUserController extends AbstractActionController
         } catch (\Exception $e) {
             $this->logger()->err((string) $e);
         }
-    }
-
-    protected function save($entity)
-    {
-        $em = $this->getEntityManager();
-        $em->persist($entity);
-        $em->flush();
     }
 
     public function setAuthenticationService(AuthenticationService $authenticationService)

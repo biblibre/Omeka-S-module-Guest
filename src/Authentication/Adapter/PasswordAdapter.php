@@ -20,7 +20,7 @@ class PasswordAdapter extends OmekaPasswordAdapter
 
         if (!$user || !$user->isActive()) {
             return new Result(Result::FAILURE_IDENTITY_NOT_FOUND, null,
-                ['User not found.']);
+                ['User not found.']); // @translate
         }
 
         if ($user->getRole() == 'guest') {
@@ -28,7 +28,7 @@ class PasswordAdapter extends OmekaPasswordAdapter
             // There is no token if the guest is created directly (the role is
             // set to a user).
             if ($guest && !$guest->isConfirmed()) {
-                return new Result(Result::FAILURE, null, ['Your account has not been activated']);
+                return new Result(Result::FAILURE, null, ['Your account has not been confirmed: check your email.']); // @translate
             }
         }
 
