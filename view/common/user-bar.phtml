@@ -23,12 +23,12 @@ if (!isset($user)) $user = $this->identity();
     ?>
     </span>
     <?php
-    $url = $this->url('site/guest-user', ['action' => 'logout'], ['query' => $this->params()->fromQuery() ?: []], true);
+    $url = $this->url('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'logout'], ['query' => $this->params()->fromQuery() ?: []], true);
     echo $this->hyperlink($this->translate('Logout'), $url, ['class' => 'logout']);
     ?>
 <?php else: ?>
     <?php
-    $url = $this->url('site/guest-user', ['action' => 'login'], ['query' => $this->params()->fromQuery() ?: []], true);
+    $url = $this->url('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'login'], ['query' => $this->params()->fromQuery() ?: []], true);
     echo $this->hyperlink($this->translate('Log in'), $url, ['class' => 'login']);
     ?>
 <?php endif; ?>
