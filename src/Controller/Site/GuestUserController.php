@@ -219,12 +219,13 @@ class GuestUserController extends AbstractActionController
         if (empty($user)) {
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
+        $id = $user->getId();
 
         $label = $this->getOption('guestuser_dashboard_label')
             ? $this->getOption('guestuser_dashboard_label')
             : $this->translate('My account'); // @translate
 
-        $userRepr = $this->api()->read('users', $user->getId())->getContent();
+        $userRepr = $this->api()->read('users', $id)->getContent();
         $data = $userRepr->jsonSerialize();
 
         $form = $this->_getForm($user);
@@ -232,6 +233,7 @@ class GuestUserController extends AbstractActionController
         $form->get('change-password')->populateValues($data);
 
         $view = new ViewModel;
+        $view->setVariable('user', $user);
         $view->setVariable('form', $form);
         $view->setVariable('label', $label);
 
@@ -239,27 +241,57 @@ class GuestUserController extends AbstractActionController
             return $view;
         }
 
-        $data_post = $this->params()->fromPost();
-        $form->setData(array_merge($userRepr->jsonSerialize(), $data_post));
+        $postData = $this->params()->fromPost();
+
+        // A security.
+        unset($postData['user-information']['o:id']);
+        unset($postData['user-information']['o:role']);
+        unset($postData['user-information']['o:is_active']);
+        $postData['user-information'] = array_replace(
+            $data,
+            array_intersect_key($postData['user-information'], $data)
+        );
+        $form->setData($postData);
 
         if (!$form->isValid()) {
             $this->messenger()->addError('Email or Password invalid'); // @translate
-            return false;
+            return $view;
         }
 
-        $formData = $form->getData();
-        // For security.
-        $formData['user-information']['o:role'] = \GuestUser\Permissions\Acl::ROLE_GUEST;
+        $values = $form->getData();
+        $response = $this->api($form)->update('users', $user->getId(), $values['user-information']);
 
-        $response = $this->api()->update('users', $user->getId(), $formData['user-information']);
-
-        if (isset($formData['change-password']['password'])) {
-            $user->setPassword($formData['change-password']['password']);
-            $this->getEntityManager()->flush();
+        // Stop early if the API update fails.
+        if (!$response) {
+            $this->messenger()->addFormErrors($form);
+            return $view;
         }
 
-        $message = $this->translate('Your modifications have been saved.'); // @translate
-        $this->messenger()->addSuccess($message);
+        $successMessages = [];
+        $successMessages[] = 'Your modifications have been saved.'; // @translate
+
+        if (!empty($values['user-settings'])) {
+            foreach ($values['user-settings'] as $settingId => $settingValue) {
+                $this->userSettings()->set($settingId, $settingValue, $id);
+            }
+        }
+
+        $passwordValues = $values['change-password'];
+        if (!empty($passwordValues['password'])) {
+            // TODO Add a current password check when update account.
+            // if (!$user->verifyPassword($passwordValues['current-password'])) {
+            //     $this->messenger()->addError('The current password entered was invalid'); // @translate
+            //     return $view;
+            // }
+            $user->setPassword($passwordValues['password']);
+            $successMessages[] = 'Password successfully changed'; // @translate
+        }
+
+        $this->entityManager->flush();
+
+        foreach ($successMessages as $message) {
+            $this->messenger()->addSuccess($message);
+        }
         return $view;
     }
 
@@ -334,7 +366,7 @@ class GuestUserController extends AbstractActionController
         $postData = $this->params()->fromPost();
         $form->setData($postData);
         if (!$form->isValid()) {
-            $this->messenger()->addError('Email or Password invalid'); // @translate
+            $this->messenger()->addError('Email or password invalid'); // @translate
             return false;
         }
         return true;
