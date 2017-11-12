@@ -125,7 +125,7 @@ class GuestUserController extends AbstractActionController
     {
         $user = new User();
         $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
-        $form = $this->_getForm(['user' => $user, 'include_role' => false]);
+        $form = $this->_getForm($user);
 
         $view = new ViewModel;
         $view->setVariable('form', $form);
@@ -174,14 +174,18 @@ class GuestUserController extends AbstractActionController
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
-        $view = new ViewModel;
-        $userRepr = $this->api()->read('users', $user->getId())->getContent();
         $label = $this->getOption('guestuser_dashboard_label')
             ? $this->getOption('guestuser_dashboard_label')
             : $this->translate('My account'); // @translate
-        $form = $this->_getForm(['user' => $user, 'include_role' => false]);
 
-        $form->setData($userRepr->jsonSerialize());
+        $userRepr = $this->api()->read('users', $user->getId())->getContent();
+        $data = $userRepr->jsonSerialize();
+
+        $form = $this->_getForm($user);
+        $form->get('user-information')->populateValues($data);
+        $form->get('change-password')->populateValues($data);
+
+        $view = new ViewModel;
         $view->setVariable('form', $form);
         $view->setVariable('label', $label);
 
@@ -289,14 +293,30 @@ class GuestUserController extends AbstractActionController
         return $this->settings()->get($key);
     }
 
-    protected function _getForm($options)
+    protected function _getForm(User $user = null, array $options = [])
     {
-        $options = array_merge($options, [
-            'include_password' => true,
-        ]);
-
+        $options = array_merge(
+            [
+                'user_id' => $user ? $user->getId() : 0,
+                'include_password' => true,
+                'include_role' => false,
+                'include_key' => false,
+            ],
+            $options
+        );
         $form = $this->getForm(UserForm::class, $options);
 
+        $elements = [
+            'default_resource_template' => 'user-settings',
+        ];
+        foreach ($elements as $element => $fieldset) {
+            if ($fieldset) {
+                $fieldset = $form->get($fieldset);
+                $fieldset ? $fieldset->remove($element) : null;
+            } else {
+                $form->remove($element);
+            }
+        }
         return $form;
     }
 
