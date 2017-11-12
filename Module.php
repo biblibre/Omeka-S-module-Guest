@@ -147,19 +147,51 @@ SQL;
     {
         $services = $this->getServiceLocator();
         $acl = $services->get('Omeka\Acl');
+        $settings = $services->get('Omeka\Settings');
 
-        $acl->allow(null, 'GuestUser\Controller\Site\GuestUser');
+        $acl->allow(
+            null,
+            'GuestUser\Controller\Site\GuestUser',
+            ['login', 'forgot-password', 'stale-token', 'confirm']
+        );
+
         $acl->allow(
             Permissions\Acl::ROLE_GUEST,
-            'Omeka\Entity\User',
-            ['read', 'update', 'change-password', 'edit-keys'],
+            'GuestUser\Controller\Site\GuestUser',
+            ['logout', 'update-account', 'me']
+        );
+
+        $acl->allow(
+            Permissions\Acl::ROLE_GUEST,
+            \Omeka\Entity\User::class,
+            ['read', 'update', 'change-password'],
             new IsSelfAssertion
         );
         $acl->allow(
-            Permissions\Acl::ROLE_GUEST,
-            'Omeka\Api\Adapter\UserAdapter',
+            null,
+            \Omeka\Api\Adapter\UserAdapter::class,
             ['read', 'update']
         );
+        $isOpenRegister = $settings->get('guestuser_open', false);
+        if ($isOpenRegister) {
+            $acl->allow(
+                null,
+                'GuestUser\Controller\Site\GuestUser',
+                ['register']
+            );
+            $acl->allow(
+                null,
+                \Omeka\Entity\User::class,
+                // Change role and Activate user should be set to allow external
+                // logging (ldap, saml, etc.), not only guest registration here.
+                ['create', 'change-role', 'activate-user']
+            );
+            $acl->allow(
+                null,
+                \Omeka\Api\Adapter\UserAdapter::class,
+                'create'
+            );
+        }
         $acl->deny(
             Permissions\Acl::ROLE_GUEST,
             [
@@ -191,6 +223,7 @@ SQL;
             'view.layout',
             [$this, 'appendLoginNav']
         );
+
         $sharedEventManager->attach(
             'Omeka\Api\Adapter\UserAdapter',
             'api.delete.post',
@@ -229,7 +262,7 @@ SQL;
         $view->headStyle()->appendStyle("li a.logoutlink { display:none;} ");
     }
 
-    public function deleteGuestToken($event)
+    public function deleteGuestToken(Event $event)
     {
         $request = $event->getParam('request');
 
