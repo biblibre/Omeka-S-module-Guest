@@ -21,7 +21,14 @@ Uncompress files in the module directory and rename module folder `GuestUser`.
 Usage
 -----
 
-### Replace  the login form in your theme by the guest user form
+### Guest user login form
+
+A guest user login form is provided in `/s/my_site/guest-user/login`.
+
+### Main login form
+
+In some cases, you may want to use the same login form for all users, so you may
+have to adapt it.
 
 ```
     <?php
@@ -33,7 +40,9 @@ Usage
     ?>
 ```
 
-The login form may be used by any user.
+### Omeka S user bar
+
+The Omeka S user bar is adapted to the module. You may have to adapt your theme.
 
 
 Warning
