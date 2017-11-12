@@ -1,21 +1,29 @@
 <?php
-
 namespace GuestUser\Controller\Site;
 
+use Doctrine\ORM\EntityManager;
 use GuestUser\Entity\GuestUserToken;
 use Omeka\Entity\User;
 use Omeka\Form\ForgotPasswordForm;
 use Omeka\Form\LoginForm;
 use Omeka\Form\UserForm;
+use Omeka\Stdlib\Message;
+use Zend\Authentication\AuthenticationService;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Session\Container;
 use Zend\View\Model\ViewModel;
 
 class GuestUserController extends AbstractActionController
 {
+    /**
+     * @var AuthenticationService
+     */
     protected $authenticationService;
+
+    /**
+     * @var EntityManager
+     */
     protected $entityManager;
-    protected $logger;
 
     public function loginAction()
     {
@@ -58,7 +66,7 @@ class GuestUserController extends AbstractActionController
         $auth->clearIdentity();
         $sessionManager = Container::getDefaultManager();
         $sessionManager->destroy();
-        $this->messenger()->addSuccess('Successfully logged out');
+        $this->messenger()->addSuccess('Successfully logged out'); // @translate
         $redirectUrl = $this->params()->fromQuery('redirect');
         if ($redirectUrl) {
             return $this->redirect()->toUrl($redirectUrl);
@@ -86,11 +94,12 @@ class GuestUserController extends AbstractActionController
         $data = $this->getRequest()->getPost();
         $form->setData($data);
         if (!$form->isValid()) {
-            $this->messenger()->addError('Activation unsuccessful');
+            $this->messenger()->addError('Activation unsuccessful'); // @translate
             return $view;
         }
+
         $entityManager = $this->getEntityManager();
-        $user = $entityManager->getRepository('Omeka\Entity\User')
+        $user = $entityManager->getRepository(User::class)
             ->findOneBy([
                 'email' => $data['email'],
                 'isActive' => true,
@@ -107,41 +116,22 @@ class GuestUserController extends AbstractActionController
             $this->mailer()->sendResetPassword($user);
         }
 
-        $this->messenger()->addSuccess('Check your email for instructions on how to reset your password');
+        $this->messenger()->addSuccess('Check your email for instructions on how to reset your password'); // @translate
 
         return $view;
-    }
-
-    protected function checkPostAndValidForm($form)
-    {
-        if (!$this->getRequest()->isPost()) {
-            return false;
-        }
-
-        $form->setData($this->params()->fromPost());
-        if (!$form->isValid()) {
-            $this->messenger()->addError('Email or Password invalid');
-            return false;
-        }
-        return true;
-    }
-
-    protected function getOption($key)
-    {
-        return $this->settings()->get($key);
     }
 
     public function registerAction()
     {
         $user = new User();
-        $user->setRole('guest');
+        $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
         $form = $this->_getForm(['user' => $user, 'include_role' => false]);
 
         $view = new ViewModel;
         $view->setVariable('form', $form);
         $registerLabel = $this->getOption('guestuser_capabilities')
             ? $this->getOption('guestuser_capabilities')
-            : $this->translate('Register');
+            : $this->translate('Register'); // @translate
 
         $view->setVariable('registerLabel', $registerLabel);
 
@@ -151,25 +141,18 @@ class GuestUserController extends AbstractActionController
 
         $formData = $form->getData();
         $userInfo = $formData['user-information'];
-        $userInfo['o:role'] = 'guest';
+        $userInfo['o:role'] = \GuestUser\Permissions\Acl::ROLE_GUEST;
         $response = $this->api()->create('users', $userInfo);
         $user = $response->getContent()->getEntity();
         $user->setPassword($formData['change-password']['password']);
         $user->setIsActive(true);
 
-        $message = $this->translate("Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.");
+        $message = $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         $this->messenger()->addSuccess($message);
 
         $this->createGuestUserAndSendMail($user);
 
         return $view;
-    }
-
-    protected function save($entity)
-    {
-        $em = $this->getEntityManager();
-        $em->persist($entity);
-        $em->flush();
     }
 
     public function createGuestUserAndSendMail($user)
@@ -180,12 +163,14 @@ class GuestUserController extends AbstractActionController
         $guest->setToken(sha1("tOkenS@1t" . microtime()));
         $this->save($guest);
 
-        $this->_sendConfirmationEmail($user, $guest); //confirms that they registration request is legit
+        // Confirms that they registration request is legit.
+        $this->_sendConfirmationEmail($user, $guest);
     }
 
     public function updateAccountAction()
     {
-        if (!($user = $this->getAuthenticationService()->getIdentity())) {
+        $user = $this->identity();
+        if (empty($user)) {
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
@@ -193,7 +178,7 @@ class GuestUserController extends AbstractActionController
         $userRepr = $this->api()->read('users', $user->getId())->getContent();
         $label = $this->getOption('guestuser_dashboard_label')
             ? $this->getOption('guestuser_dashboard_label')
-            : $this->translate('My account');
+            : $this->translate('My account'); // @translate
         $form = $this->_getForm(['user' => $user, 'include_role' => false]);
 
         $form->setData($userRepr->jsonSerialize());
@@ -208,7 +193,7 @@ class GuestUserController extends AbstractActionController
         $form->setData(array_merge($userRepr->jsonSerialize(), $data_post));
 
         if (!$form->isValid()) {
-            $this->messenger()->addError('Email or Password invalid');
+            $this->messenger()->addError('Email or Password invalid'); // @translate
             return false;
         }
 
@@ -221,7 +206,7 @@ class GuestUserController extends AbstractActionController
             $this->getEntityManager()->flush();
         }
 
-        $message = $this->translate("Your modifications have been saved.");
+        $message = $this->translate('Your modifications have been saved.'); // @translate
         $this->messenger()->addSuccess($message);
         return $view;
     }
@@ -230,23 +215,25 @@ class GuestUserController extends AbstractActionController
     {
         $auth = $this->getAuthenticationService();
         if (!$auth->hasIdentity()) {
-            $this->redirect()->toUrl($this->currentSite()->url());
+            return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
         $widgets = [];
 
-        $widget = ['label' => $this->translate('My Account')];
+        $widget = ['label' => $this->translate('My Account')]; // @translate
         $accountUrl = $this->url()->fromRoute('site/guest-user', [
             'site-slug' => $this->currentSite()->slug(),
             'action' => 'update-account',
         ]);
-        $html = "<ul>";
-        $html .= "<li><a href='$accountUrl'>" . $this->translate("Update account info and password") . "</a></li>";
-        $html .= "</ul>";
+        $html = '<ul>';
+        $html .= '<li><a href=' . $accountUrl . '>';
+        $html .= $this->translate('Update account info and password'); // @translate
+        $html .= '</a></li>';
+        $html .= '</ul>';
         $widget['content'] = $html;
         $widgets[] = $widget;
-        $view = new ViewModel;
 
+        $view = new ViewModel;
         $view->setVariable('widgets', $widgets);
         return $view;
     }
@@ -262,17 +249,18 @@ class GuestUserController extends AbstractActionController
         $token = $this->params()->fromQuery('token');
         $em = $this->getEntityManager();
         $records = $em->getRepository(GuestUserToken::class)->findBy(['token' => $token]);
-
-        if (!($record = reset($records))) {
-            return $this->messenger()->addError($this->translate('Invalid token stop'), 'error');
+        $record = reset($records);
+        if (empty($record)) {
+            return $this->messenger()->addError($this->translate('Invalid token stop'), 'error'); // @translate
         }
 
         $record->setConfirmed(true);
         $this->save($record);
-        $user = $em->find('Omeka\Entity\User', $record->getUser()->getId());
+        $user = $em->find(User::class, $record->getUser()->getId());
+
         $siteTitle = $this->currentSite()->title();
-        $body = sprintf($this->translate("Thanks for joining %s! "), $siteTitle);
-        $body .= $this->translate("You can now log using the password you chose.");
+        $body = new Message('Thanks for joining %s! You can now log using the password you chose.', // @translate
+            $siteTitle);
 
         $this->messenger()->addSuccess($body);
         $redirectUrl = $this->url()->fromRoute('site/guest-user', [
@@ -280,6 +268,25 @@ class GuestUserController extends AbstractActionController
             'action' => 'login',
         ]);
         $this->redirect()->toUrl($redirectUrl);
+    }
+
+    protected function checkPostAndValidForm($form)
+    {
+        if (!$this->getRequest()->isPost()) {
+            return false;
+        }
+
+        $form->setData($this->params()->fromPost());
+        if (!$form->isValid()) {
+            $this->messenger()->addError('Email or Password invalid'); // @translate
+            return false;
+        }
+        return true;
+    }
+
+    protected function getOption($key)
+    {
+        return $this->settings()->get($key);
     }
 
     protected function _getForm($options)
@@ -297,7 +304,7 @@ class GuestUserController extends AbstractActionController
     {
         $siteTitle = $this->currentSite()->title();
 
-        $subject = sprintf($this->translate("Your request to join %s"), $siteTitle);
+        $subject = new Message('Your request to join %s', $siteTitle); // @translate
         $url = $this->url()->fromRoute('site/guest-user',
             [
                 'site-slug' => $this->currentSite()->slug(),
@@ -309,7 +316,12 @@ class GuestUserController extends AbstractActionController
                 ],
             ]
         );
-        $body = sprintf($this->translate("You have registered for an account on %s. Please confirm your registration by following %s.  If you did not request to join %s please disregard this email."), "<a href='$url'>$siteTitle</a>", "<a href='$url'>" . $this->translate('this link') . "</a>", $siteTitle);
+        $body = new Message(
+            'You have registered for an account on %s. Please confirm your registration by following %sthis link%s. If you did not request to join %s please disregard this email.', // @translate
+            $this->currentSite()->link(),
+            '<a href=' . $url . '>',
+            '</a>',
+            $siteTitle);
 
         $mailer = $this->mailer();
         $message = $mailer->createMessage();
@@ -319,12 +331,18 @@ class GuestUserController extends AbstractActionController
         try {
             $mailer->send($message);
         } catch (\Exception $e) {
-            $logger = $this->getLogger();
-            $logger->err((string) $e);
+            $this->logger()->err((string) $e);
         }
     }
 
-    public function setAuthenticationService($authenticationService)
+    protected function save($entity)
+    {
+        $em = $this->getEntityManager();
+        $em->persist($entity);
+        $em->flush();
+    }
+
+    public function setAuthenticationService(AuthenticationService $authenticationService)
     {
         $this->authenticationService = $authenticationService;
     }
@@ -334,7 +352,7 @@ class GuestUserController extends AbstractActionController
         return $this->authenticationService;
     }
 
-    public function setEntityManager($entityManager)
+    public function setEntityManager(EntityManager $entityManager)
     {
         $this->entityManager = $entityManager;
     }
@@ -342,15 +360,5 @@ class GuestUserController extends AbstractActionController
     public function getEntityManager()
     {
         return $this->entityManager;
-    }
-
-    public function setLogger($logger)
-    {
-        $this->logger = $logger;
-    }
-
-    public function getLogger()
-    {
-        return $this->logger;
     }
 }
