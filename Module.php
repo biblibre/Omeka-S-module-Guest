@@ -28,7 +28,7 @@
 
 namespace GuestUser;
 
-use GuestUser\Form\Config as ConfigForm;
+use GuestUser\Form\ConfigForm;
 use Omeka\Module\AbstractModule;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
 use Zend\ServiceManager\ServiceLocatorInterface;

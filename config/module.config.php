@@ -19,7 +19,7 @@ return [
     ],
     'form_elements' => [
         'factories' => [
-            'GuestUser\Form\Config' => Service\Form\ConfigFactory::class,
+            'GuestUser\Form\ConfigForm' => Service\Form\ConfigFormFactory::class,
         ],
     ],
     'controllers' => [
@@ -29,8 +29,8 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            'Omeka\AuthenticationService' => Service\AuthenticationServiceFactory::class,
             'Omeka\Acl' => Service\AclFactory::class,
+            'Omeka\AuthenticationService' => Service\AuthenticationServiceFactory::class,
         ],
     ],
     'navigation_links' => [
