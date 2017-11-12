@@ -81,4 +81,15 @@ return [
             ],
         ],
     ],
+    'guestuser' => [
+        'settings' => [
+            'guestuser_capabilities' => '',
+            'guestuser_short_capabilities' => '',
+            'guestuser_login_text' => 'Login', // @translate
+            'guestuser_register_text' => 'Register', // @translate
+            'guestuser_dashboard_label' => 'My Account', // @translate
+            'guestuser_open' => false,
+            'guestuser_recaptcha' => false,
+        ],
+    ],
 ];

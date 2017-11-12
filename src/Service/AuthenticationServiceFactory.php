@@ -1,8 +1,8 @@
 <?php
 namespace GuestUser\Service;
 
-use Omeka\Authentication\Adapter\KeyAdapter;
 use GuestUser\Authentication\Adapter\PasswordAdapter;
+use Omeka\Authentication\Adapter\KeyAdapter;
 use Omeka\Authentication\Storage\DoctrineWrapper;
 use Interop\Container\ContainerInterface;
 use Zend\Authentication\AuthenticationService;

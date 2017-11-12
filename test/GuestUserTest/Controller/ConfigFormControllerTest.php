@@ -7,10 +7,10 @@ class ConfigFormControllerTest extends GuestUserControllerTestCase
     public function datas()
     {
         return [
-            ['guest_user_capabilities', 'long description', 'textarea'],
-            ['guest_user_short_capabilities', 'short', 'textarea'],
-            ['guest_user_dashboard_label', 'dashboard label', 'input'],
-            ['guest_user_login_text', 'Log !', 'input'],
+            ['guestuser_capabilities', 'long description', 'textarea'],
+            ['guestuser_short_capabilities', 'short', 'textarea'],
+            ['guestuser_dashboard_label', 'dashboard label', 'input'],
+            ['guestuser_login_text', 'Log !', 'input'],
         ];
     }
 

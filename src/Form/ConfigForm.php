@@ -16,15 +16,15 @@ class ConfigForm extends Form
         $this->setAttribute('id', 'config-form');
 
         $this->add([
-            'name' => 'guest_user_capabilities',
+            'name' => 'guestuser_capabilities',
             'type' => 'Textarea',
             'options' => [
                 'label' => $this->translate('Registration Features'),
                 'info' => $this->translate("Add some text to the registration screen so people will know what they get for registering. As you enable and configure plugins that make use of the guest user, please give them guidance about what they can and cannot do."),
             ],
             'attributes' => [
-                'id' => 'guest_user_capabilities',
-                'value' => $this->getSetting('guest_user_capabilities'),
+                'id' => 'guestuser_capabilities',
+                'value' => $this->getSetting('guestuser_capabilities'),
                 'rows' => 5,
                 'cols' => 60,
                 'class' => 'media-html',
@@ -32,15 +32,15 @@ class ConfigForm extends Form
         ]);
 
         $this->add([
-            'name' => 'guest_user_short_capabilities',
+            'name' => 'guestuser_short_capabilities',
             'type' => 'Textarea',
             'options' => [
                 'label' => $this->translate("Short Registration Features"),
                 'info' => $this->translate("Add a shorter version to use as a dropdown from the user bar. If empty, no dropdown will appear."),
             ],
             'attributes' => [
-                 'id' => 'guest_user_short_capabilities',
-                 'value' => $this->getSetting('guest_user_short_capabilities'),
+                 'id' => 'guestuser_short_capabilities',
+                 'value' => $this->getSetting('guestuser_short_capabilities'),
                  'rows' => 5,
                  'cols' => 60,
                  'class' => 'media-html',
@@ -48,65 +48,65 @@ class ConfigForm extends Form
         ]);
 
         $this->add([
-            'name' => 'guest_user_dashboard_label',
+            'name' => 'guestuser_dashboard_label',
             'type' => 'Text',
             'options' => [
                 'label' => $this->translate("Dashboard Label"),
                 'info' => $this->translate("The text to use for the label on the user's dashboard"),
             ],
             'attributes' => [
-                'id' => 'guest_user_dashboard_label',
-                'value' => $this->getSetting('guest_user_dashboard_label'),
+                'id' => 'guestuser_dashboard_label',
+                'value' => $this->getSetting('guestuser_dashboard_label'),
                 ],
         ]);
 
         $this->add([
-            'name' => 'guest_user_login_text',
+            'name' => 'guestuser_login_text',
             'type' => 'Text',
             'options' => [
                 'label' => $this->translate("Login Text"),
                 'info' => $this->translate("The text to use for the 'Login' link in the user bar"),
             ],
             'attributes' => [
-                'id' => 'guest_user_login_text',
-                'value' => $this->getSetting('guest_user_login_text'),
+                'id' => 'guestuser_login_text',
+                'value' => $this->getSetting('guestuser_login_text'),
             ],
         ]);
 
         $this->add([
-            'name' => 'guest_user_register_text',
+            'name' => 'guestuser_register_text',
             'type' => 'Text',
             'options' => [
                 'label' => $this->translate("Register Text"),
                 'info' => $this->translate("The text to use for the 'Register' link in the user bar"),
             ],
             'attributes' => [
-                'id' => 'guest_user_register_text',
-                'value' => $this->getSetting('guest_user_register_text'),
+                'id' => 'guestuser_register_text',
+                'value' => $this->getSetting('guestuser_register_text'),
             ],
         ]);
 
         $this->add([
-            'name' => 'guest_user_open',
+            'name' => 'guestuser_open',
             'type' => 'Checkbox',
             'options' => [
                 'label' => $this->translate("Allow open registration ?"),
                 'info' => $this->translate("Allow guest user registration without administrator approval?"),
             ],
             'attributes' => [
-                'value' => $this->getSetting('guest_user_open'),
+                'value' => $this->getSetting('guestuser_open'),
             ],
         ]);
 
         $this->add([
-            'name' => 'guest_user_recaptcha',
+            'name' => 'guestuser_recaptcha',
             'type' => 'Checkbox',
             'options' => [
                 'label' => $this->translate("Require ReCaptcha ?"),
                 'info' => $this->translate("Check this to require passing a ReCaptcha test when registering"),
             ],
             'attributes' => [
-                'value' => $this->getSetting('guest_user_recaptcha'),
+                'value' => $this->getSetting('guestuser_recaptcha'),
             ],
 
         ]);

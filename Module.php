@@ -40,21 +40,6 @@ use Zend\EventManager\Event;
 
 class Module extends AbstractModule
 {
-    /**
-     * Settings and their default values.
-     *
-     * @var array
-     */
-    protected $settings = [
-        'guest_user_capabilities' => '',
-        'guest_user_short_capabilities' => '',
-        'guest_user_login_text' => 'Login', // @translate
-        'guest_user_register_text' => 'Register', // @translate
-        'guest_user_dashboard_label' => 'My Account', // @translate
-        'guest_user_open' => false,
-        'guest_user_recaptcha' => false,
-    ];
-
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
@@ -89,14 +74,41 @@ class Module extends AbstractModule
 
         $settings = $serviceLocator->get('Omeka\Settings');
         $t = $serviceLocator->get('MvcTranslator');
-        foreach ($this->settings as $name => $value) {
-            $settings->set($name, $t->translate($value));
+        $config = require __DIR__ . '/config/module.config.php';
+        foreach ($config[strtolower(__NAMESPACE__)]['settings'] as $name => $value) {
+            switch ($name) {
+                case 'guestuser_login_text':
+                case 'guestuser_register_text':
+                case 'guestuser_dashboard_label':
+                    $value = $t->translate($value);
+                    break;
+            }
+            $settings->set($name, $value);
         }
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
         $this->deactivateGuestUsers($serviceLocator);
+
+        $settings = $serviceLocator->get('Omeka\Settings');
+        $config = require __DIR__ . '/config/module.config.php';
+        foreach ($config[strtolower(__NAMESPACE__)]['settings'] as $name => $value) {
+            $settings->delete($name);
+        }
+    }
+
+    public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
+    {
+        if (version_compare($oldVersion, '0.1.3', '<')) {
+            $settings = $serviceLocator->get('Omeka\Settings');
+            $config = include __DIR__ . '/config/module.config.php';
+            foreach ($config['guestuser']['settings'] as $name => $value) {
+                $oldName = str_replace('guestuser_', 'guest_user_', $name);
+                $settings->set($name, $settings->get($oldName, $value));
+                $settings->delete($oldName);
+            }
+        }
     }
 
     protected function deactivateGuestUsers($serviceLocator)
@@ -177,10 +189,10 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
-
+        $config = $services->get('Config');
         $params = $controller->getRequest()->getPost();
         foreach ($params as $name => $value) {
-            if (isset($this->settings[$name])) {
+            if (isset($config[strtolower(__NAMESPACE__)]['settings'][$name])) {
                 $settings->set($name, $value);
             }
         }

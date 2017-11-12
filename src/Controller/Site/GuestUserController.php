@@ -139,7 +139,9 @@ class GuestUserController extends AbstractActionController
 
         $view = new ViewModel;
         $view->setVariable('form', $form);
-        $registerLabel = $this->getOption('guest_user_capabilities') ? $this->getOption('guest_user_capabilities') : $this->translate('Register');
+        $registerLabel = $this->getOption('guestuser_capabilities')
+            ? $this->getOption('guestuser_capabilities')
+            : $this->translate('Register');
 
         $view->setVariable('registerLabel', $registerLabel);
 
@@ -189,7 +191,9 @@ class GuestUserController extends AbstractActionController
 
         $view = new ViewModel;
         $userRepr = $this->api()->read('users', $user->getId())->getContent();
-        $label = $this->getOption('guest_user_dashboard_label') ? $this->getOption('guest_user_dashboard_label') : $this->translate('My account');
+        $label = $this->getOption('guestuser_dashboard_label')
+            ? $this->getOption('guestuser_dashboard_label')
+            : $this->translate('My account');
         $form = $this->_getForm(['user' => $user, 'include_role' => false]);
 
         $form->setData($userRepr->jsonSerialize());
