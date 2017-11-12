@@ -19,7 +19,7 @@ return [
     ],
     'form_elements' => [
         'factories' => [
-            'GuestUser\Form\ConfigForm' => Service\Form\ConfigFormFactory::class,
+            Form\ConfigForm::class => Service\Form\ConfigFormFactory::class,
         ],
     ],
     'controllers' => [

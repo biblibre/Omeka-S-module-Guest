@@ -28,6 +28,7 @@
 
 namespace GuestUser;
 
+use GuestUser\Entity\GuestUserToken;
 use GuestUser\Form\ConfigForm;
 use Omeka\Module\AbstractModule;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
@@ -54,22 +55,23 @@ class Module extends AbstractModule
     public function install(ServiceLocatorInterface $serviceLocator)
     {
         $connection = $serviceLocator->get('Omeka\Connection');
-        $this->serviceLocator = $serviceLocator;
-        $sql = "CREATE TABLE IF NOT EXISTS `guest_user_tokens` (
-                  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-                  `token` text COLLATE utf8_unicode_ci NOT NULL,
-                  `user_id` int NOT NULL,
-                  `email` tinytext COLLATE utf8_unicode_ci NOT NULL,
-                  `created` datetime NOT NULL,
-                  `confirmed` tinyint(1) DEFAULT '0',
-                  PRIMARY KEY (`id`)
-                ) ENGINE=MyISAM CHARSET=utf8 COLLATE=utf8_unicode_ci;
-                ";
-
+        $sql = <<<'SQL'
+CREATE TABLE `guest_user_token` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created` datetime NOT NULL,
+  `confirmed` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `IDX_80ED0AF2A76ED395` (`user_id`),
+  CONSTRAINT `FK_80ED0AF2A76ED395` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+SQL;
         $connection->exec($sql);
 
-        //if plugin was uninstalled/reinstalled, reactivate the guest users
-        $sql = "UPDATE user set is_active=true WHERE role='guest'";
+        // If module was uninstalled/reinstalled, reactivate the guest users.
+        $sql = "UPDATE user SET is_active=true WHERE role='guest'";
         $connection->exec($sql);
 
         $settings = $serviceLocator->get('Omeka\Settings');
@@ -91,9 +93,18 @@ class Module extends AbstractModule
     {
         $this->deactivateGuestUsers($serviceLocator);
 
+        $conn = $serviceLocator->get('Omeka\Connection');
+        $sql = <<<'SQL'
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS guest_user_token;
+SET FOREIGN_KEY_CHECKS = 1;
+SQL;
+        $conn->exec($sql);
+
         $settings = $serviceLocator->get('Omeka\Settings');
         $config = require __DIR__ . '/config/module.config.php';
-        foreach ($config[strtolower(__NAMESPACE__)]['settings'] as $name => $value) {
+        $defaultSettings = $config[strtolower(__NAMESPACE__)]['settings'];
+        foreach ($defaultSettings as $name => $value) {
             $settings->delete($name);
         }
     }
@@ -108,6 +119,16 @@ class Module extends AbstractModule
                 $settings->set($name, $settings->get($oldName, $value));
                 $settings->delete($oldName);
             }
+        }
+        if (version_compare($oldVersion, '0.1.4', '<')) {
+            $conn = $serviceLocator->get('Omeka\Connection');
+            $sql = <<<'SQL'
+ALTER TABLE guest_user_tokens RENAME TO guest_user_token, ENGINE='InnoDB' COLLATE 'utf8mb4_unicode_ci';
+ALTER TABLE guest_user_token CHANGE id id INT AUTO_INCREMENT NOT NULL, CHANGE token token VARCHAR(255) NOT NULL, CHANGE email email VARCHAR(255) NOT NULL, CHANGE confirmed confirmed TINYINT(1) NOT NULL;
+ALTER TABLE guest_user_token ADD CONSTRAINT FK_80ED0AF2A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE;
+CREATE INDEX IDX_80ED0AF2A76ED395 ON guest_user_token (user_id);
+SQL;
+            $conn->exec($sql);
         }
     }
 
@@ -214,7 +235,7 @@ class Module extends AbstractModule
 
         $em = $this->getServiceLocator()->get('Omeka\EntityManager');
         $id = $request->getId();
-        if ($user = $em->getRepository('GuestUser\Entity\GuestUserTokens')->findOneBy(['user' => $id])) {
+        if ($user = $em->getRepository(GuestUserToken::class)->findOneBy(['user' => $id])) {
             $em->remove($user);
             $em->flush();
         }

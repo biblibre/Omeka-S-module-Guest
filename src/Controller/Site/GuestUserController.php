@@ -2,7 +2,7 @@
 
 namespace GuestUser\Controller\Site;
 
-use GuestUser\Entity\GuestUserTokens;
+use GuestUser\Entity\GuestUserToken;
 use Omeka\Entity\User;
 use Omeka\Form\ForgotPasswordForm;
 use Omeka\Form\LoginForm;
@@ -174,7 +174,7 @@ class GuestUserController extends AbstractActionController
 
     public function createGuestUserAndSendMail($user)
     {
-        $guest = new GuestUserTokens;
+        $guest = new GuestUserToken;
         $guest->setEmail($user->getEmail());
         $guest->setUser($user);
         $guest->setToken(sha1("tOkenS@1t" . microtime()));
@@ -221,7 +221,7 @@ class GuestUserController extends AbstractActionController
             $this->getEntityManager()->flush();
         }
 
-        $message = $this->translate("Your modifications has been saved.");
+        $message = $this->translate("Your modifications have been saved.");
         $this->messenger()->addSuccess($message);
         return $view;
     }
@@ -261,7 +261,7 @@ class GuestUserController extends AbstractActionController
     {
         $token = $this->params()->fromQuery('token');
         $em = $this->getEntityManager();
-        $records = $em->getRepository('GuestUser\Entity\GuestUserTokens')->findBy(['token' => $token]);
+        $records = $em->getRepository(GuestUserToken::class)->findBy(['token' => $token]);
 
         if (!($record = reset($records))) {
             return $this->messenger()->addError($this->translate('Invalid token stop'), 'error');

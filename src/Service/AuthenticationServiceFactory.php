@@ -2,8 +2,11 @@
 namespace GuestUser\Service;
 
 use GuestUser\Authentication\Adapter\PasswordAdapter;
+use GuestUser\Entity\GuestUserToken;
 use Omeka\Authentication\Adapter\KeyAdapter;
 use Omeka\Authentication\Storage\DoctrineWrapper;
+use Omeka\Entity\ApiKey;
+use Omeka\Entity\User;
 use Interop\Container\ContainerInterface;
 use Zend\Authentication\AuthenticationService;
 use Zend\Authentication\Adapter\Callback;
@@ -36,17 +39,17 @@ class AuthenticationServiceFactory implements FactoryInterface
                 return null;
             });
         } else {
-            $userRepository = $entityManager->getRepository('Omeka\Entity\User');
+            $userRepository = $entityManager->getRepository(User::class);
             if ($status->isApiRequest()) {
                 // Authenticate using key for API requests.
-                $keyRepository = $entityManager->getRepository('Omeka\Entity\ApiKey');
+                $keyRepository = $entityManager->getRepository(ApiKey::class);
                 $storage = new DoctrineWrapper(new NonPersistent, $userRepository);
                 $adapter = new KeyAdapter($keyRepository, $entityManager);
             } else {
                 // Authenticate using user/password for all other requests.
                 $storage = new DoctrineWrapper(new Session, $userRepository);
                 $adapter = new PasswordAdapter($userRepository);
-                $adapter->setTokenRepository($entityManager->getRepository('GuestUser\Entity\GuestUserTokens'));
+                $adapter->setTokenRepository($entityManager->getRepository(GuestUserToken::class));
             }
         }
 

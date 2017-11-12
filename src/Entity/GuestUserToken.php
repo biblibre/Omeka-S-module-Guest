@@ -38,7 +38,7 @@ use Omeka\Entity\User as User;
  * @Entity
  * @HasLifecycleCallbacks
  */
-class GuestUserTokens extends AbstractEntity
+class GuestUserToken extends AbstractEntity
 {
     /**
      * @Id
@@ -58,8 +58,14 @@ class GuestUserTokens extends AbstractEntity
     protected $email;
 
     /**
-     * @ManyToOne(targetEntity="\Omeka\Entity\User")
-     * @JoinColumn(nullable=false, onDelete="CASCADE")
+     * @var User
+     * @ManyToOne(
+     *     targetEntity="\Omeka\Entity\User"
+     * )
+     * @JoinColumn(
+     *     nullable=false,
+     *     onDelete="CASCADE"
+     * )
      */
     protected $user;
 
@@ -88,7 +94,7 @@ class GuestUserTokens extends AbstractEntity
         return $this->email;
     }
 
-    public function setUser($user)
+    public function setUser(User $user)
     {
         $this->user = $user;
     }

@@ -4,7 +4,7 @@ namespace GuestUserTest\Controller;
 
 use Zend\Form\Element\Csrf;
 use Omeka\Entity\User;
-use GuestUser\Entity\GuestUserTokens;
+use GuestUser\Entity\GuestUserToken;
 
 class UserControllerTest extends GuestUserControllerTestCase
 {
@@ -103,7 +103,7 @@ class UserControllerTest extends GuestUserControllerTestCase
 
         $this->deleteGuestUser();
 
-        $userToken = $em->getRepository('GuestUser\Entity\GuestUserTokens')
+        $userToken = $em->getRepository(GuestUserToken::class)
             ->findOneBy(['user' => $userId]);
         $this->assertNull($userToken);
     }
@@ -195,7 +195,7 @@ class UserControllerTest extends GuestUserControllerTestCase
         $userEntity = $user->getEntity();
         $userEntity->setPassword('test');
 
-        $guest = new GuestUserTokens;
+        $guest = new GuestUserToken;
         $guest->setEmail($email);
         $guest->setUser($userEntity);
         $guest->setToken(sha1('tOkenS@1t' . microtime()));
@@ -221,7 +221,7 @@ class UserControllerTest extends GuestUserControllerTestCase
     protected function getUserToken($email)
     {
         $em = $this->getEntityManager();
-        $repository = $em->getRepository('GuestUser\Entity\GuestUserTokens');
+        $repository = $em->getRepository(GuestUserToken::class);
         if ($users = $repository->findBy(['email' => $email])) {
             return array_shift($users);
         }
