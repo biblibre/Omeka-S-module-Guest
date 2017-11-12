@@ -77,9 +77,9 @@ class GuestUserController extends AbstractActionController
 
     public function forgotPasswordAction()
     {
-        $authentication = $this->getAuthenticationService();
-        if ($authentication->hasIdentity()) {
-            return $this->redirect()->toRoute('admin');
+        $auth = $this->getAuthenticationService();
+        if ($auth->hasIdentity()) {
+            return $this->redirect()->toRoute('site', [], true);
         }
 
         $form = $this->getForm(ForgotPasswordForm::class);
@@ -123,8 +123,14 @@ class GuestUserController extends AbstractActionController
 
     public function registerAction()
     {
+        $auth = $this->getAuthenticationService();
+        if ($auth->hasIdentity()) {
+            return $this->redirect()->toRoute('site', [], true);
+        }
+
         $user = new User();
         $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
+
         $form = $this->_getForm($user);
 
         $view = new ViewModel;
@@ -139,20 +145,58 @@ class GuestUserController extends AbstractActionController
             return $view;
         }
 
-        $formData = $form->getData();
-        $userInfo = $formData['user-information'];
+        // TODO Add password required only for login.
+        $values = $form->getData();
+        if (empty($values['change-password']['password'])) {
+            $this->messenger()->addError('A password must be set.'); // @translate
+            return $view;
+        }
+
+        $userInfo = $values['user-information'];
+        // TODO Avoid to set the right to change role (fix core).
         $userInfo['o:role'] = \GuestUser\Permissions\Acl::ROLE_GUEST;
+        $userInfo['o:is_active'] = false;
         $response = $this->api()->create('users', $userInfo);
+        if (!$response) {
+            $entityManager = $this->getEntityManager();
+            $user = $entityManager->getRepository(User::class)->findOneBy([
+                'email' => $userInfo['o:email'],
+            ]);
+            if ($user) {
+                $token = $entityManager->getRepository(GuestUserToken::class)->findOneBy([
+                    'email' => $userInfo['o:email'],
+                ]);
+                if (empty($token) || $token->isConfirmed()) {
+                    $this->messenger()->addError('Already registered.'); // @translate
+                } else {
+                    $this->messenger()->addError('Check your email to confirm your registration.'); // @translate
+                }
+                return $this->redirect()->toRoute('site/guest-user', ['action' => 'login'], true);
+            }
+
+            $this->messenger()->addError('Unknown error.'); // @translate
+            return $view;
+        }
+
         $user = $response->getContent()->getEntity();
-        $user->setPassword($formData['change-password']['password']);
+        $user->setPassword($values['change-password']['password']);
+        $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
+        // The account is active, but not confirmed, so login is not possible.
+        // Guest user has no right to set active his account.
         $user->setIsActive(true);
+
+        $id = $user->getId();
+        if (!empty($values['user-settings'])) {
+            foreach ($values['user-settings'] as $settingId => $settingValue) {
+                $this->userSettings()->set($settingId, $settingValue, $id);
+            }
+        }
 
         $message = $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         $this->messenger()->addSuccess($message);
 
         $this->createGuestUserAndSendMail($user);
-
-        return $view;
+        return $this->redirect()->toRoute('site/guest-user', ['action' => 'login'], [], true);
     }
 
     protected function createGuestUserAndSendMail(User $user)
@@ -204,6 +248,8 @@ class GuestUserController extends AbstractActionController
         }
 
         $formData = $form->getData();
+        // For security.
+        $formData['user-information']['o:role'] = \GuestUser\Permissions\Acl::ROLE_GUEST;
 
         $response = $this->api()->update('users', $user->getId(), $formData['user-information']);
 
@@ -268,7 +314,7 @@ class GuestUserController extends AbstractActionController
         $em->flush();
 
         $siteTitle = $this->currentSite()->title();
-        $body = new Message('Thanks for joining %s! You can now log using the password you chose.', // @translate
+        $body = new Message('Thanks for joining %s! You can now log in using the password you chose.', // @translate
             $siteTitle);
 
         $this->messenger()->addSuccess($body);
@@ -328,9 +374,12 @@ class GuestUserController extends AbstractActionController
 
     protected function _sendConfirmationEmail(User $user, $token)
     {
-        $siteTitle = $this->currentSite()->title();
+        $mailer = $this->mailer();
+        $message = $mailer->createMessage();
 
-        $subject = new Message('Your request to join %s', $siteTitle); // @translate
+        $mainTitle = $mailer->getInstallationTitle();
+        $siteTitle = $this->currentSite()->title();
+        $siteUrl = $this->currentSite()->siteUrl(null, true);
         $url = $this->url()->fromRoute('site/guest-user',
             [
                 'site-slug' => $this->currentSite()->slug(),
@@ -340,17 +389,20 @@ class GuestUserController extends AbstractActionController
                 'query' => [
                     'token' => $token->getToken(),
                 ],
+                'force_canonical' => true,
             ]
         );
-        $body = new Message(
-            'You have registered for an account on %s. Please confirm your registration by following %sthis link%s. If you did not request to join %s please disregard this email.', // @translate
-            $this->currentSite()->link($siteTitle),
-            '<a href=' . $url . '>',
-            '</a>',
-            $siteTitle);
 
-        $mailer = $this->mailer();
-        $message = $mailer->createMessage();
+        $subject = new Message('Your request to join %s / %s', $mainTitle, $siteTitle); // @translate
+        $body = new Message(
+            'You have registered for an account on %s / %s (%s). Please confirm your registration by following this link: %s. If you did not request to join %s please disregard this email.', // @translate
+            $mainTitle,
+            $siteTitle,
+            $siteUrl,
+            $url,
+            $mainTitle
+        );
+
         $message->addTo($user->getEmail(), $user->getName())
             ->setSubject($subject)
             ->setBody($body);
