@@ -30,6 +30,7 @@ namespace GuestUser;
 
 use GuestUser\Form\Config as ConfigForm;
 use Omeka\Module\AbstractModule;
+use Omeka\Permissions\Assertion\IsSelfAssertion;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
 use Zend\Mvc\Controller\AbstractController;
@@ -115,8 +116,39 @@ class Module extends AbstractModule
         $acl = $services->get('Omeka\Acl');
 
         $acl->allow(null, 'GuestUser\Controller\Site\GuestUser');
-        $acl->allow(null, 'Omeka\Entity\User');
-        $acl->allow(null, 'Omeka\Api\Adapter\UserAdapter');
+        $acl->allow(
+            Permissions\Acl::ROLE_GUEST,
+            'Omeka\Entity\User',
+            ['read', 'update', 'change-password', 'edit-keys'],
+            new IsSelfAssertion
+        );
+        $acl->allow(
+            Permissions\Acl::ROLE_GUEST,
+            'Omeka\Api\Adapter\UserAdapter',
+            ['read', 'update']
+        );
+        $acl->deny(
+            Permissions\Acl::ROLE_GUEST,
+            [
+                'Omeka\Controller\Admin\Asset',
+                'Omeka\Controller\Admin\Index',
+                'Omeka\Controller\Admin\Item',
+                'Omeka\Controller\Admin\ItemSet',
+                'Omeka\Controller\Admin\Job',
+                'Omeka\Controller\Admin\Media',
+                'Omeka\Controller\Admin\Module',
+                'Omeka\Controller\Admin\Property',
+                'Omeka\Controller\Admin\ResourceClass',
+                'Omeka\Controller\Admin\ResourceTemplate',
+                'Omeka\Controller\Admin\Setting',
+                'Omeka\Controller\Admin\SystemInfo',
+                'Omeka\Controller\Admin\Vocabulary',
+                'Omeka\Controller\Admin\User',
+                'Omeka\Controller\Admin\Vocabulary',
+                'Omeka\Controller\SiteAdmin\Index',
+                'Omeka\Controller\SiteAdmin\Page',
+            ]
+        );
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)

@@ -3,10 +3,8 @@
 namespace GuestUserTest\Controller;
 
 use Zend\Form\Element\Csrf;
-use Zend\Session\Container;
 use Omeka\Entity\User;
 use GuestUser\Entity\GuestUserTokens;
-use GuestUserTest\Session\SaveHandler;
 
 class UserControllerTest extends GuestUserControllerTestCase
 {
@@ -14,6 +12,7 @@ class UserControllerTest extends GuestUserControllerTestCase
 
     public function tearDown()
     {
+        $this->loginAsAdmin();
         $this->deleteGuestUser();
         parent::tearDown();
     }
@@ -25,7 +24,7 @@ class UserControllerTest extends GuestUserControllerTestCase
     {
         $this->postDispatch('/s/test/guest-user/register', [
             'user-information' => [
-                'o:email' => "test3@test.fr",
+                'o:email' => 'test3@test.fr',
                 'o:name' => 'test',
             ],
             'change-password' => [
@@ -47,7 +46,9 @@ class UserControllerTest extends GuestUserControllerTestCase
         $this->assertContains('You have registered for an account on '.$link.'Test</a>. Please confirm your registration by following '.$link.'this link</a>.  If you did not request to join Test please disregard this email.', $body);
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function tokenlinkShouldValidateGuestUser()
     {
         $user = $this->createGuestUser();
@@ -69,7 +70,9 @@ class UserControllerTest extends GuestUserControllerTestCase
         $this->assertFalse($this->getUserToken($user->email())->isConfirmed());
     }
 
-    /** @test */
+    /**
+     * @test
+     */
     public function updateAccountWithNoPassword()
     {
         $user = $this->createGuestUser();
@@ -80,7 +83,7 @@ class UserControllerTest extends GuestUserControllerTestCase
 
         $this->postDispatch('/s/test/guest-user/update-account', [
             'user-information' => [
-                'o:email' => "test4@test.fr",
+                'o:email' => 'test4@test.fr',
                 'o:name' => 'test2',
             ],
             'csrf' => (new Csrf('csrf'))->getValue(),
@@ -120,7 +123,7 @@ class UserControllerTest extends GuestUserControllerTestCase
 
         $csrf = new Csrf('loginform_csrf');
         $this->postDispatch('/s/test/guest-user/login', [
-            'email' => "guest@test.fr",
+            'email' => 'guest@test.fr',
             'password' => 'test',
             'loginform_csrf' => $csrf->getValue(),
             'submit' => 'Log+in',
@@ -141,7 +144,7 @@ class UserControllerTest extends GuestUserControllerTestCase
 
         $this->logout();
         $this->postDispatch('/s/test/guest-user/login', [
-            'email' => "test@test.fr",
+            'email' => 'test@test.fr',
             'password' => 'test2',
             'csrf' => (new Csrf('csrf'))->getValue(),
             'submit' => 'Log+in',
@@ -168,7 +171,7 @@ class UserControllerTest extends GuestUserControllerTestCase
     public function loginOkShouldRedirect()
     {
         $this->postDispatch('/s/test/guest-user/login', [
-            'email' => "test@test.fr",
+            'email' => 'test@test.fr',
             'password' => 'test',
             'csrf' => (new Csrf('csrf'))->getValue(),
             'submit' => 'Log+in',
@@ -195,7 +198,7 @@ class UserControllerTest extends GuestUserControllerTestCase
         $guest = new GuestUserTokens;
         $guest->setEmail($email);
         $guest->setUser($userEntity);
-        $guest->setToken(sha1("tOkenS@1t" . microtime()));
+        $guest->setToken(sha1('tOkenS@1t' . microtime()));
 
         $em->persist($userEntity);
         $em->flush();

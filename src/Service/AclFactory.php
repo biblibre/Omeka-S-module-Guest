@@ -34,7 +34,10 @@ class AclFactory extends \Omeka\Service\AclFactory
     protected function addGuestRoles($acl, $serviceLocator)
     {
         parent::addRoles($acl, $serviceLocator);
-        $acl->addRole('guest');
-        $acl->addRoleLabel('guest', 'Guest');
+        $acl->addRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
+        $acl->addRoleLabel(
+            \GuestUser\Permissions\Acl::ROLE_GUEST,
+            'Guest' // @translate
+        );
     }
 }
