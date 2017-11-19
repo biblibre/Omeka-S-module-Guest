@@ -10,6 +10,7 @@ use Omeka\Form\UserForm;
 use Omeka\Stdlib\Message;
 use Zend\Authentication\AuthenticationService;
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Mvc\MvcEvent;
 use Zend\Session\Container;
 use Zend\View\Model\ViewModel;
 
@@ -302,24 +303,32 @@ class GuestUserController extends AbstractActionController
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
-        $widgets = [];
+        $eventManager = $this->getEventManager();
+        $args = $eventManager->prepareArgs(['widgets' => []]);
+        $args['widgets'][] = $this->widgetUpdateAccount();
+        $event = new MvcEvent('guestuser.widgets', $this, $args);
+        $this->getEventManager()->triggerEvent($event);
 
-        $widget = ['label' => $this->translate('My Account')]; // @translate
-        $accountUrl = $this->url()->fromRoute('site/guest-user', [
+        $view = new ViewModel;
+        $view->setVariable('widgets', $args['widgets']);
+        return $view;
+    }
+
+    protected function widgetUpdateAccount()
+    {
+        $widget = [];
+        $widget['label'] = $this->translate('My Account'); // @translate
+        $url = $this->url()->fromRoute('site/guest-user', [
             'site-slug' => $this->currentSite()->slug(),
             'action' => 'update-account',
         ]);
         $html = '<ul>';
-        $html .= '<li><a href=' . $accountUrl . '>';
+        $html .= '<li><a href="' . $url . '">';
         $html .= $this->translate('Update account info and password'); // @translate
         $html .= '</a></li>';
         $html .= '</ul>';
         $widget['content'] = $html;
-        $widgets[] = $widget;
-
-        $view = new ViewModel;
-        $view->setVariable('widgets', $widgets);
-        return $view;
+        return $widget;
     }
 
     public function staleTokenAction()
