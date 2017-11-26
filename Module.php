@@ -101,11 +101,22 @@ SET FOREIGN_KEY_CHECKS = 1;
 SQL;
         $conn->exec($sql);
 
-        $settings = $serviceLocator->get('Omeka\Settings');
+        $this->manageSettings($serviceLocator->get('Omeka\Settings'), 'uninstall');
+    }
+
+    protected function manageSettings($settings, $process, $key = 'settings')
+    {
         $config = require __DIR__ . '/config/module.config.php';
-        $defaultSettings = $config[strtolower(__NAMESPACE__)]['settings'];
+        $defaultSettings = $config[strtolower(__NAMESPACE__)][$key];
         foreach ($defaultSettings as $name => $value) {
-            $settings->delete($name);
+            switch ($process) {
+                case 'install':
+                    $settings->set($name, $value);
+                    break;
+                case 'uninstall':
+                    $settings->delete($name);
+                    break;
+            }
         }
     }
 
@@ -233,8 +244,22 @@ SQL;
 
     public function getConfigForm(PhpRenderer $renderer)
     {
-        $form = $this->getServiceLocator()->get('FormElementManager')
-            ->get(ConfigForm::class);
+        $services = $this->getServiceLocator();
+        $config = $services->get('Config');
+        $settings = $services->get('Omeka\Settings');
+        $formElementManager = $services->get('FormElementManager');
+
+        $data = [];
+        $defaultSettings = $config[strtolower(__NAMESPACE__)]['settings'];
+        foreach ($defaultSettings as $name => $value) {
+            $data[$name] = $settings->get($name);
+        }
+
+        $renderer->ckEditor();
+
+        $form = $formElementManager->get(ConfigForm::class);
+        $form->init();
+        $form->setData($data);
         $html = $renderer->formCollection($form);
         return $html;
     }
@@ -242,11 +267,23 @@ SQL;
     public function handleConfigForm(AbstractController $controller)
     {
         $services = $this->getServiceLocator();
-        $settings = $services->get('Omeka\Settings');
         $config = $services->get('Config');
+        $settings = $services->get('Omeka\Settings');
+
         $params = $controller->getRequest()->getPost();
+
+        $form = $this->getServiceLocator()->get('FormElementManager')
+            ->get(ConfigForm::class);
+        $form->init();
+        $form->setData($params);
+        if (!$form->isValid()) {
+            $controller->messenger()->addErrors($form->getMessages());
+            return false;
+        }
+
+        $defaultSettings = $config[strtolower(__NAMESPACE__)]['settings'];
         foreach ($params as $name => $value) {
-            if (isset($config[strtolower(__NAMESPACE__)]['settings'][$name])) {
+            if (isset($defaultSettings[$name])) {
                 $settings->set($name, $value);
             }
         }

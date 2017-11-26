@@ -21,8 +21,10 @@ return [
         ],
     ],
     'form_elements' => [
+        'invokables' => [
+            Form\ConfigForm::class => Form\ConfigForm::class,
+        ],
         'factories' => [
-            Form\ConfigForm::class => Service\Form\ConfigFormFactory::class,
             // TODO To remove after merge of pull request https://github.com/omeka/omeka-s/pull/1138.
             'Omeka\Form\UserForm' => Service\Form\UserFormFactory::class,
         ],

@@ -1,130 +1,82 @@
 <?php
 namespace GuestUser\Form;
 
+use Omeka\Form\Element\CkeditorInline;
+use Zend\Form\Element\Text;
+use Zend\Form\Element\Checkbox;
 use Zend\Form\Form;
-use Zend\I18n\Translator\TranslatorAwareTrait;
 
 class ConfigForm extends Form
 {
-    protected $local_storage = '';
-    protected $allow_unicode = false;
-    protected $settings;
-    use TranslatorAwareTrait;
-
     public function init()
     {
-        $this->setAttribute('id', 'config-form');
-
         $this->add([
             'name' => 'guestuser_capabilities',
-            'type' => 'Textarea',
+            'type' => CkeditorInline::class,
             'options' => [
-                'label' => $this->translate('Registration Features'),
-                'info' => $this->translate("Add some text to the registration screen so people will know what they get for registering. As you enable and configure plugins that make use of the guest user, please give them guidance about what they can and cannot do."),
+                'label' => 'Registration Features', // @translate
+                'info' => 'Add some text to the registration screen so people will know what they get for registering. As you enable and configure plugins that make use of the guest user, please give them guidance about what they can and cannot do.', // @translate
             ],
             'attributes' => [
-                'id' => 'guestuser_capabilities',
-                'value' => $this->getSetting('guestuser_capabilities'),
-                'rows' => 5,
-                'cols' => 60,
-                'class' => 'media-html',
+                'id' => 'guestuser-capabilities',
             ],
         ]);
 
         $this->add([
             'name' => 'guestuser_short_capabilities',
-            'type' => 'Textarea',
+            'type' => CkeditorInline::class,
             'options' => [
-                'label' => $this->translate("Short Registration Features"),
-                'info' => $this->translate("Add a shorter version to use as a dropdown from the user bar. If empty, no dropdown will appear."),
+                'label' => 'Short Registration Features', // @translate
+                'info' => 'Add a shorter version to use as a dropdown from the user bar. If empty, no dropdown will appear.', // @translate
             ],
             'attributes' => [
-                 'id' => 'guestuser_short_capabilities',
-                 'value' => $this->getSetting('guestuser_short_capabilities'),
-                 'rows' => 5,
-                 'cols' => 60,
-                 'class' => 'media-html',
+                 'id' => 'guestuser-short-capabilities',
             ],
         ]);
 
         $this->add([
             'name' => 'guestuser_dashboard_label',
-            'type' => 'Text',
+            'type' => Text::class,
             'options' => [
-                'label' => $this->translate("Dashboard Label"),
-                'info' => $this->translate("The text to use for the label on the user's dashboard"),
+                'label' => 'Dashboard Label', // @translate
+                'info' => 'The text to use for the label on the user’s dashboard', // @translate
             ],
-            'attributes' => [
-                'id' => 'guestuser_dashboard_label',
-                'value' => $this->getSetting('guestuser_dashboard_label'),
-                ],
         ]);
 
         $this->add([
             'name' => 'guestuser_login_text',
-            'type' => 'Text',
+            'type' => Text::class,
             'options' => [
-                'label' => $this->translate("Login Text"),
-                'info' => $this->translate("The text to use for the 'Login' link in the user bar"),
-            ],
-            'attributes' => [
-                'id' => 'guestuser_login_text',
-                'value' => $this->getSetting('guestuser_login_text'),
+                'label' => 'Login Text', // @translate
+                'info' => 'The text to use for the "Login" link in the user bar', // @translate
             ],
         ]);
 
         $this->add([
             'name' => 'guestuser_register_text',
-            'type' => 'Text',
+            'type' => Text::class,
             'options' => [
-                'label' => $this->translate("Register Text"),
-                'info' => $this->translate("The text to use for the 'Register' link in the user bar"),
-            ],
-            'attributes' => [
-                'id' => 'guestuser_register_text',
-                'value' => $this->getSetting('guestuser_register_text'),
+                'label' => 'Register Text', // @translate
+                'info' => 'The text to use for the "Register" link in the user bar', // @translate
             ],
         ]);
 
         $this->add([
             'name' => 'guestuser_open',
-            'type' => 'Checkbox',
+            'type' => Checkbox::class,
             'options' => [
-                'label' => $this->translate('Allow open registration?'),
-                'info' => $this->translate('Allow guest user registration without administrator approval. The link to use is "/s/my-site/guest-user/register".'),
-            ],
-            'attributes' => [
-                'value' => $this->getSetting('guestuser_open'),
+                'label' => 'Allow open registration?', // @translate
+                'info' => 'Allow guest user registration without administrator approval. The link to use is "/s/my-site/guest-user/register".', // @translate
             ],
         ]);
 
         $this->add([
             'name' => 'guestuser_recaptcha',
-            'type' => 'Checkbox',
+            'type' => Checkbox::class,
             'options' => [
-                'label' => $this->translate("Require ReCaptcha ?"),
-                'info' => $this->translate("Check this to require passing a ReCaptcha test when registering"),
+                'label' => 'Require ReCaptcha?', // @translate
+                'info' => 'Check this to require passing a ReCaptcha test when registering', // @translate
             ],
-            'attributes' => [
-                'value' => $this->getSetting('guestuser_recaptcha'),
-            ],
-
         ]);
-    }
-
-    public function setSettings($settings)
-    {
-        $this->settings = $settings;
-    }
-
-    protected function getSetting($name)
-    {
-        return $this->settings->get($name);
-    }
-
-    protected function translate($args)
-    {
-        $translator = $this->getTranslator();
-        return $translator->translate($args);
     }
 }
