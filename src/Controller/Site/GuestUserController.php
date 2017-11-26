@@ -399,6 +399,8 @@ class GuestUserController extends AbstractActionController
         );
         $form = $this->getForm(UserForm::class, $options);
 
+        // Remove elements from the admin user form, that shouldn’t be available
+        // in public guest form.
         $elements = [
             'default_resource_template' => 'user-settings',
         ];

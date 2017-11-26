@@ -90,8 +90,8 @@ class ConfigForm extends Form
             'name' => 'guestuser_open',
             'type' => 'Checkbox',
             'options' => [
-                'label' => $this->translate("Allow open registration ?"),
-                'info' => $this->translate("Allow guest user registration without administrator approval?"),
+                'label' => $this->translate('Allow open registration?'),
+                'info' => $this->translate('Allow guest user registration without administrator approval. The link to use is "/s/my-site/guest-user/register".'),
             ],
             'attributes' => [
                 'value' => $this->getSetting('guestuser_open'),
