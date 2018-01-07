@@ -3,11 +3,11 @@ namespace GuestUser\Service;
 
 use GuestUser\Authentication\Adapter\PasswordAdapter;
 use GuestUser\Entity\GuestUserToken;
+use Interop\Container\ContainerInterface;
 use Omeka\Authentication\Adapter\KeyAdapter;
 use Omeka\Authentication\Storage\DoctrineWrapper;
 use Omeka\Entity\ApiKey;
 use Omeka\Entity\User;
-use Interop\Container\ContainerInterface;
 use Zend\Authentication\AuthenticationService;
 use Zend\Authentication\Adapter\Callback;
 use Zend\Authentication\Storage\NonPersistent;
@@ -23,7 +23,7 @@ class AuthenticationServiceFactory implements FactoryInterface
      * Create the authentication service.
      *
      * @param ContainerInterface $services
-     * @return ApiManager
+     * @return AuthenticationService
      */
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {

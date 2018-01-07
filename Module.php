@@ -1,6 +1,7 @@
 <?php
 /*
  * Copyright BibLibre, 2016
+ * Copyright Daniel Berthereau, 2017-2018
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -32,12 +33,12 @@ use GuestUser\Entity\GuestUserToken;
 use GuestUser\Form\ConfigForm;
 use Omeka\Module\AbstractModule;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\View\Renderer\PhpRenderer;
+use Zend\EventManager\Event;
+use Zend\EventManager\SharedEventManagerInterface;
 use Zend\Mvc\Controller\AbstractController;
 use Zend\Mvc\MvcEvent;
-use Zend\EventManager\SharedEventManagerInterface;
-use Zend\EventManager\Event;
+use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\View\Renderer\PhpRenderer;
 
 class Module extends AbstractModule
 {
@@ -229,6 +230,7 @@ SQL;
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
+        // TODO How to attach all public events only?
         $sharedEventManager->attach(
             '*',
             'view.layout',
@@ -291,12 +293,15 @@ SQL;
 
     public function appendLoginNav(Event $event)
     {
-        $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         $view = $event->getTarget();
-        if ($auth->hasIdentity()) {
-            return $view->headStyle()->appendStyle("li a.registerlink, li a.loginlink { display:none;} ");
+        if ($view->params()->fromRoute('__ADMIN__')) {
+            return;
         }
-        $view->headStyle()->appendStyle("li a.logoutlink { display:none;} ");
+        $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
+        if ($auth->hasIdentity()) {
+            return $view->headStyle()->appendStyle('li a.registerlink, li a.loginlink { display:none; }');
+        }
+        $view->headStyle()->appendStyle('li a.logoutlink { display:none; }');
     }
 
     public function deleteGuestToken(Event $event)
@@ -305,9 +310,11 @@ SQL;
 
         $em = $this->getServiceLocator()->get('Omeka\EntityManager');
         $id = $request->getId();
-        if ($user = $em->getRepository(GuestUserToken::class)->findOneBy(['user' => $id])) {
-            $em->remove($user);
-            $em->flush();
+        $user = $em->getRepository(GuestUserToken::class)->findOneBy(['user' => $id]);
+        if (empty($user)) {
+            return;
         }
+        $em->remove($user);
+        $em->flush();
     }
 }
