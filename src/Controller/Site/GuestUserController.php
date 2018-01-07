@@ -3,6 +3,7 @@ namespace GuestUser\Controller\Site;
 
 use Doctrine\ORM\EntityManager;
 use GuestUser\Entity\GuestUserToken;
+use GuestUser\Form\EmailForm;
 use Omeka\Entity\User;
 use Omeka\Form\ForgotPasswordForm;
 use Omeka\Form\LoginForm;
@@ -25,6 +26,16 @@ class GuestUserController extends AbstractActionController
      * @var EntityManager
      */
     protected $entityManager;
+
+    /**
+     * @param AuthenticationService $authenticationService
+     * @param EntityManager $entityManager
+     */
+    public function __construct(AuthenticationService $authenticationService, EntityManager $entityManager)
+    {
+        $this->authenticationService = $authenticationService;
+        $this->entityManager = $entityManager;
+    }
 
     public function loginAction()
     {
@@ -196,22 +207,37 @@ class GuestUserController extends AbstractActionController
         $message = $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         $this->messenger()->addSuccess($message);
 
-        $this->createGuestUserAndSendMail($user);
+        $this->createGuestUserTokenAndSendMail($user);
         return $this->redirect()->toRoute('site/guest-user', ['action' => 'login'], [], true);
     }
 
-    protected function createGuestUserAndSendMail(User $user)
+    protected function createGuestUserTokenAndSendMail(User $user, $type = 'create', $email = null)
     {
         $guestUserToken = new GuestUserToken;
-        $guestUserToken->setEmail($user->getEmail());
+        $guestUserToken->setEmail($email ?: $user->getEmail());
         $guestUserToken->setUser($user);
         $guestUserToken->setToken(sha1("tOkenS@1t" . microtime()));
         $em = $this->getEntityManager();
         $em->persist($guestUserToken);
         $em->flush();
 
+        switch ($type) {
+            case 'update-email':
+                $action = 'confirm-email';
+                $subject = 'Update email on %1$s / %2$s'; // @translate
+                $body = 'You have requested to update email on %1$s / %2$s (%3$s). Please confirm your email by following this link: %4$s. If you did not request to update your email on %1$s, please disregard this email.'; // @translate
+                break;
+            case 'create':
+            default:
+                $email = $user->getEmail();
+                $action = 'confirm';
+                $subject = 'Your request to join %1$s / %2$s'; // @translate
+                $body = 'You have registered for an account on %1$s / %2$s (%3$s). Please confirm your registration by following this link: %4$s. If you did not request to join %1$s please disregard this email.'; // @translate
+                break;
+        }
+
         // Confirms that they registration request is legit.
-        $this->_sendConfirmationEmail($user, $guestUserToken);
+        $this->_sendConfirmationEmail($user, $guestUserToken, $email, $action, $subject, $body);
     }
 
     public function updateAccountAction()
@@ -233,6 +259,11 @@ class GuestUserController extends AbstractActionController
         $form->get('user-information')->populateValues($data);
         $form->get('change-password')->populateValues($data);
 
+        // The email is updated separately for security.
+        $emailField = $form->get('user-information')->get('o:email');
+        $emailField->setAttribute('disabled', true);
+        $emailField->setAttribute('required', false);
+
         $view = new ViewModel;
         $view->setVariable('user', $user);
         $view->setVariable('form', $form);
@@ -246,6 +277,7 @@ class GuestUserController extends AbstractActionController
 
         // A security.
         unset($postData['user-information']['o:id']);
+        unset($postData['user-information']['o:email']);
         unset($postData['user-information']['o:role']);
         unset($postData['user-information']['o:is_active']);
         $postData['user-information'] = array_replace(
@@ -255,7 +287,7 @@ class GuestUserController extends AbstractActionController
         $form->setData($postData);
 
         if (!$form->isValid()) {
-            $this->messenger()->addError('Email or Password invalid'); // @translate
+            $this->messenger()->addError('Password invalid'); // @translate
             return $view;
         }
 
@@ -271,6 +303,7 @@ class GuestUserController extends AbstractActionController
         $successMessages = [];
         $successMessages[] = 'Your modifications have been saved.'; // @translate
 
+        // The values were filtered: no hack is possible with added values.
         if (!empty($values['user-settings'])) {
             foreach ($values['user-settings'] as $settingId => $settingValue) {
                 $this->userSettings()->set($settingId, $settingValue, $id);
@@ -294,6 +327,47 @@ class GuestUserController extends AbstractActionController
             $this->messenger()->addSuccess($message);
         }
         return $view;
+    }
+
+    public function updateEmailAction()
+    {
+        $user = $this->identity();
+        if (empty($user)) {
+            return $this->redirect()->toUrl($this->currentSite()->url());
+        }
+        $id = $user->getId();
+
+        $userRepr = $this->api()->read('users', $id)->getContent();
+        $data = $userRepr->jsonSerialize();
+
+        $form = $this->getForm(EmailForm::class, []);
+        $form->populateValues($data);
+
+        $view = new ViewModel;
+        $view->setVariable('user', $user);
+        $view->setVariable('form', $form);
+
+        if (!$this->getRequest()->isPost()) {
+            return $view;
+        }
+
+        $postData = $this->params()->fromPost();
+
+        $form->setData($postData);
+
+        if (!$form->isValid()) {
+            $this->messenger()->addError('Email invalid'); // @translate
+            return $view;
+        }
+
+        $values = $form->getData();
+        $email = $values['o:email'];
+
+        $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
+        $this->messenger()->addSuccess($message);
+
+        $this->createGuestUserTokenAndSendMail($user, 'update-email', $email);
+        return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
     }
 
     public function meAction()
@@ -325,6 +399,13 @@ class GuestUserController extends AbstractActionController
         $html = '<ul>';
         $html .= '<li><a href="' . $url . '">';
         $html .= $this->translate('Update account info and password'); // @translate
+        $html .= '</a></li>';
+        $url = $this->url()->fromRoute('site/guest-user', [
+            'site-slug' => $this->currentSite()->slug(),
+            'action' => 'update-email',
+        ]);
+        $html .= '<li><a href="' . $url . '">';
+        $html .= $this->translate('Update email'); // @translate
         $html .= '</a></li>';
         $html .= '</ul>';
         $widget['content'] = $html;
@@ -366,6 +447,36 @@ class GuestUserController extends AbstractActionController
         return $this->redirect()->toUrl($redirectUrl);
     }
 
+    public function confirmEmailAction()
+    {
+        $token = $this->params()->fromQuery('token');
+        $em = $this->getEntityManager();
+        $guestUserToken = $em->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
+        if (empty($guestUserToken)) {
+            return $this->messenger()->addError($this->translate('Invalid token stop'), 'error'); // @translate
+        }
+
+        $guestUserToken->setConfirmed(true);
+        $em->persist($guestUserToken);
+        $email = $guestUserToken->getEmail();
+        $user = $em->find(User::class, $guestUserToken->getUser()->getId());
+        // Bypass api, so no check of acl 'activate-user' for the user himself.
+        $user->setEmail($email);
+        $em->persist($user);
+        $em->flush();
+
+        $siteTitle = $this->currentSite()->title();
+        $body = new Message('Your new email "%s" is confirmed.', // @translate
+            $email);
+
+        $this->messenger()->addSuccess($body);
+        $redirectUrl = $this->url()->fromRoute('site/guest-user', [
+            'site-slug' => $this->currentSite()->slug(),
+            'action' => 'me',
+        ]);
+        return $this->redirect()->toUrl($redirectUrl);
+    }
+
     protected function checkPostAndValidForm(\Zend\Form\Form $form)
     {
         if (!$this->getRequest()->isPost()) {
@@ -390,6 +501,7 @@ class GuestUserController extends AbstractActionController
     {
         $options = array_merge(
             [
+                'is_public' => true,
                 'user_id' => $user ? $user->getId() : 0,
                 'include_password' => true,
                 'include_role' => false,
@@ -415,7 +527,7 @@ class GuestUserController extends AbstractActionController
         return $form;
     }
 
-    protected function _sendConfirmationEmail(User $user, $token)
+    protected function _sendConfirmationEmail(User $user, $token, $email, $action, $subject, $body)
     {
         $mailer = $this->mailer();
         $message = $mailer->createMessage();
@@ -426,7 +538,7 @@ class GuestUserController extends AbstractActionController
         $url = $this->url()->fromRoute('site/guest-user',
             [
                 'site-slug' => $this->currentSite()->slug(),
-                'action' => 'confirm',
+                'action' => $action,
             ],
             [
                 'query' => [
@@ -436,9 +548,9 @@ class GuestUserController extends AbstractActionController
             ]
         );
 
-        $subject = new Message('Your request to join %s / %s', $mainTitle, $siteTitle); // @translate
+        $subject = new Message($subject, $mainTitle, $siteTitle);
         $body = new Message(
-            'You have registered for an account on %s / %s (%s). Please confirm your registration by following this link: %s. If you did not request to join %s please disregard this email.', // @translate
+            $body,
             $mainTitle,
             $siteTitle,
             $siteUrl,
@@ -446,7 +558,7 @@ class GuestUserController extends AbstractActionController
             $mainTitle
         );
 
-        $message->addTo($user->getEmail(), $user->getName())
+        $message->addTo($email, $user->getName())
             ->setSubject($subject)
             ->setBody($body);
         try {
@@ -456,22 +568,12 @@ class GuestUserController extends AbstractActionController
         }
     }
 
-    public function setAuthenticationService(AuthenticationService $authenticationService)
-    {
-        $this->authenticationService = $authenticationService;
-    }
-
-    public function getAuthenticationService()
+    protected function getAuthenticationService()
     {
         return $this->authenticationService;
     }
 
-    public function setEntityManager(EntityManager $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
-    public function getEntityManager()
+    protected function getEntityManager()
     {
         return $this->entityManager;
     }

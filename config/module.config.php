@@ -23,6 +23,7 @@ return [
     'form_elements' => [
         'invokables' => [
             Form\ConfigForm::class => Form\ConfigForm::class,
+            Form\EmailForm::class => Form\EmailForm::class,
         ],
         'factories' => [
             // TODO To remove after merge of pull request https://github.com/omeka/omeka-s/pull/1138.

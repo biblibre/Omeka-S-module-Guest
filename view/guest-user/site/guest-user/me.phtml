@@ -4,6 +4,8 @@ $this->htmlElement('body')->appendAttribute('class', 'guest-user account');
 $pageTitle =  $this->setting('guestuser_dashboard_label');
 echo $this->pageTitle($pageTitle);
 ?>
+<?php echo $this->messages(); ?>
+
 <h1><?php $this->pageTitle($pageTitle); ?></h1>
 
 <?php foreach ($this->widgets as $index=>$widget): ?>

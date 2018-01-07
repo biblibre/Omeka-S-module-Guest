@@ -170,7 +170,7 @@ SQL;
         $acl->allow(
             Permissions\Acl::ROLE_GUEST,
             'GuestUser\Controller\Site\GuestUser',
-            ['logout', 'update-account', 'me']
+            ['logout', 'update-account', 'update-email', 'confirm-email', 'me']
         );
 
         $acl->allow(
