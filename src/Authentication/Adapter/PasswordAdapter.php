@@ -11,9 +11,6 @@ class PasswordAdapter extends OmekaPasswordAdapter
 {
     protected $token_repository;
 
-    /**
-     * {@inheritDoc}
-     */
     public function authenticate()
     {
         $user = $this->repository->findOneBy(['email' => $this->identity]);
