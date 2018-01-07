@@ -77,7 +77,7 @@ SQL;
         $settings = $serviceLocator->get('Omeka\Settings');
         $t = $serviceLocator->get('MvcTranslator');
         $config = require __DIR__ . '/config/module.config.php';
-        foreach ($config[strtolower(__NAMESPACE__)]['settings'] as $name => $value) {
+        foreach ($config[strtolower(__NAMESPACE__)]['config'] as $name => $value) {
             switch ($name) {
                 case 'guestuser_login_text':
                 case 'guestuser_register_text':
@@ -104,7 +104,7 @@ SQL;
         $this->manageSettings($serviceLocator->get('Omeka\Settings'), 'uninstall');
     }
 
-    protected function manageSettings($settings, $process, $key = 'settings')
+    protected function manageSettings($settings, $process, $key = 'config')
     {
         $config = require __DIR__ . '/config/module.config.php';
         $defaultSettings = $config[strtolower(__NAMESPACE__)][$key];
@@ -125,7 +125,7 @@ SQL;
         if (version_compare($oldVersion, '0.1.3', '<')) {
             $settings = $serviceLocator->get('Omeka\Settings');
             $config = include __DIR__ . '/config/module.config.php';
-            foreach ($config['guestuser']['settings'] as $name => $value) {
+            foreach ($config[strtolower(__NAMESPACE__)]['config'] as $name => $value) {
                 $oldName = str_replace('guestuser_', 'guest_user_', $name);
                 $settings->set($name, $settings->get($oldName, $value));
                 $settings->delete($oldName);
@@ -250,7 +250,7 @@ SQL;
         $formElementManager = $services->get('FormElementManager');
 
         $data = [];
-        $defaultSettings = $config[strtolower(__NAMESPACE__)]['settings'];
+        $defaultSettings = $config[strtolower(__NAMESPACE__)]['config'];
         foreach ($defaultSettings as $name => $value) {
             $data[$name] = $settings->get($name);
         }
@@ -281,7 +281,7 @@ SQL;
             return false;
         }
 
-        $defaultSettings = $config[strtolower(__NAMESPACE__)]['settings'];
+        $defaultSettings = $config[strtolower(__NAMESPACE__)]['config'];
         foreach ($params as $name => $value) {
             if (isset($defaultSettings[$name])) {
                 $settings->set($name, $value);

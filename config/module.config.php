@@ -89,7 +89,7 @@ return [
         ],
     ],
     'guestuser' => [
-        'settings' => [
+        'config' => [
             'guestuser_capabilities' => '',
             'guestuser_short_capabilities' => '',
             'guestuser_login_text' => 'Login', // @translate
