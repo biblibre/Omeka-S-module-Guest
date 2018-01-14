@@ -433,6 +433,14 @@ class GuestUserController extends AbstractActionController
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
+        $userSettings = $this->userSettings();
+        $agreed = $userSettings->get('guestuser_agreed_terms');
+        if ($agreed) {
+            $message = new Message($this->translate('You already agreed the terms and conditions.')); // @translate
+            $this->messenger()->addSuccess($message);
+            return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
+        }
+
         $form = $this->getForm(AcceptTermsForm::class, []);
 
         $pageSlug = $this->settings()->get('guestuser_terms_page') ?: 'terms-and-conditions';
@@ -457,7 +465,7 @@ class GuestUserController extends AbstractActionController
         $message = new Message($this->translate('Thanks for accepting the terms and condtions.')); // @translate
         $this->messenger()->addSuccess($message);
 
-        $this->userSettings()->set('guestuser_agreed_terms', true);
+        $userSettings->set('guestuser_agreed_terms', true);
 
         return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
     }
