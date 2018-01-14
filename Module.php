@@ -154,6 +154,8 @@ SQL;
                 $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_text']);
             $settings->set('guestuser_terms_page',
                 $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_page']);
+            $settings->set('guestuser_terms_request_regex',
+                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_request_regex']);
         }
     }
 
@@ -340,8 +342,8 @@ SQL;
      */
     protected function checkAgreement(MvcEvent $event)
     {
-        $serviceLocator = $this->getServiceLocator();
-        $auth = $serviceLocator->get('Omeka\AuthenticationService');
+        $services = $this->getServiceLocator();
+        $auth = $services->get('Omeka\AuthenticationService');
         if (!$auth->hasIdentity()) {
             return;
         }
@@ -351,12 +353,12 @@ SQL;
             return;
         }
 
-        $userSettings = $serviceLocator->get('Omeka\Settings\User');
+        $userSettings = $services->get('Omeka\Settings\User');
         if ($userSettings->get('guestuser_agreed_terms')) {
             return;
         }
 
-        $router = $serviceLocator->get('Router');
+        $router = $services->get('Router');
         if (!$router instanceof \Zend\Router\Http\TreeRouteStack) {
             return;
         }
@@ -364,8 +366,15 @@ SQL;
         $request = $event->getRequest();
         $requestUri = $request->getRequestUri();
         $requestUriBase = strtok($requestUri, '?');
-        // Keep the home page available?
-        if (preg_match('~/(|maintenance|login|logout|migrate|guest-user/accept-terms)$~', $requestUriBase)) {
+
+        $settings = $services->get('Omeka\Settings');
+        $page = $settings->get('guestuser_terms_page');
+        $regex = $settings->get('guestuser_terms_request_regex');
+        if ($page) {
+            $regex .= ($regex ? '|' : '') . 'page/' . $page;
+        }
+        $regex = '~/(|' . $regex . '|maintenance|login|logout|migrate|guest-user/accept-terms)$~';
+        if (preg_match($regex, $requestUriBase)) {
             return;
         }
 

@@ -102,6 +102,7 @@ return [
             'guestuser_recaptcha' => false,
             'guestuser_terms_text' => 'I agree the terms and conditions.', // @translate
             'guestuser_terms_page' => 'terms-and-conditions',
+            'guestuser_terms_request_regex' => '',
         ],
         'user_settings' => [
             'guestuser_agreed_terms' => false,

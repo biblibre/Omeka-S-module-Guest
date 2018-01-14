@@ -115,7 +115,16 @@ class ConfigForm extends Form
             'type' => Text::class,
             'options' => [
                 'label' => 'Page slug of the terms and conditions', // @translate
-                'info' => 'Default is "terms-and-conditions" and can be bypassed by theme.', // @translate
+                'info' => 'If the text is on a specific page, or for other usage.', // @translate
+            ],
+        ]);
+
+        $this->add([
+            'name' => 'guestuser_terms_request_regex',
+            'type' => Text::class,
+            'options' => [
+                'label' => 'Pages not to redirect', // @translate
+                'info' => 'Allows to keep some pages available when terms are not yet agreed. Default pages are included (logout, terms page...). This is a regex, with "~" delimiter, checked against the end of the url.', // @translate
             ],
         ]);
     }
