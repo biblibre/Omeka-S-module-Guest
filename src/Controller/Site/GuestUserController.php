@@ -199,8 +199,9 @@ class GuestUserController extends AbstractActionController
 
         $id = $user->getId();
         if (!empty($values['user-settings'])) {
+            $userSettings = $this->userSettings();
             foreach ($values['user-settings'] as $settingId => $settingValue) {
-                $this->userSettings()->set($settingId, $settingValue, $id);
+                $userSettings->set($settingId, $settingValue, $id);
             }
         }
 
@@ -280,6 +281,7 @@ class GuestUserController extends AbstractActionController
         unset($postData['user-information']['o:email']);
         unset($postData['user-information']['o:role']);
         unset($postData['user-information']['o:is_active']);
+        unset($postData['edit-keys']);
         $postData['user-information'] = array_replace(
             $data,
             array_intersect_key($postData['user-information'], $data)
@@ -290,7 +292,6 @@ class GuestUserController extends AbstractActionController
             $this->messenger()->addError('Password invalid'); // @translate
             return $view;
         }
-
         $values = $form->getData();
         $response = $this->api($form)->update('users', $user->getId(), $values['user-information']);
 
@@ -305,8 +306,9 @@ class GuestUserController extends AbstractActionController
 
         // The values were filtered: no hack is possible with added values.
         if (!empty($values['user-settings'])) {
+            $userSettings = $this->userSettings();
             foreach ($values['user-settings'] as $settingId => $settingValue) {
-                $this->userSettings()->set($settingId, $settingValue, $id);
+                $userSettings->set($settingId, $settingValue, $id);
             }
         }
 
