@@ -356,7 +356,7 @@ SQL;
                     'label' => 'Agreed terms', // @translate
                 ],
                 'attributes' => [
-                    'value' => $services->get('Config')[strtolower(__NAMESPACE__)]['user_settings']['guestuser_agreed_terms'],
+                    'value' => false,
                     'required' => true,
                 ],
             ]);
