@@ -97,5 +97,14 @@ class ConfigForm extends Form
                 'required' => false,
             ],
         ]);
+
+        $this->add([
+            'name' => 'guestuser_page_terms',
+            'type' => Text::class,
+            'options' => [
+                'label' => 'Page slug of the terms and conditions', // @translate
+                'info' => 'Default is "terms-and-conditions" and can be bypassed by theme.', // @translate
+            ],
+        ]);
     }
 }

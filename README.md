@@ -44,6 +44,13 @@ have to adapt it.
 
 The Omeka S user bar is adapted to the module. You may have to adapt your theme.
 
+### Terms agreement
+
+A check box allows to force guest users to accept terms agreement.
+
+A button in the config forms allows to set or unset all guest users acceptation,
+in order to allow update of terms.
+
 
 Warning
 -------
@@ -96,7 +103,7 @@ Copyright
 ---------
 
 * Copyright Biblibre, 2016-2017
-* Copyright Daniel Berthereau, 2017
+* Copyright Daniel Berthereau, 2017-2018
 
 
 [Guest User]: https://github.com/biblibre/Omeka-S-module-GuestUser

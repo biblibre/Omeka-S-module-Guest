@@ -17,6 +17,6 @@ $form->prepare();
 <?php echo $this->form()->closeTag(); ?>
 
 <?php echo sprintf($this->translate('The terms and conditions can be read %shere%s.'),
-    '<a href="' . $this->url('site/page', ['page-slug' => 'terms-and-conditions'], [], true) . '">', '</a>'); ?>
+    '<a href="' . $this->url('site/page', ['page-slug' => $pageSlug], [], true) . '">', '</a>'); ?>
 
 <?php $this->trigger('view.add.after'); ?>

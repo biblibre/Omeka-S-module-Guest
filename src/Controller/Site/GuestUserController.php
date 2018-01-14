@@ -435,8 +435,11 @@ class GuestUserController extends AbstractActionController
 
         $form = $this->getForm(AcceptTermsForm::class, []);
 
+        $pageSlug = $this->settings()->get('guestuser_terms_page') ?: 'terms-and-conditions';
+
         $view = new ViewModel;
         $view->setVariable('form', $form);
+        $view->setVariable('pageSlug', $pageSlug);
 
         if (!$this->getRequest()->isPost()) {
             return $view;

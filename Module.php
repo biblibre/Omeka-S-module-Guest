@@ -147,6 +147,11 @@ SQL;
 
         if (version_compare($oldVersion, '3.2.0', '<')) {
             $this->resetAgreementsBySql($serviceLocator, true);
+
+            $settings = $serviceLocator->get('Omeka\Settings');
+            $config = include __DIR__ . '/config/module.config.php';
+            $settings->set('guestuser_terms_page',
+                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_page']);
         }
     }
 
