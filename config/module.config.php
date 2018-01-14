@@ -22,6 +22,7 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
+            Form\AcceptTermsForm::class => Form\AcceptTermsForm::class,
             Form\ConfigForm::class => Form\ConfigForm::class,
             Form\EmailForm::class => Form\EmailForm::class,
         ],

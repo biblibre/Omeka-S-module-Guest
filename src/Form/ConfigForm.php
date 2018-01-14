@@ -85,7 +85,7 @@ class ConfigForm extends Form
             'type' => Radio::class,
             'options' => [
                 'label' => 'Reset terms agreement for all guest users', // @translate
-                'info' => 'When terms and conditions are updated, you may want guest users agree them one more time. Warning: to set false will impact all guest users.', // @translate
+                'info' => 'When terms and conditions are updated, you may want guest users agree them one more time. Warning: to set false will impact all guest users. So warn them some time before.', // @translate
                 'value_options' => [
                     'keep' => 'No change', // @translate
                     'unset' => 'Set false', // @translate

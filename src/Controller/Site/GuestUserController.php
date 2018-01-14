@@ -3,6 +3,7 @@ namespace GuestUser\Controller\Site;
 
 use Doctrine\ORM\EntityManager;
 use GuestUser\Entity\GuestUserToken;
+use GuestUser\Form\AcceptTermsForm;
 use GuestUser\Form\EmailForm;
 use Omeka\Entity\User;
 use Omeka\Form\ForgotPasswordForm;
@@ -64,7 +65,18 @@ class GuestUserController extends AbstractActionController
             return $view;
         }
 
-        $this->messenger()->addSuccess('Successfully logged in');
+        $user = $auth->getIdentity();
+
+        $this->messenger()->addSuccess('Successfully logged in'); // @translate
+
+        $agreedTerms = $this->userSettings()->get('guestuser_agreed_terms', null, $user->getId());
+
+        if (!$agreedTerms) {
+            $this->messenger()->addWarning(
+                'Terms and conditions changed: you must accept them.'); // @translate
+            return $this->redirect()->toRoute('site/guest-user', ['action' => 'accept-terms'], [], true);
+        }
+
         $redirectUrl = $this->params()->fromQuery('redirect');
         if ($redirectUrl) {
             return $this->redirect()->toUrl($redirectUrl);
@@ -412,6 +424,39 @@ class GuestUserController extends AbstractActionController
         $html .= '</ul>';
         $widget['content'] = $html;
         return $widget;
+    }
+
+    public function acceptTermsAction()
+    {
+        $user = $this->identity();
+        if (empty($user)) {
+            return $this->redirect()->toUrl($this->currentSite()->url());
+        }
+
+        $form = $this->getForm(AcceptTermsForm::class, []);
+
+        $view = new ViewModel;
+        $view->setVariable('form', $form);
+
+        if (!$this->getRequest()->isPost()) {
+            return $view;
+        }
+
+        $postData = $this->params()->fromPost();
+
+        $form->setData($postData);
+
+        if (!$form->isValid()) {
+            $this->messenger()->addError('Form invalid'); // @translate
+            return $view;
+        }
+
+        $message = new Message($this->translate('Thanks for accepting the terms and condtions.')); // @translate
+        $this->messenger()->addSuccess($message);
+
+        $this->userSettings()->set('guestuser_agreed_terms', true);
+
+        return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
     }
 
     public function staleTokenAction()

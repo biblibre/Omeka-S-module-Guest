@@ -175,7 +175,10 @@ SQL;
         $acl->allow(
             Permissions\Acl::ROLE_GUEST,
             'GuestUser\Controller\Site\GuestUser',
-            ['logout', 'update-account', 'update-email', 'confirm-email', 'me']
+            [
+                'logout', 'update-account', 'update-email', 'confirm-email',
+                'me', 'accept-terms',
+            ]
         );
 
         $acl->allow(
@@ -432,13 +435,13 @@ SQL;
      */
     protected function resetAgreementsBySql(ServiceLocatorInterface $serviceLocator, $reset)
     {
-        $reset = (int) (bool) $reset;
+        $reset = $reset ? 'true' : 'false';
         $sql = <<<SQL
 DELETE FROM user_setting
 WHERE id="guestuser_agreed_terms";
 
 INSERT INTO user_setting (id, user_id, value)
-SELECT "guestuser_agreed_terms", user.id, '"$reset"'
+SELECT "guestuser_agreed_terms", user.id, "$reset"
 FROM user
 WHERE role="guest";
 SQL;
