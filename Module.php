@@ -52,6 +52,7 @@ class Module extends AbstractModule
     {
         parent::onBootstrap($event);
         $this->addAclRules();
+        $this->checkAgreement($event);
     }
 
     public function install(ServiceLocatorInterface $serviceLocator)
@@ -323,6 +324,61 @@ SQL;
                 $controller->messenger()->addSuccess($t->translate('All guest users agreed the terms.')); // @translate
                 break;
         }
+    }
+
+    /**
+     * Check if the guest user accept agreement.
+     *
+     * @param MvcEvent $event
+     */
+    protected function checkAgreement(MvcEvent $event)
+    {
+        $serviceLocator = $this->getServiceLocator();
+        $auth = $serviceLocator->get('Omeka\AuthenticationService');
+        if (!$auth->hasIdentity()) {
+            return;
+        }
+
+        $user = $auth->getIdentity();
+        if ($user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
+            return;
+        }
+
+        $userSettings = $serviceLocator->get('Omeka\Settings\User');
+        if ($userSettings->get('guestuser_agreed_terms')) {
+            return;
+        }
+
+        $router = $serviceLocator->get('Router');
+        if (!$router instanceof \Zend\Router\Http\TreeRouteStack) {
+            return;
+        }
+
+        $request = $event->getRequest();
+        $requestUri = $request->getRequestUri();
+        $requestUriBase = strtok($requestUri, '?');
+        // Keep the home page available?
+        if (preg_match('~/(|maintenance|login|logout|migrate|guest-user/accept-terms)$~', $requestUriBase)) {
+            return;
+        }
+
+        // TODO Use routing to get the site slug.
+
+        // Url helper can't be used, because the site slug is not set.
+        // The current slug is used.
+        $baseUrl = $request->getBaseUrl();
+        preg_match('~' . preg_quote($baseUrl, '~') . '/s/([^/]+).*~', $requestUriBase, $matches);
+        if (empty($matches[1])) {
+            $acceptUri = $baseUrl;
+        } else {
+            $acceptUri = $baseUrl . '/s/' . $matches[1] . '/guest-user/accept-terms';
+        }
+
+        $response = $event->getResponse();
+        $response->getHeaders()->addHeaderLine('Location', $acceptUri);
+        $response->setStatusCode(302);
+        $response->sendHeaders();
+        exit;
     }
 
     public function appendLoginNav(Event $event)
