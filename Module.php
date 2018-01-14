@@ -95,13 +95,11 @@ SQL;
     {
         $this->deactivateGuestUsers($serviceLocator);
 
-        $conn = $serviceLocator->get('Omeka\Connection');
         $sql = <<<'SQL'
-SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS guest_user_token;
-SET FOREIGN_KEY_CHECKS = 1;
 SQL;
-        $conn->exec($sql);
+        $connection = $serviceLocator->get('Omeka\Connection');
+        $connection->exec($sql);
 
         $this->manageSettings($serviceLocator->get('Omeka\Settings'), 'uninstall');
     }
@@ -124,6 +122,8 @@ SQL;
 
     public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
     {
+        $connection = $serviceLocator->get('Omeka\Connection');
+
         if (version_compare($oldVersion, '0.1.3', '<')) {
             $settings = $serviceLocator->get('Omeka\Settings');
             $config = include __DIR__ . '/config/module.config.php';
@@ -133,15 +133,19 @@ SQL;
                 $settings->delete($oldName);
             }
         }
+
         if (version_compare($oldVersion, '0.1.4', '<')) {
-            $conn = $serviceLocator->get('Omeka\Connection');
             $sql = <<<'SQL'
 ALTER TABLE guest_user_tokens RENAME TO guest_user_token, ENGINE='InnoDB' COLLATE 'utf8mb4_unicode_ci';
 ALTER TABLE guest_user_token CHANGE id id INT AUTO_INCREMENT NOT NULL, CHANGE token token VARCHAR(255) NOT NULL, CHANGE email email VARCHAR(255) NOT NULL, CHANGE confirmed confirmed TINYINT(1) NOT NULL;
 ALTER TABLE guest_user_token ADD CONSTRAINT FK_80ED0AF2A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE;
 CREATE INDEX IDX_80ED0AF2A76ED395 ON guest_user_token (user_id);
 SQL;
-            $conn->exec($sql);
+            $connection->exec($sql);
+        }
+
+        if (version_compare($oldVersion, '3.2.0', '<')) {
+            $this->resetAgreementsBySql($serviceLocator, true);
         }
     }
 
@@ -293,7 +297,7 @@ SQL;
         $form->init();
         $form->setData($params);
         if (!$form->isValid()) {
-            $controller->messenger()->addErrors($form->getMessages());
+            $this->messenger()->addErrors($form->getMessages());
             return false;
         }
 
@@ -302,6 +306,19 @@ SQL;
             if (isset($defaultSettings[$name])) {
                 $settings->set($name, $value);
             }
+        }
+
+        switch ($params['guestuser_reset_agreement_terms']) {
+            case 'unset':
+                $t = $services->get('MvcTranslator');
+                $this->resetAgreementsBySql($services, false);
+                $controller->messenger()->addSuccess($t->translate('All guest users must agreed the terms one more time.')); // @translate
+                break;
+            case 'set':
+                $t = $services->get('MvcTranslator');
+                $this->resetAgreementsBySql($services, true);
+                $controller->messenger()->addSuccess($t->translate('All guest users agreed the terms.')); // @translate
+                break;
         }
     }
 
@@ -387,5 +404,48 @@ SQL;
         }
         $em->remove($user);
         $em->flush();
+    }
+
+    /**
+     * Reset all guest user agreements.
+     *
+     * @param bool $reset
+     */
+    protected function resetAgreements($reset)
+    {
+        $services = $this->getServiceLocator();
+        $userSettings = $services->get('Omeka\Settings\User');
+        $entityManager = $services->get('Omeka\EntityManager');
+        $guestUsers = $entityManager->getRepository('Omeka\Entity\User')
+            ->findBy(['role' => Permissions\Acl::ROLE_GUEST]);
+        foreach ($guestUsers as $user) {
+            $userSettings->setTargetId($user->getId());
+            $userSettings->set('guestuser_agreed_terms', $reset);
+        }
+    }
+
+    /**
+     * Reset all guest user agreements via sql (quicker for big base).
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param bool $reset
+     */
+    protected function resetAgreementsBySql(ServiceLocatorInterface $serviceLocator, $reset)
+    {
+        $reset = (int) (bool) $reset;
+        $sql = <<<SQL
+DELETE FROM user_setting
+WHERE id="guestuser_agreed_terms";
+
+INSERT INTO user_setting (id, user_id, value)
+SELECT "guestuser_agreed_terms", user.id, '"$reset"'
+FROM user
+WHERE role="guest";
+SQL;
+        $connection = $serviceLocator->get('Omeka\Connection');
+        $sqls = array_filter(array_map('trim', explode(';', $sql)));
+        foreach ($sqls as $sql) {
+            $connection->exec($sql);
+        }
     }
 }

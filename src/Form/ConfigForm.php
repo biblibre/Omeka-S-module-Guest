@@ -2,8 +2,9 @@
 namespace GuestUser\Form;
 
 use Omeka\Form\Element\CkeditorInline;
-use Zend\Form\Element\Text;
 use Zend\Form\Element\Checkbox;
+use Zend\Form\Element\Radio;
+use Zend\Form\Element\Text;
 use Zend\Form\Form;
 
 class ConfigForm extends Form
@@ -76,6 +77,24 @@ class ConfigForm extends Form
             'options' => [
                 'label' => 'Require ReCaptcha?', // @translate
                 'info' => 'Check this to require passing a ReCaptcha test when registering', // @translate
+            ],
+        ]);
+
+        $this->add([
+            'name' => 'guestuser_reset_agreement_terms',
+            'type' => Radio::class,
+            'options' => [
+                'label' => 'Reset terms agreement for all guest users', // @translate
+                'info' => 'When terms and conditions are updated, you may want guest users agree them one more time. Warning: to set false will impact all guest users.', // @translate
+                'value_options' => [
+                    'keep' => 'No change', // @translate
+                    'unset' => 'Set false', // @translate
+                    'set' => 'Set true', // @translate
+                ],
+            ],
+            'attributes' => [
+                'value' => 'keep',
+                'required' => false,
             ],
         ]);
     }
