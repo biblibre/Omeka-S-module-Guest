@@ -100,5 +100,8 @@ return [
             'guestuser_open' => false,
             'guestuser_recaptcha' => false,
         ],
+        'user_settings' => [
+            'guestuser_agreed_terms' => false,
+        ],
     ],
 ];

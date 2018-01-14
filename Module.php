@@ -39,6 +39,7 @@ use Zend\Mvc\Controller\AbstractController;
 use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
+use Zend\Form\Element\Checkbox;
 
 class Module extends AbstractModule
 {
@@ -242,6 +243,19 @@ SQL;
             'api.delete.post',
             [$this, 'deleteGuestToken']
         );
+
+        // Add the guest user element form to the user form.
+        $sharedEventManager->attach(
+            \Omeka\Form\UserForm::class,
+            'form.add_elements',
+            [$this, 'addUserFormElement']
+        );
+        // FIXME Use the autoset of the values (in a fieldset) and remove this.
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\User',
+            'view.edit.form.before',
+            [$this, 'addUserFormValue']
+        );
     }
 
     public function getConfigForm(PhpRenderer $renderer)
@@ -302,6 +316,63 @@ SQL;
             return $view->headStyle()->appendStyle('li a.registerlink, li a.loginlink { display:none; }');
         }
         $view->headStyle()->appendStyle('li a.logoutlink { display:none; }');
+    }
+
+    public function addUserFormElement(Event $event)
+    {
+        /** @var \Omeka\Form\UserForm $form */
+        $form = $event->getTarget();
+        $services = $this->getServiceLocator();
+
+        if ($form->getOption('is_public')) {
+            $auth = $services->get('Omeka\AuthenticationService');
+            // Don't add the agreement checkbox in public when registered.
+            if ($auth->hasIdentity()) {
+                return;
+            }
+
+            $fieldset = $form->get('user-settings');
+            $fieldset->add([
+                'name' => 'guestuser_agreed_terms',
+                'type' => Checkbox::class,
+                'options' => [
+                    'label' => 'Agreed terms', // @translate
+                ],
+                'attributes' => [
+                    'value' => $services->get('Config')[strtolower(__NAMESPACE__)]['user_settings']['guestuser_agreed_terms'],
+                    'required' => true,
+                ],
+            ]);
+            return;
+        }
+
+        // Admin board.
+        $fieldset = $form->get('user-settings');
+        $fieldset->add([
+            'name' => 'guestuser_agreed_terms',
+            'type' => Checkbox::class,
+            'options' => [
+                'label' => 'Agreed terms', // @translate
+            ],
+        ]);
+    }
+
+    public function addUserFormValue(Event $event)
+    {
+        $user = $event->getTarget()->vars()->user;
+        $form = $event->getParam('form');
+        $services = $this->getServiceLocator();
+        $userSettings = $services->get('Omeka\Settings\User');
+        $userSettings->setTargetId($user->id());
+        $guestUserSettings = [
+            'guestuser_agreed_terms',
+        ];
+        $config = $services->get('Config')[strtolower(__NAMESPACE__)]['user_settings'];
+        $fieldset = $form->get('user-settings');
+        foreach ($guestUserSettings as $name) {
+            $fieldset->get($name)->setAttribute('value',
+                $userSettings->get($name, $config[$name]));
+        }
     }
 
     public function deleteGuestToken(Event $event)
