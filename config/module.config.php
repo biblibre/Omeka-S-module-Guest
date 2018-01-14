@@ -100,6 +100,7 @@ return [
             'guestuser_dashboard_label' => 'My Account', // @translate
             'guestuser_open' => false,
             'guestuser_recaptcha' => false,
+            'guestuser_terms_text' => 'I agree the terms and conditions.', // @translate
             'guestuser_terms_page' => 'terms-and-conditions',
         ],
         'user_settings' => [

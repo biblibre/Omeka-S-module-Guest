@@ -99,7 +99,19 @@ class ConfigForm extends Form
         ]);
 
         $this->add([
-            'name' => 'guestuser_page_terms',
+            'name' => 'guestuser_terms_text',
+            'type' => CkeditorInline::class,
+            'options' => [
+                'label' => 'Text for terms and conditions', // @translate
+                'info' => 'The text to display to accept condtions.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'guestuser-terms-text',
+            ],
+        ]);
+
+        $this->add([
+            'name' => 'guestuser_terms_page',
             'type' => Text::class,
             'options' => [
                 'label' => 'Page slug of the terms and conditions', // @translate
