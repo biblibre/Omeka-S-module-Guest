@@ -65,13 +65,14 @@ return [
                     'guest-user' => [
                         'type' => 'Segment',
                         'options' => [
-                            'route' => '/guest-user/:action',
+                            'route' => '/guest-user[/:action]',
+                            'constraints' => [
+                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                            ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'GuestUser\Controller\Site',
                                 'controller' => 'GuestUser',
-                            ],
-                            'constraints' => [
-                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                'action' => 'me',
                             ],
                         ],
                     ],
