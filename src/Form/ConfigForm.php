@@ -124,7 +124,7 @@ class ConfigForm extends Form
             'type' => Text::class,
             'options' => [
                 'label' => 'Pages not to redirect', // @translate
-                'info' => 'Allows to keep some pages available when terms are not yet agreed. Default pages are included (logout, terms page...). This is a regex, with "~" delimiter, checked against the end of the url.', // @translate
+                'info' => 'Allows to keep some pages available when terms are not yet agreed. Default pages are included (logout, terms page…). This is a regex, with "~" delimiter, checked against the end of the url.', // @translate
             ],
         ]);
     }

@@ -63,7 +63,7 @@ class UserForm extends \Omeka\Form\UserForm
                 'type' => 'select',
                 'options' => [
                     'label' => 'Role', // @translate
-                    'empty_option' => 'Select role...', // @translate
+                    'empty_option' => 'Select role…', // @translate
                     'value_options' => $roles,
                 ],
                 'attributes' => [
@@ -106,11 +106,6 @@ class UserForm extends \Omeka\Form\UserForm
         $this->get('user-settings')->add([
             'name' => 'default_resource_template',
             'type' => ResourceSelect::class,
-            'attributes' => [
-                'value' => $userId ? $this->userSettings->get('default_resource_template', null, $userId) : '',
-                'class' => 'chosen-select',
-                'data-placeholder' => 'Select a template', // @translate
-            ],
             'options' => [
                 'label' => 'Default resource template', // @translate
                 'empty_option' => '',
@@ -121,6 +116,11 @@ class UserForm extends \Omeka\Form\UserForm
                         return $resourceTemplate->label();
                     },
                 ],
+            ],
+            'attributes' => [
+                'value' => $userId ? $this->userSettings->get('default_resource_template', null, $userId) : '',
+                'class' => 'chosen-select',
+                'data-placeholder' => 'Select a template', // @translate
             ],
         ]);
 
