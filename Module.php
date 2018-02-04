@@ -179,7 +179,7 @@ SQL;
         $acl->allow(
             null,
             'GuestUser\Controller\Site\GuestUser',
-            ['login', 'forgot-password', 'stale-token', 'confirm']
+            ['login', 'forgot-password', 'stale-token', 'confirm', 'auth-error']
         );
 
         $acl->allow(

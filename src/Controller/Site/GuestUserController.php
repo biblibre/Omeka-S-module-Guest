@@ -51,6 +51,8 @@ class GuestUserController extends AbstractActionController
         // Check if there is a fail from a third party authenticator.
         $externalAuth = $this->params()->fromQuery('auth');
         if ($externalAuth === 'error') {
+            $siteSlug = $this->params()->fromRoute('site-slug');
+            $this->logger()->err(sprintf('A user failed to log on the site "%s".', $siteSlug)); // @translate
             $response = $this->getResponse();
             $response->setStatusCode(400);
             if ($isExternalApp) {
@@ -59,10 +61,7 @@ class GuestUserController extends AbstractActionController
                     'message' => 'Unable to authenticate. Contact the administrator.', // @translate
                 ]);
             }
-            $view = new ViewModel;
-            $view->setTemplate('guest-user/site/guest-user/auth-error');
-            $view->setVariable('message', 'Unable to authenticate. Contact the administrator.'); // @translate
-            return $view;
+            return $this->redirect()->toRoute('site/guest-user', ['action' => 'auth-error', 'site-slug' => $siteSlug]);
         }
 
         $view = new ViewModel;
@@ -111,6 +110,11 @@ class GuestUserController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
         return $this->redirect()->toUrl($this->currentSite()->url());
+    }
+
+    public function authErrorAction()
+    {
+        return new ViewModel;
     }
 
     public function logoutAction()
