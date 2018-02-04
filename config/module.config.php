@@ -104,6 +104,7 @@ return [
             'guestuser_terms_page' => 'terms-and-conditions',
             'guestuser_terms_request_regex' => '',
             'guestuser_terms_redirect' => 'site',
+            'guestuser_terms_force_agree' => true,
         ],
         'user_settings' => [
             'guestuser_agreed_terms' => false,

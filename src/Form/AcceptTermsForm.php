@@ -15,7 +15,7 @@ class AcceptTermsForm extends Form
                 'label' => 'I agree with terms and conditions.', // @translate
             ],
             'attributes' => [
-                'required' => true,
+                'required' => !empty($this->getOption('forced')),
             ],
         ]);
     }

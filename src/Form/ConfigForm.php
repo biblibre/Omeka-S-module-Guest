@@ -141,5 +141,14 @@ class ConfigForm extends Form
                 'required' => false,
             ],
         ]);
+
+        $this->add([
+            'name' => 'guestuser_terms_force_agree',
+            'type' => Element\Checkbox::class,
+            'options' => [
+                'label' => 'Force terms agreement', // @translate
+                'info' => 'If unchecked, the user will be logged out if terms are not accepted.', // @translate
+            ],
+        ]);
     }
 }

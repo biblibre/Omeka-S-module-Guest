@@ -456,7 +456,13 @@ class GuestUserController extends AbstractActionController
             return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
         }
 
-        $form = $this->getForm(AcceptTermsForm::class, []);
+        $forced = $this->settings()->get('guestuser_terms_force_agree');
+
+        /** @var \GuestUser\Form\AcceptTermsForm $form */
+        // $form = $this->getForm(AcceptTermsForm::class, null, ['forced' => $forced]);
+        $form = new AcceptTermsForm();
+        $form->setOption('forced', $forced);
+        $form->init();
 
         $text = $this->settings()->get('guestuser_terms_text');
         $page = $this->settings()->get('guestuser_terms_page');
@@ -479,11 +485,21 @@ class GuestUserController extends AbstractActionController
             return $view;
         }
 
+        $data = $form->getData();
+        $accept = (bool) $data['guestuser_agreed_terms'];
+        $userSettings->set('guestuser_agreed_terms', $accept);
+
+        if (!$accept) {
+            if ($forced) {
+             $message = new Message($this->translate('The access to this website requires you accept the terms and conditions.')); // @translate
+                $this->messenger()->addError($message);
+                return $view;
+            }
+            return $this->redirect()->toRoute('site/guest-user', ['action' => 'logout'], [], true);
+        }
+
         $message = new Message($this->translate('Thanks for accepting the terms and condtions.')); // @translate
         $this->messenger()->addSuccess($message);
-
-        $userSettings->set('guestuser_agreed_terms', true);
-
         switch ($this->settings()->get('guestuser_terms_redirect')) {
             case 'home':
                 return $this->redirect()->toRoute('top');
