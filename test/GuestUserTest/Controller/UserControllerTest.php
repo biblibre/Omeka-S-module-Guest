@@ -3,7 +3,6 @@
 namespace GuestUserTest\Controller;
 
 use Zend\Form\Element\Csrf;
-use Omeka\Entity\User;
 use GuestUser\Entity\GuestUserToken;
 
 class UserControllerTest extends GuestUserControllerTestCase
