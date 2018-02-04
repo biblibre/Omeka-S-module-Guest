@@ -45,9 +45,24 @@ class GuestUserController extends AbstractActionController
             return $this->redirect()->toRoute('site', [], true);
         }
 
-        $form = $this->getForm(LoginForm::class);
         $view = new ViewModel;
+
+        // Check if there is a fail from an external authenticator.
+        $externalAuth = $this->params()->fromQuery('auth');
+        if ($externalAuth === 'error') {
+            $view->setVariable('form', null);
+            return $view;
+        }
+
+        $form = $this->getForm(LoginForm::class);
         $view->setVariable('form', $form);
+
+        if ($externalAuth === 'local') {
+            return $view;
+        }
+
+        $view->setVariable('form', $form);
+
         if (!$this->checkPostAndValidForm($form)) {
             return $view;
         }
