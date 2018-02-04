@@ -484,7 +484,15 @@ class GuestUserController extends AbstractActionController
 
         $userSettings->set('guestuser_agreed_terms', true);
 
-        return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
+        switch ($this->settings()->get('guestuser_terms_redirect')) {
+            case 'home':
+                return $this->redirect()->toRoute('top');
+            case 'site':
+                return $this->redirect()->toRoute('site', [], [], true);
+            case 'me':
+            default:
+                return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
+        }
     }
 
     public function staleTokenAction()

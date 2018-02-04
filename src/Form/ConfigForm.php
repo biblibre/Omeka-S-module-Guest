@@ -2,9 +2,7 @@
 namespace GuestUser\Form;
 
 use Omeka\Form\Element\CkeditorInline;
-use Zend\Form\Element\Checkbox;
-use Zend\Form\Element\Radio;
-use Zend\Form\Element\Text;
+use Zend\Form\Element;
 use Zend\Form\Form;
 
 class ConfigForm extends Form
@@ -37,7 +35,7 @@ class ConfigForm extends Form
 
         $this->add([
             'name' => 'guestuser_dashboard_label',
-            'type' => Text::class,
+            'type' => Element\Text::class,
             'options' => [
                 'label' => 'Dashboard Label', // @translate
                 'info' => 'The text to use for the label on the user’s dashboard', // @translate
@@ -46,7 +44,7 @@ class ConfigForm extends Form
 
         $this->add([
             'name' => 'guestuser_login_text',
-            'type' => Text::class,
+            'type' => Element\Text::class,
             'options' => [
                 'label' => 'Login Text', // @translate
                 'info' => 'The text to use for the "Login" link in the user bar', // @translate
@@ -55,7 +53,7 @@ class ConfigForm extends Form
 
         $this->add([
             'name' => 'guestuser_register_text',
-            'type' => Text::class,
+            'type' => Element\Text::class,
             'options' => [
                 'label' => 'Register Text', // @translate
                 'info' => 'The text to use for the "Register" link in the user bar', // @translate
@@ -64,25 +62,25 @@ class ConfigForm extends Form
 
         $this->add([
             'name' => 'guestuser_open',
-            'type' => Checkbox::class,
+            'type' => Element\Checkbox::class,
             'options' => [
-                'label' => 'Allow open registration?', // @translate
+                'label' => 'Allow open registration', // @translate
                 'info' => 'Allow guest user registration without administrator approval. The link to use is "/s/my-site/guest-user/register".', // @translate
             ],
         ]);
 
         $this->add([
             'name' => 'guestuser_recaptcha',
-            'type' => Checkbox::class,
+            'type' => Element\Checkbox::class,
             'options' => [
-                'label' => 'Require ReCaptcha?', // @translate
+                'label' => 'Require ReCaptcha', // @translate
                 'info' => 'Check this to require passing a ReCaptcha test when registering', // @translate
             ],
         ]);
 
         $this->add([
             'name' => 'guestuser_reset_agreement_terms',
-            'type' => Radio::class,
+            'type' => Element\Radio::class,
             'options' => [
                 'label' => 'Reset terms agreement for all guest users', // @translate
                 'info' => 'When terms and conditions are updated, you may want guest users agree them one more time. Warning: to set false will impact all guest users. So warn them some time before.', // @translate
@@ -112,7 +110,7 @@ class ConfigForm extends Form
 
         $this->add([
             'name' => 'guestuser_terms_page',
-            'type' => Text::class,
+            'type' => Element\Text::class,
             'options' => [
                 'label' => 'Page slug of the terms and conditions', // @translate
                 'info' => 'If the text is on a specific page, or for other usage.', // @translate
@@ -121,10 +119,26 @@ class ConfigForm extends Form
 
         $this->add([
             'name' => 'guestuser_terms_request_regex',
-            'type' => Text::class,
+            'type' => Element\Text::class,
             'options' => [
                 'label' => 'Pages not to redirect', // @translate
                 'info' => 'Allows to keep some pages available when terms are not yet agreed. Default pages are included (logout, terms page…). This is a regex, with "~" delimiter, checked against the end of the url.', // @translate
+            ],
+        ]);
+
+        $this->add([
+            'name' => 'guestuser_terms_redirect',
+            'type' => Element\Radio::class,
+            'options' => [
+                'label' => 'Redirect page after acceptance', // @translate
+                'value_options' => [
+                    'home' => 'Main home page', // @translate
+                    'site' => 'Home site', // @translate
+                    'me' => 'User account', // @translate
+                ],
+            ],
+            'attributes' => [
+                'required' => false,
             ],
         ]);
     }
