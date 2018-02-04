@@ -46,14 +46,26 @@ class GuestUserController extends AbstractActionController
             return $this->redirect()->toRoute('site', [], true);
         }
 
-        $view = new ViewModel;
+        $isExternalApp = $this->isExternalApp();
 
-        // Check if there is a fail from an external authenticator.
+        // Check if there is a fail from a third party authenticator.
         $externalAuth = $this->params()->fromQuery('auth');
         if ($externalAuth === 'error') {
-            $view->setVariable('form', null);
+            $response = $this->getResponse();
+            $response->setStatusCode(400);
+            if ($isExternalApp) {
+                return new JsonModel([
+                    'result' => 'error',
+                    'message' => 'Unable to authenticate. Contact the administrator.', // @translate
+                ]);
+            }
+            $view = new ViewModel;
+            $view->setTemplate('guest-user/site/guest-user/auth-error');
+            $view->setVariable('message', 'Unable to authenticate. Contact the administrator.'); // @translate
             return $view;
         }
+
+        $view = new ViewModel;
 
         $form = $this->getForm(LoginForm::class);
         $view->setVariable('form', $form);
@@ -83,18 +95,13 @@ class GuestUserController extends AbstractActionController
 
         $user = $auth->getIdentity();
 
-        $requestedWith = $this->params()->fromHeader('X-Requested-With');
-        if ($requestedWith) {
-            $requestedWith = $requestedWith->getFieldValue();
-            $checkRequestedWith = $this->settings()->get('guestuser_check_requested_with');
-            if ($checkRequestedWith && strpos($requestedWith, $checkRequestedWith) === 0) {
-                $userSettings = $this->userSettings();
-                $userSettings->setTargetId($user->getId());
-                $result = [];
-                $result['user_id'] = $user->getId();
-                $result['agreed'] = $userSettings->get('guestuser_agreed_terms');
-                return new JsonModel($result);
-            }
+        if ($isExternalApp) {
+            $userSettings = $this->userSettings();
+            $userSettings->setTargetId($user->getId());
+            $result = [];
+            $result['user_id'] = $user->getId();
+            $result['agreed'] = $userSettings->get('guestuser_agreed_terms');
+            return new JsonModel($result);
         }
 
         $this->messenger()->addSuccess('Successfully logged in'); // @translate
@@ -672,6 +679,28 @@ class GuestUserController extends AbstractActionController
         } catch (\Exception $e) {
             $this->logger()->err((string) $e);
         }
+    }
+
+    /**
+     * Check if a request is done via an external application, specified in the
+     * config.
+     *
+     * @return boolean
+     */
+    protected function isExternalApp()
+    {
+        $requestedWith = $this->params()->fromHeader('X-Requested-With');
+        if (empty($requestedWith)) {
+            return false;
+        }
+
+        $checkRequestedWith = $this->settings()->get('guestuser_check_requested_with');
+        if (empty($checkRequestedWith)) {
+            return false;
+        }
+
+        $requestedWith = $requestedWith->getFieldValue();
+        return strpos($requestedWith, $checkRequestedWith) === 0;
     }
 
     protected function getAuthenticationService()
