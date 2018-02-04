@@ -150,5 +150,14 @@ class ConfigForm extends Form
                 'info' => 'If unchecked, the user will be logged out if terms are not accepted.', // @translate
             ],
         ]);
+
+        $this->add([
+            'name' => 'guestuser_check_requested_with',
+            'type' => Element\Text::class,
+            'options' => [
+                'label' => 'Check webview', // @translate
+                'info' => 'In complex authentication flows where the view may be used by an external application, the view should return a json after login. The value of the header "X-Requested-With" is used to identify such a flow.', // @translate
+            ],
+        ]);
     }
 }

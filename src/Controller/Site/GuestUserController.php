@@ -14,6 +14,7 @@ use Zend\Authentication\AuthenticationService;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Mvc\MvcEvent;
 use Zend\Session\Container;
+use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
 class GuestUserController extends AbstractActionController
@@ -82,15 +83,21 @@ class GuestUserController extends AbstractActionController
 
         $user = $auth->getIdentity();
 
-        $this->messenger()->addSuccess('Successfully logged in'); // @translate
-
-        $agreedTerms = $this->userSettings()->get('guestuser_agreed_terms', null, $user->getId());
-
-        if (!$agreedTerms) {
-            $this->messenger()->addWarning(
-                'Terms and conditions changed: you must accept them.'); // @translate
-            return $this->redirect()->toRoute('site/guest-user', ['action' => 'accept-terms'], [], true);
+        $requestedWith = $this->params()->fromHeader('X-Requested-With');
+        if ($requestedWith) {
+            $requestedWith = $requestedWith->getFieldValue();
+            $checkRequestedWith = $this->settings()->get('guestuser_check_requested_with');
+            if ($checkRequestedWith && strpos($requestedWith, $checkRequestedWith) === 0) {
+                $userSettings = $this->userSettings();
+                $userSettings->setTargetId($user->getId());
+                $result = [];
+                $result['user_id'] = $user->getId();
+                $result['agreed'] = $userSettings->get('guestuser_agreed_terms');
+                return new JsonModel($result);
+            }
         }
+
+        $this->messenger()->addSuccess('Successfully logged in'); // @translate
 
         $redirectUrl = $this->params()->fromQuery('redirect');
         if ($redirectUrl) {
@@ -491,7 +498,7 @@ class GuestUserController extends AbstractActionController
 
         if (!$accept) {
             if ($forced) {
-             $message = new Message($this->translate('The access to this website requires you accept the terms and conditions.')); // @translate
+             $message = new Message($this->translate('The access to this website requires you accept the current terms and conditions.')); // @translate
                 $this->messenger()->addError($message);
                 return $view;
             }
