@@ -121,10 +121,17 @@ class GuestUserController extends AbstractActionController
     {
         $auth = $this->getAuthenticationService();
         $auth->clearIdentity();
+
         $sessionManager = Container::getDefaultManager();
+
+        $eventManager = $this->getEventManager();
+        $eventManager->trigger('user.logout');
+
         $sessionManager->destroy();
+
         $this->messenger()->addSuccess('Successfully logged out'); // @translate
         $redirectUrl = $this->params()->fromQuery('redirect');
+
         if ($redirectUrl) {
             return $this->redirect()->toUrl($redirectUrl);
         }
