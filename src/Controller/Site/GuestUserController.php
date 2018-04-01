@@ -168,8 +168,8 @@ class GuestUserController extends AbstractActionController
                 'email' => $data['email'],
                 'isActive' => true,
             ]);
-        $entityManager->persist($user);
         if ($user) {
+            $entityManager->persist($user);
             $passwordCreation = $entityManager
                 ->getRepository('Omeka\Entity\PasswordCreation')
                 ->findOneBy(['user' => $user]);
