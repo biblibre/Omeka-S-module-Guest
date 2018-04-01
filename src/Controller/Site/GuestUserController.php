@@ -432,38 +432,21 @@ class GuestUserController extends AbstractActionController
         }
 
         $eventManager = $this->getEventManager();
+        $partial = $this->viewHelpers()->get('partial');
+
+        $widget = [];
+        $widget['label'] = $this->translate('My Account'); // @translate
+        $widget['content'] = $partial('common/guest-user-account');
+
         $args = $eventManager->prepareArgs(['widgets' => []]);
-        $args['widgets'][] = $this->widgetUpdateAccount();
+        $args['widgets']['account'] = $widget;
+
         $event = new MvcEvent('guestuser.widgets', $this, $args);
         $this->getEventManager()->triggerEvent($event);
 
         $view = new ViewModel;
         $view->setVariable('widgets', $args['widgets']);
         return $view;
-    }
-
-    protected function widgetUpdateAccount()
-    {
-        $widget = [];
-        $widget['label'] = $this->translate('My Account'); // @translate
-        $url = $this->url()->fromRoute('site/guest-user', [
-            'site-slug' => $this->currentSite()->slug(),
-            'action' => 'update-account',
-        ]);
-        $html = '<ul>';
-        $html .= '<li><a href="' . $url . '">';
-        $html .= $this->translate('Update account info and password'); // @translate
-        $html .= '</a></li>';
-        $url = $this->url()->fromRoute('site/guest-user', [
-            'site-slug' => $this->currentSite()->slug(),
-            'action' => 'update-email',
-        ]);
-        $html .= '<li><a href="' . $url . '">';
-        $html .= $this->translate('Update email'); // @translate
-        $html .= '</a></li>';
-        $html .= '</ul>';
-        $widget['content'] = $html;
-        return $widget;
     }
 
     public function acceptTermsAction()
