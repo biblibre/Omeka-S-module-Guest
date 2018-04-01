@@ -2,6 +2,8 @@
 namespace GuestUser\Form;
 
 use Omeka\Form\Element\ResourceSelect;
+use Zend\Form\Element;
+use Zend\Form\Fieldset;
 use Zend\EventManager\Event;
 
 class UserForm extends \Omeka\Form\UserForm
@@ -18,23 +20,23 @@ class UserForm extends \Omeka\Form\UserForm
     {
         $this->add([
             'name' => 'user-information',
-            'type' => 'fieldset',
+            'type' => Fieldset::class,
         ]);
         $this->add([
             'name' => 'user-settings',
-            'type' => 'fieldset',
+            'type' => Fieldset::class,
         ]);
         $this->add([
             'name' => 'change-password',
-            'type' => 'fieldset',
+            'type' => Fieldset::class,
         ]);
         $this->add([
             'name' => 'edit-keys',
-            'type' => 'fieldset',
+            'type' => Fieldset::class,
         ]);
         $this->get('user-information')->add([
             'name' => 'o:email',
-            'type' => 'Email',
+            'type' => Element\Email::class,
             'options' => [
                 'label' => 'Email', // @translate
             ],
@@ -45,7 +47,7 @@ class UserForm extends \Omeka\Form\UserForm
         ]);
         $this->get('user-information')->add([
             'name' => 'o:name',
-            'type' => 'Text',
+            'type' => Element\Text::class,
             'options' => [
                 'label' => 'Display name', // @translate
             ],
@@ -60,7 +62,7 @@ class UserForm extends \Omeka\Form\UserForm
             $roles = $this->getAcl()->getRoleLabels($excludeAdminRoles);
             $this->get('user-information')->add([
                 'name' => 'o:role',
-                'type' => 'select',
+                'type' => Element\Select::class,
                 'options' => [
                     'label' => 'Role', // @translate
                     'empty_option' => 'Select role…', // @translate
@@ -76,7 +78,7 @@ class UserForm extends \Omeka\Form\UserForm
         if ($this->getOption('include_is_active')) {
             $this->get('user-information')->add([
                 'name' => 'o:is_active',
-                'type' => 'checkbox',
+                'type' => Element\Checkbox::class,
                 'options' => [
                     'label' => 'Is active', // @translate
                 ],
@@ -128,7 +130,7 @@ class UserForm extends \Omeka\Form\UserForm
             if ($this->getOption('current_password')) {
                 $this->get('change-password')->add([
                     'name' => 'current-password',
-                    'type' => 'password',
+                    'type' => Element\Password::class,
                     'options' => [
                         'label' => 'Current password', // @translate
                     ],
@@ -136,7 +138,7 @@ class UserForm extends \Omeka\Form\UserForm
             }
             $this->get('change-password')->add([
                 'name' => 'password',
-                'type' => 'Password',
+                'type' => Element\Password::class,
                 'options' => [
                     'label' => 'New password', // @translate
                 ],
@@ -146,7 +148,7 @@ class UserForm extends \Omeka\Form\UserForm
             ]);
             $this->get('change-password')->add([
                 'name' => 'password-confirm',
-                'type' => 'Password',
+                'type' => Element\Password::class,
                 'options' => [
                     'label' => 'Confirm new password', // @translate
                 ],
@@ -159,7 +161,7 @@ class UserForm extends \Omeka\Form\UserForm
         if ($this->getOption('include_key')) {
             $this->get('edit-keys')->add([
                 'name' => 'new-key-label',
-                'type' => 'Text',
+                'type' => Element\Text::class,
                 'options' => [
                     'label' => 'New key label', // @translate
                 ],
