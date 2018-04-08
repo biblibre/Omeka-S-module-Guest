@@ -260,14 +260,25 @@ class GuestUserController extends AbstractActionController
         $message = $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         $this->messenger()->addSuccess($message);
 
-        $this->createGuestUserTokenAndSendMail($user);
+        $this->sendMessageWithToken($user);
         return $this->redirect()->toRoute('site/guest-user', ['action' => 'login'], [], true);
     }
 
-    protected function createGuestUserTokenAndSendMail(User $user, $type = 'create', $email = null)
+    /**
+     * Send a message with a guest user token.
+     *
+     * @param User $user
+     * @param string $recipient
+     * @param string $type
+     * @return bool|string|null True if success, message if error, null when the
+     * result is delayed.
+     */
+    protected function sendMessageWithToken(User $user, $recipient = null, $type = null)
     {
+        $recipient = $recipient ?: $user->getEmail();
+
         $guestUserToken = new GuestUserToken;
-        $guestUserToken->setEmail($email ?: $user->getEmail());
+        $guestUserToken->setEmail($recipient);
         $guestUserToken->setUser($user);
         $guestUserToken->setToken(sha1("tOkenS@1t" . microtime()));
         $em = $this->getEntityManager();
@@ -282,7 +293,6 @@ class GuestUserController extends AbstractActionController
                 break;
             case 'create':
             default:
-                $email = $user->getEmail();
                 $action = 'confirm';
                 $subject = 'Your request to join %1$s / %2$s'; // @translate
                 $body = 'You have registered for an account on %1$s / %2$s (%3$s). Please confirm your registration by following this link: %4$s. If you did not request to join %1$s please disregard this email.'; // @translate
@@ -290,7 +300,7 @@ class GuestUserController extends AbstractActionController
         }
 
         // Confirms that they registration request is legit.
-        $this->_sendConfirmationEmail($user, $guestUserToken, $email, $action, $subject, $body);
+        return $this->sendConfirmationEmail($user, $guestUserToken, $recipient, $action, $subject, $body);
     }
 
     public function updateAccountAction()
@@ -428,7 +438,7 @@ class GuestUserController extends AbstractActionController
                 ]);
             }
 
-            $this->createGuestUserTokenAndSendMail($user, 'update-email', $email);
+            $this->sendMessageWithToken($user, $email, 'update-email');
 
             $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
             return new JsonModel([
@@ -445,7 +455,7 @@ class GuestUserController extends AbstractActionController
         $values = $form->getData();
         $email = $values['o:email'];
 
-        $this->createGuestUserTokenAndSendMail($user, 'update-email', $email);
+        $this->sendMessageWithToken($user, $email, 'update-email');
 
         $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
         $this->messenger()->addSuccess($message);
@@ -588,10 +598,12 @@ class GuestUserController extends AbstractActionController
         $em = $this->getEntityManager();
 
         $isExternalApp = $this->isExternalApp();
+        $siteTitle = $this->currentSite()->title();
 
         $guestUserToken = $em->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
         if (empty($guestUserToken)) {
-            $message = $this->translate('Invalid token stop'); // @translate
+            $message = new Message($this->translate('Invalid token: your email was not confirmed for %s.'), // @translate
+                $siteTitle);
             if ($isExternalApp) {
                 return new JsonModel([
                     'result' => 'error',
@@ -616,8 +628,8 @@ class GuestUserController extends AbstractActionController
         $em->persist($user);
         $em->flush();
 
-        $message = new Message('Your new email "%s" is confirmed.', // @translate
-            $email);
+        $message = new Message('Your new email "%s" is confirmed for %s.', // @translate
+            $email, $siteTitle);
         if ($isExternalApp) {
             return new JsonModel([
                 'result' => 'success',
@@ -690,8 +702,20 @@ class GuestUserController extends AbstractActionController
         return $form;
     }
 
-    protected function _sendConfirmationEmail(User $user, $token, $email, $action, $subject, $body)
+    /**
+     * Send an email.
+     *
+     * @param User $user
+     * @param string $token
+     * @param string $recipient
+     * @param string $action
+     * @param string $subject
+     * @param string $body
+     * @return bool|string True, or a message in case of error.
+     */
+    protected function sendConfirmationEmail(User $user, $token, $recipient, $action, $subject, $body)
     {
+        /** @var \Omeka\Stdlib\Mailer $mailer */
         $mailer = $this->mailer();
         $message = $mailer->createMessage();
 
@@ -721,13 +745,15 @@ class GuestUserController extends AbstractActionController
             $mainTitle
         );
 
-        $message->addTo($email, $user->getName())
+        $message->addTo($recipient, $user->getName())
             ->setSubject($subject)
             ->setBody($body);
         try {
             $mailer->send($message);
+            return true;
         } catch (\Exception $e) {
             $this->logger()->err((string) $e);
+            return (string) $e;
         }
     }
 
