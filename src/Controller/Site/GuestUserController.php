@@ -391,6 +391,8 @@ class GuestUserController extends AbstractActionController
         }
         $id = $user->getId();
 
+        $isExternalApp = $this->isExternalApp();
+
         $userRepr = $this->api()->read('users', $id)->getContent();
         $data = $userRepr->jsonSerialize();
 
@@ -402,12 +404,38 @@ class GuestUserController extends AbstractActionController
         $view->setVariable('form', $form);
 
         if (!$this->getRequest()->isPost()) {
+            if ($isExternalApp) {
+                return new JsonModel([
+                    'result' => 'error',
+                    'message' => $this->translate('The request should be a POST.'), // @translate
+                ]);
+            }
             return $view;
         }
 
         $postData = $this->params()->fromPost();
 
         $form->setData($postData);
+
+        // TODO Check if the csrf is managed to check validity of the form for external app.
+        if ($isExternalApp) {
+            $values = $postData;
+            $email = $values['o:email'];
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return new JsonModel([
+                    'result' => 'error',
+                    'message' => new Message($this->translate('"%1$s" is not an email.'), $email), // @translate
+                ]);
+            }
+
+            $this->createGuestUserTokenAndSendMail($user, 'update-email', $email);
+
+            $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
+            return new JsonModel([
+                'result' => 'success',
+                'message' => $message,
+            ]);
+        }
 
         if (!$form->isValid()) {
             $this->messenger()->addError('Email invalid'); // @translate
@@ -417,10 +445,10 @@ class GuestUserController extends AbstractActionController
         $values = $form->getData();
         $email = $values['o:email'];
 
+        $this->createGuestUserTokenAndSendMail($user, 'update-email', $email);
+
         $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
         $this->messenger()->addSuccess($message);
-
-        $this->createGuestUserTokenAndSendMail($user, 'update-email', $email);
         return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
     }
 
@@ -531,7 +559,7 @@ class GuestUserController extends AbstractActionController
         $em = $this->getEntityManager();
         $guestUserToken = $em->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
         if (empty($guestUserToken)) {
-            return $this->messenger()->addError($this->translate('Invalid token stop'), 'error'); // @translate
+            return $this->messenger()->addError($this->translate('Invalid token stop')); // @translate
         }
 
         $guestUserToken->setConfirmed(true);
@@ -558,9 +586,25 @@ class GuestUserController extends AbstractActionController
     {
         $token = $this->params()->fromQuery('token');
         $em = $this->getEntityManager();
+
+        $isExternalApp = $this->isExternalApp();
+
         $guestUserToken = $em->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
         if (empty($guestUserToken)) {
-            return $this->messenger()->addError($this->translate('Invalid token stop'), 'error'); // @translate
+            $message = $this->translate('Invalid token stop'); // @translate
+            if ($isExternalApp) {
+                return new JsonModel([
+                    'result' => 'error',
+                    'message' => new Message($message), // @translate
+                ]);
+            }
+
+            $this->messenger()->addError($message); // @translate
+            $redirectUrl = $this->url()->fromRoute('site/guest-user', [
+                'site-slug' => $this->currentSite()->slug(),
+                'action' => 'update-email',
+            ]);
+            return $this->redirect()->toUrl($redirectUrl);
         }
 
         $guestUserToken->setConfirmed(true);
@@ -572,10 +616,16 @@ class GuestUserController extends AbstractActionController
         $em->persist($user);
         $em->flush();
 
-        $body = new Message('Your new email "%s" is confirmed.', // @translate
+        $message = new Message('Your new email "%s" is confirmed.', // @translate
             $email);
+        if ($isExternalApp) {
+            return new JsonModel([
+                'result' => 'success',
+                'message' => $message,
+            ]);
+        }
 
-        $this->messenger()->addSuccess($body);
+        $this->messenger()->addSuccess($message);
         $redirectUrl = $this->url()->fromRoute('site/guest-user', [
             'site-slug' => $this->currentSite()->slug(),
             'action' => 'me',
