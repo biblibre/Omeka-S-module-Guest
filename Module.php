@@ -416,6 +416,7 @@ SQL;
         $form = $event->getTarget();
         $services = $this->getServiceLocator();
 
+        // Public form.
         if ($form->getOption('is_public')) {
             $auth = $services->get('Omeka\AuthenticationService');
             // Don't add the agreement checkbox in public when registered.

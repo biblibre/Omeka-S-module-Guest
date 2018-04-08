@@ -1,7 +1,7 @@
 <?php
 namespace GuestUser\Form;
 
-use Zend\Form\Element\Checkbox;
+use Zend\Form\Element;
 use Zend\Form\Form;
 
 class AcceptTermsForm extends Form
@@ -10,7 +10,7 @@ class AcceptTermsForm extends Form
     {
         $this->add([
             'name' => 'guestuser_agreed_terms',
-            'type' => Checkbox::class,
+            'type' => Element\Checkbox::class,
             'options' => [
                 'label' => 'I agree with terms and conditions.', // @translate
             ],

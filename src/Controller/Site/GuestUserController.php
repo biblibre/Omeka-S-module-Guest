@@ -572,7 +572,6 @@ class GuestUserController extends AbstractActionController
         $em->persist($user);
         $em->flush();
 
-        $siteTitle = $this->currentSite()->title();
         $body = new Message('Your new email "%s" is confirmed.', // @translate
             $email);
 
@@ -604,6 +603,13 @@ class GuestUserController extends AbstractActionController
         return $this->settings()->get($key);
     }
 
+    /**
+     * Prepare the user form for public view.
+     *
+     * @param User $user
+     * @param array $options
+     * @return UserForm
+     */
     protected function _getForm(User $user = null, array $options = [])
     {
         $options = array_merge(
