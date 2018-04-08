@@ -179,14 +179,17 @@ SQL;
         $acl->allow(
             null,
             'GuestUser\Controller\Site\GuestUser',
-            ['login', 'forgot-password', 'stale-token', 'confirm', 'auth-error']
+            [
+                'login', 'forgot-password', 'stale-token', 'auth-error',
+                'confirm', 'confirm-email',
+            ]
         );
 
         $acl->allow(
             Permissions\Acl::ROLE_GUEST,
             'GuestUser\Controller\Site\GuestUser',
             [
-                'logout', 'update-account', 'update-email', 'confirm-email',
+                'logout', 'update-account', 'update-email',
                 'me', 'accept-terms',
             ]
         );

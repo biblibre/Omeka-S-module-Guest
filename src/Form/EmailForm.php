@@ -1,16 +1,16 @@
 <?php
 namespace GuestUser\Form;
 
-use Zend\EventManager\Event;
-use Zend\Form\Element\Email;
+use Zend\Form\Element;
+use Zend\Form\Form;
 
-class EmailForm extends \Omeka\Form\UserForm
+class EmailForm extends Form
 {
     public function init()
     {
         $this->add([
             'name' => 'o:email',
-            'type' => Email::class,
+            'type' => Element\Email::class,
             'options' => [
                 'label' => 'Email', // @translate
             ],
@@ -19,13 +19,5 @@ class EmailForm extends \Omeka\Form\UserForm
                 'required' => true,
             ],
         ]);
-
-        $addEvent = new Event('form.add_elements', $this);
-        $this->getEventManager()->triggerEvent($addEvent);
-
-        $inputFilter = $this->getInputFilter();
-
-        $filterEvent = new Event('form.add_input_filters', $this, ['inputFilter' => $inputFilter]);
-        $this->getEventManager()->triggerEvent($filterEvent);
     }
 }

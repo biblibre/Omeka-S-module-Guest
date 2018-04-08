@@ -395,6 +395,7 @@ class GuestUserController extends AbstractActionController
 
     public function updateEmailAction()
     {
+        /** @var \Omeka\Entity\User $user */
         $user = $this->identity();
         if (empty($user)) {
             return $this->redirect()->toUrl($this->currentSite()->url());
@@ -403,11 +404,8 @@ class GuestUserController extends AbstractActionController
 
         $isExternalApp = $this->isExternalApp();
 
-        $userRepr = $this->api()->read('users', $id)->getContent();
-        $data = $userRepr->jsonSerialize();
-
         $form = $this->getForm(EmailForm::class, []);
-        $form->populateValues($data);
+        $form->populateValues(['o:email' => $user->getEmail()]);
 
         $view = new ViewModel;
         $view->setVariable('user', $user);
