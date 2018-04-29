@@ -313,7 +313,7 @@ SQL;
         $form->init();
         $form->setData($params);
         if (!$form->isValid()) {
-            $this->messenger()->addErrors($form->getMessages());
+            $controller->messenger()->addErrors($form->getMessages());
             return false;
         }
 
