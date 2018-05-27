@@ -1,5 +1,5 @@
-GuestUser (module for Omeka S)
-==============================
+Guest User (module for Omeka S)
+===============================
 
 [![Build Status](https://travis-ci.org/biblibre/omeka-s-module-GuestUser.svg?branch=master)](https://travis-ci.org/biblibre/omeka-s-module-GuestUser)
 
