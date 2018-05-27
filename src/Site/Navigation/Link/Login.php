@@ -12,17 +12,9 @@ class Login implements LinkInterface
         return 'Login'; // @translate
     }
 
-    public function getLabel(array $data, SiteRepresentation $site)
-    {
-        if (isset($data['label']) && '' !== trim($data['label'])) {
-            return $data['label'];
-        }
-        return 'Login';
-    }
-
     public function getFormTemplate()
     {
-        return 'navigation-link-form/login';
+        return 'common/navigation-link-form/login';
     }
 
     public function isValid(array $data, ErrorStore $errorStore)
@@ -34,12 +26,18 @@ class Login implements LinkInterface
         return true;
     }
 
+    public function getLabel(array $data, SiteRepresentation $site)
+    {
+        return isset($data['label']) && '' !== trim($data['label'])
+            ? $data['label'] : $this->getName();
+    }
+
     public function toZend(array $data, SiteRepresentation $site)
     {
         return [
             'label' => $data['label'],
             'route' => 'site/resource',
-                'class' => 'loginlink',
+            'class' => 'loginlink',
             'params' => [
                 'site-slug' => $site->slug(),
                 'controller' => 'guest-user',
@@ -50,9 +48,8 @@ class Login implements LinkInterface
 
     public function toJstree(array $data, SiteRepresentation $site)
     {
-        $label = isset($data['label']) ? $data['label'] : $sitePage->title();
         return [
-            'label' => $label,
+            'label' => $data['label'],
         ];
     }
 }

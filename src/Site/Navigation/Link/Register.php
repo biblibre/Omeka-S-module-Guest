@@ -12,14 +12,9 @@ class Register implements LinkInterface
         return 'Register'; // @translate
     }
 
-    public function getLabel(array $data, SiteRepresentation $site)
-    {
-        return 'Register'; // @translate
-    }
-
     public function getFormTemplate()
     {
-        return 'navigation-link-form/register';
+        return 'common/navigation-link-form/login';
     }
 
     public function isValid(array $data, ErrorStore $errorStore)
@@ -28,29 +23,33 @@ class Register implements LinkInterface
             $errorStore->addError('o:navigation', 'Invalid navigation: register link missing label');
             return false;
         }
-
         return true;
+    }
+
+    public function getLabel(array $data, SiteRepresentation $site)
+    {
+        return isset($data['label']) && '' !== trim($data['label'])
+            ? $data['label'] : $this->getName();
     }
 
     public function toZend(array $data, SiteRepresentation $site)
     {
         return [
-                'label' => $data['label'],
-                'route' => 'site/resource',
-                'class' => 'registerlink',
-                'params' => [
-                             'site-slug' => $site->slug(),
-                             'controller' => 'guest-user',
-                             'action' => 'register',
+            'label' => $data['label'],
+            'route' => 'site/resource',
+            'class' => 'registerlink',
+            'params' => [
+                'site-slug' => $site->slug(),
+                'controller' => 'guest-user',
+                'action' => 'register',
             ],
         ];
     }
 
     public function toJstree(array $data, SiteRepresentation $site)
     {
-        $label = isset($data['label']) ? $data['label'] : $sitePage->title();
         return [
-            'label' => $label,
+            'label' => $data['label'],
         ];
     }
 }
