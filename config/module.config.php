@@ -96,17 +96,17 @@ return [
     ],
     'guestuser' => [
         'config' => [
-            'guestuser_capabilities' => '',
-            'guestuser_short_capabilities' => '',
+            'guestuser_open' => false,
+            'guestuser_recaptcha' => false,
             'guestuser_login_text' => 'Login', // @translate
             'guestuser_register_text' => 'Register', // @translate
             'guestuser_dashboard_label' => 'My Account', // @translate
-            'guestuser_open' => false,
-            'guestuser_recaptcha' => false,
+            'guestuser_capabilities' => '',
+            'guestuser_short_capabilities' => '',
             'guestuser_terms_text' => 'I agree the terms and conditions.', // @translate
             'guestuser_terms_page' => 'terms-and-conditions',
-            'guestuser_terms_request_regex' => '',
             'guestuser_terms_redirect' => 'site',
+            'guestuser_terms_request_regex' => '',
             'guestuser_terms_force_agree' => true,
             'guestuser_check_requested_with' => '',
         ],
