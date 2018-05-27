@@ -16,6 +16,9 @@ class ConfigForm extends Form
                 'label' => 'Allow open registration', // @translate
                 'info' => 'Allow guest user registration without administrator approval. The link to use is "/s/my-site/guest-user/register".', // @translate
             ],
+            'attributes' => [
+                'id' => 'guestuser-open',
+            ],
         ]);
 
         $this->add([
@@ -24,6 +27,9 @@ class ConfigForm extends Form
             'options' => [
                 'label' => 'Require ReCaptcha', // @translate
                 'info' => 'Check this to require passing a ReCaptcha test when registering', // @translate
+            ],
+            'attributes' => [
+                'id' => 'guestuser-recaptcha',
             ],
         ]);
 
@@ -34,6 +40,9 @@ class ConfigForm extends Form
                 'label' => 'Login Text', // @translate
                 'info' => 'The text to use for the "Login" link in the user bar', // @translate
             ],
+            'attributes' => [
+                'id' => 'guestuser-login-text',
+            ],
         ]);
 
         $this->add([
@@ -43,6 +52,9 @@ class ConfigForm extends Form
                 'label' => 'Register Text', // @translate
                 'info' => 'The text to use for the "Register" link in the user bar', // @translate
             ],
+            'attributes' => [
+                'id' => 'guestuser-register-text',
+            ],
         ]);
 
         $this->add([
@@ -51,6 +63,9 @@ class ConfigForm extends Form
             'options' => [
                 'label' => 'Dashboard Label', // @translate
                 'info' => 'The text to use for the label on the user’s dashboard', // @translate
+            ],
+            'attributes' => [
+                'id' => 'guestuser-dashboard-label',
             ],
         ]);
 
@@ -97,6 +112,9 @@ class ConfigForm extends Form
                 'label' => 'Page slug of the terms and conditions', // @translate
                 'info' => 'If the text is on a specific page, or for other usage.', // @translate
             ],
+            'attributes' => [
+                'id' => 'guestuser-terms-page',
+            ],
         ]);
 
         $this->add([
@@ -111,6 +129,7 @@ class ConfigForm extends Form
                 ],
             ],
             'attributes' => [
+                'id' => 'guestuser-terms-redirect',
                 'required' => false,
             ],
         ]);
@@ -122,6 +141,9 @@ class ConfigForm extends Form
                 'label' => 'Pages not to redirect', // @translate
                 'info' => 'Allows to keep some pages available when terms are not yet agreed. Default pages are included (logout, terms page…). This is a regex, with "~" delimiter, checked against the end of the url.', // @translate
             ],
+            'attributes' => [
+                'id' => 'guestuser-terms-request-regex',
+            ],
         ]);
 
         $this->add([
@@ -130,6 +152,9 @@ class ConfigForm extends Form
             'options' => [
                 'label' => 'Force terms agreement', // @translate
                 'info' => 'If unchecked, the user will be logged out if terms are not accepted.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'guestuser-termes-force-agree',
             ],
         ]);
 
@@ -146,6 +171,7 @@ class ConfigForm extends Form
                 ],
             ],
             'attributes' => [
+                'id' => 'guestuser-reset-agreement-terms',
                 'value' => 'keep',
                 'required' => false,
             ],
@@ -157,6 +183,9 @@ class ConfigForm extends Form
             'options' => [
                 'label' => 'Check webview', // @translate
                 'info' => 'In complex authentication flows where the view may be used by an external application, the view should return a json after login. The value of the header "X-Requested-With" is used to identify such a flow.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'guestuser-check-requested-with',
             ],
         ]);
     }
