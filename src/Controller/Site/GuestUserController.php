@@ -66,6 +66,7 @@ class GuestUserController extends AbstractActionController
 
         $view = new ViewModel;
 
+        /** @var LoginForm $form */
         $form = $this->getForm(LoginForm::class);
         $view->setVariable('form', $form);
 
@@ -76,6 +77,10 @@ class GuestUserController extends AbstractActionController
         $view->setVariable('form', $form);
 
         if (!$this->checkPostAndValidForm($form)) {
+            $email = $this->params()->fromPost('email') ?: $this->params()->fromQuery('email');
+            if ($email) {
+                $form->get('email')->setValue($email);
+            }
             return $view;
         }
 
