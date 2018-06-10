@@ -319,7 +319,7 @@ SQL;
 
         $defaultSettings = $config[strtolower(__NAMESPACE__)]['config'];
         foreach ($params as $name => $value) {
-            if (isset($defaultSettings[$name])) {
+            if (array_key_exists($name, $defaultSettings)) {
                 $settings->set($name, $value);
             }
         }
