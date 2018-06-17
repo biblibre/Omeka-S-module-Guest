@@ -39,6 +39,11 @@ return [
             Controller\Site\GuestUserController::class => Service\Controller\Site\GuestUserControllerFactory::class,
         ],
     ],
+    'controller_plugins' => [
+        'factories' => [
+            'userSites' => Service\ControllerPlugin\UserSitesFactory::class,
+        ],
+    ],
     'service_manager' => [
         'factories' => [
             'Omeka\Acl' => Service\AclFactory::class,
