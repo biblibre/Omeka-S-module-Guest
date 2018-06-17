@@ -31,12 +31,12 @@ return [
         ],
         'factories' => [
             // TODO To remove after merge of pull request https://github.com/omeka/omeka-s/pull/1138.
-            'Omeka\Form\UserForm' => Service\Form\UserFormFactory::class,
+            \Omeka\Form\UserForm::class => Service\Form\UserFormFactory::class,
         ],
     ],
     'controllers' => [
         'factories' => [
-            'GuestUser\Controller\Site\GuestUser' => Service\Controller\Site\GuestUserControllerFactory::class,
+            Controller\Site\GuestUserController::class => Service\Controller\Site\GuestUserControllerFactory::class,
         ],
     ],
     'service_manager' => [
@@ -55,10 +55,12 @@ return [
     'navigation' => [
         'site' => [
             [
-                'label' => 'User information',
-                'route' => '/guest-user/login',
-                'resource' => Controller\Site\GuestUserController::class,
-                'visible' => true,
+                'label' => 'User information', // @translate
+                'route' => 'site/guest-user',
+                'controller' => Controller\Site\GuestUserController::class,
+                'action' => 'me',
+                'useRouteMatch' => true,
+                'visible' => false,
             ],
         ],
     ],
@@ -67,7 +69,7 @@ return [
             'site' => [
                 'child_routes' => [
                     'guest-user' => [
-                        'type' => 'Segment',
+                        'type' => \Zend\Router\Http\Segment::class,
                         'options' => [
                             'route' => '/guest-user[/:action]',
                             'constraints' => [
@@ -75,7 +77,7 @@ return [
                             ],
                             'defaults' => [
                                 '__NAMESPACE__' => 'GuestUser\Controller\Site',
-                                'controller' => 'GuestUser',
+                                'controller' => Controller\Site\GuestUserController::class,
                                 'action' => 'me',
                             ],
                         ],

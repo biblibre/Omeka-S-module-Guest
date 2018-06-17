@@ -9,7 +9,7 @@ class Login implements LinkInterface
 {
     public function getName()
     {
-        return 'Login'; // @translate
+        return 'Guest Login'; // @translate
     }
 
     public function getFormTemplate()
@@ -29,18 +29,20 @@ class Login implements LinkInterface
     public function getLabel(array $data, SiteRepresentation $site)
     {
         return isset($data['label']) && '' !== trim($data['label'])
-            ? $data['label'] : $this->getName();
+            ? $data['label']
+            : 'Login'; // @translate
+
     }
 
     public function toZend(array $data, SiteRepresentation $site)
     {
         return [
             'label' => $data['label'],
-            'route' => 'site/resource',
+            'route' => 'site/guest-user',
             'class' => 'loginlink',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => 'guest-user',
+                'controller' => \GuestUser\Controller\Site\GuestUserController::class,
                 'action' => 'login',
             ],
         ];

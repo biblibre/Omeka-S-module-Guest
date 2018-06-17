@@ -1,12 +1,13 @@
 <?php
+$translate = $this->plugin('translate');
 $this->htmlElement('body')->appendAttribute('class', 'guest-user login');
 ?>
-<h1><?php echo $this->translate('Login'); ?></h1>
+<h1><?php echo $translate('Login'); ?></h1>
 <?php echo $this->messages(); ?>
 <?php if (empty($form)): ?>
-<p><?php echo $this->translate('Your account seems to have an error. Contact your administrator to login.')?></p>
+<p><?php echo $translate('Your account seems to have an error. Contact your administrator to login.')?></p>
 <?php else: ?>
 <?php echo $this->form($form); ?>
 <?php endif; ?>
-<p class="forgot-password"><?php echo $this->hyperlink($this->translate('Forgot password?'), $this->url(null, ['controller' => 'guestuser', 'action' =>'forgot-password'],true)); ?></p>
+<p class="forgot-password"><?php echo $this->hyperlink($translate('Forgot password?'), $this->url(null, ['controller' => 'guestuser', 'action' =>'forgot-password'],true)); ?></p>
 <?php $this->trigger('view.login.after'); ?>

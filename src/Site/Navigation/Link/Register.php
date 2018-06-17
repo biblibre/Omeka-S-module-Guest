@@ -9,7 +9,7 @@ class Register implements LinkInterface
 {
     public function getName()
     {
-        return 'Register'; // @translate
+        return 'Guest Register'; // @translate
     }
 
     public function getFormTemplate()
@@ -29,18 +29,19 @@ class Register implements LinkInterface
     public function getLabel(array $data, SiteRepresentation $site)
     {
         return isset($data['label']) && '' !== trim($data['label'])
-            ? $data['label'] : $this->getName();
+            ? $data['label']
+            : 'Register'; // @translate
     }
 
     public function toZend(array $data, SiteRepresentation $site)
     {
         return [
             'label' => $data['label'],
-            'route' => 'site/resource',
+            'route' => 'site/guest-user',
             'class' => 'registerlink',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => 'guest-user',
+                'controller' => \GuestUser\Controller\Site\GuestUserController::class,
                 'action' => 'register',
             ],
         ];

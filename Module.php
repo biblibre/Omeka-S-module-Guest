@@ -178,7 +178,7 @@ SQL;
 
         $acl->allow(
             null,
-            ['GuestUser\Controller\Site\GuestUser'],
+            [\GuestUser\Controller\Site\GuestUserController::class],
             [
                 'login', 'forgot-password', 'stale-token', 'auth-error',
                 'confirm', 'confirm-email',
@@ -187,7 +187,7 @@ SQL;
 
         $acl->allow(
             Permissions\Acl::ROLE_GUEST,
-            ['GuestUser\Controller\Site\GuestUser'],
+            [\GuestUser\Controller\Site\GuestUserController::class],
             [
                 'logout', 'update-account', 'update-email',
                 'me', 'accept-terms',
@@ -209,7 +209,7 @@ SQL;
         if ($isOpenRegister) {
             $acl->allow(
                 null,
-                ['GuestUser\Controller\Site\GuestUser'],
+                [\GuestUser\Controller\Site\GuestUserController::class],
                 ['register']
             );
             $acl->allow(

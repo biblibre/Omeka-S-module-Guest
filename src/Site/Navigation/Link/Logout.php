@@ -9,7 +9,7 @@ class Logout implements LinkInterface
 {
     public function getName()
     {
-        return 'Logout'; // @translate
+        return 'Guest Logout'; // @translate
     }
 
     public function getFormTemplate()
@@ -29,18 +29,19 @@ class Logout implements LinkInterface
     public function getLabel(array $data, SiteRepresentation $site)
     {
         return isset($data['label']) && '' !== trim($data['label'])
-            ? $data['label'] : $this->getName();
+            ? $data['label']
+            : 'Logout'; // @translate
     }
 
     public function toZend(array $data, SiteRepresentation $site)
     {
         return [
             'label' => $data['label'],
-            'route' => 'site/resource',
+            'route' => 'site/guest-user',
             'class' => 'logoutlink',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => 'guest-user',
+                'controller' => \GuestUser\Controller\Site\GuestUserController::class,
                 'action' => 'logout',
             ],
         ];
