@@ -540,7 +540,7 @@ class GuestUserController extends AbstractActionController
 
         if (!$accept) {
             if ($forced) {
-             $message = new Message($this->translate('The access to this website requires you accept the current terms and conditions.')); // @translate
+                $message = new Message($this->translate('The access to this website requires you accept the current terms and conditions.')); // @translate
                 $this->messenger()->addError($message);
                 return $view;
             }
@@ -725,7 +725,8 @@ class GuestUserController extends AbstractActionController
         $mainTitle = $mailer->getInstallationTitle();
         $siteTitle = $this->currentSite()->title();
         $siteUrl = $this->currentSite()->siteUrl(null, true);
-        $url = $this->url()->fromRoute('site/guest-user',
+        $url = $this->url()->fromRoute(
+            'site/guest-user',
             [
                 'site-slug' => $this->currentSite()->slug(),
                 'action' => $action,

@@ -150,12 +150,18 @@ SQL;
 
             $settings = $serviceLocator->get('Omeka\Settings');
             $config = include __DIR__ . '/config/module.config.php';
-            $settings->set('guestuser_terms_text',
-                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_text']);
-            $settings->set('guestuser_terms_page',
-                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_page']);
-            $settings->set('guestuser_terms_request_regex',
-                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_request_regex']);
+            $settings->set(
+                'guestuser_terms_text',
+                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_text']
+            );
+            $settings->set(
+                'guestuser_terms_page',
+                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_page']
+            );
+            $settings->set(
+                'guestuser_terms_request_regex',
+                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_request_regex']
+            );
         }
     }
 
@@ -466,8 +472,10 @@ SQL;
         $config = $services->get('Config')[strtolower(__NAMESPACE__)]['user_settings'];
         $fieldset = $form->get('user-settings');
         foreach ($guestUserSettings as $name) {
-            $fieldset->get($name)->setAttribute('value',
-                $userSettings->get($name, $config[$name]));
+            $fieldset->get($name)->setAttribute(
+                'value',
+                $userSettings->get($name, $config[$name])
+            );
         }
     }
 

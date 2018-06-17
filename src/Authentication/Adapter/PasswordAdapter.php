@@ -16,8 +16,11 @@ class PasswordAdapter extends OmekaPasswordAdapter
         $user = $this->repository->findOneBy(['email' => $this->identity]);
 
         if (!$user || !$user->isActive()) {
-            return new Result(Result::FAILURE_IDENTITY_NOT_FOUND, null,
-                ['User not found.']); // @translate
+            return new Result(
+                Result::FAILURE_IDENTITY_NOT_FOUND,
+                null,
+                ['User not found.']
+            ); // @translate
         }
 
         if ($user->getRole() == 'guest') {
@@ -30,8 +33,11 @@ class PasswordAdapter extends OmekaPasswordAdapter
         }
 
         if (!$user->verifyPassword($this->credential)) {
-            return new Result(Result::FAILURE_CREDENTIAL_INVALID, null,
-                ['Invalid password.']);
+            return new Result(
+                Result::FAILURE_CREDENTIAL_INVALID,
+                null,
+                ['Invalid password.']
+            );
         }
 
         return new Result(Result::SUCCESS, $user);
