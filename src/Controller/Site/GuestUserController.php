@@ -109,6 +109,8 @@ class GuestUserController extends AbstractActionController
         }
 
         $this->messenger()->addSuccess('Successfully logged in'); // @translate
+        $eventManager = $this->getEventManager();
+        $eventManager->trigger('user.login', $auth->getIdentity());
 
         $redirectUrl = $this->params()->fromQuery('redirect');
         if ($redirectUrl) {
