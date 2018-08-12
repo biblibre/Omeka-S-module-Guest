@@ -485,7 +485,7 @@ class GuestUserController extends AbstractActionController
         $args['widgets']['account'] = $widget;
 
         $event = new MvcEvent('guestuser.widgets', $this, $args);
-        $this->getEventManager()->triggerEvent($event);
+        $eventManager->triggerEvent($event);
 
         $view = new ViewModel;
         $view->setVariable('widgets', $args['widgets']);
