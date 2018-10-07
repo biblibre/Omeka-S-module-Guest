@@ -76,7 +76,7 @@ SQL;
         $connection->exec($sql);
 
         // If module was uninstalled/reinstalled, reactivate the guest users.
-        $sql = "UPDATE user SET is_active=true WHERE role='guest'";
+        $sql = 'UPDATE user SET is_active = 1 WHERE role = "guest"';
         $connection->exec($sql);
 
         $settings = $serviceLocator->get('Omeka\Settings');
@@ -170,7 +170,7 @@ SQL;
     protected function deactivateGuestUsers($serviceLocator)
     {
         $em = $serviceLocator->get('Omeka\EntityManager');
-        $guestUsers = $em->getRepository('Omeka\Entity\User')->findBy(['role' => 'guest']);
+        $guestUsers = $em->getRepository(\Omeka\Entity\User::class)->findBy(['role' => 'guest']);
         foreach ($guestUsers as $user) {
             $user->setIsActive(false);
             $em->persist($user);
@@ -453,9 +453,10 @@ SQL;
         }
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         if ($auth->hasIdentity()) {
-            return $view->headStyle()->appendStyle('li a.registerlink, li a.loginlink { display:none; }');
+            $view->headStyle()->appendStyle('li a.registerlink, li a.loginlink { display:none; }');
+        } else {
+            $view->headStyle()->appendStyle('li a.logoutlink { display:none; }');
         }
-        $view->headStyle()->appendStyle('li a.logoutlink { display:none; }');
     }
 
     public function addUserFormElement(Event $event)
