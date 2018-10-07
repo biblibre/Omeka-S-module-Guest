@@ -294,7 +294,7 @@ SQL;
         $data = [];
         $defaultSettings = $config[strtolower(__NAMESPACE__)]['config'];
         foreach ($defaultSettings as $name => $value) {
-            $data[$name] = $settings->get($name);
+            $data[$name] = $settings->get($name, $value);
         }
 
         $renderer->ckEditor();
@@ -322,14 +322,13 @@ SQL;
         }
 
         $params = $form->getData();
-
         $defaultSettings = $config[strtolower(__NAMESPACE__)]['config'];
+        $params = array_intersect_key($params, $defaultSettings);
         foreach ($params as $name => $value) {
-            if (array_key_exists($name, $defaultSettings)) {
-                $settings->set($name, $value);
-            }
+            $settings->set($name, $value);
         }
 
+        $params = $form->getData();
         switch ($params['guestuser_reset_agreement_terms']) {
             case 'unset':
                 $t = $services->get('MvcTranslator');
