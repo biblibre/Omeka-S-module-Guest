@@ -36,11 +36,12 @@ use Omeka\Module\AbstractModule;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
 use Zend\EventManager\Event;
 use Zend\EventManager\SharedEventManagerInterface;
+use Zend\Form\Element;
 use Zend\Mvc\Controller\AbstractController;
 use Zend\Mvc\MvcEvent;
+use Zend\Permissions\Acl\Acl as ZendAcl;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
-use Zend\Form\Element\Checkbox;
 
 class Module extends AbstractModule
 {
@@ -178,19 +179,35 @@ SQL;
     }
 
     /**
-     * Add ACL rules for this module.
+     * Add ACL role and rules for this module.
      */
     protected function addAclRoleAndRules()
     {
-        /** @var \Omeka\Permissions\Acl $acl */
+        /** @var Zend\Permissions\Acl $acl */
         $services = $this->getServiceLocator();
         $acl = $services->get('Omeka\Acl');
 
         $acl->addRole(Acl::ROLE_GUEST);
         $acl->addRoleLabel(Acl::ROLE_GUEST, 'Guest'); // @translate
 
-        $settings = $services->get('Omeka\Settings');
+        $this->addRulesForSites($acl);
 
+        $settings = $services->get('Omeka\Settings');
+        $isOpenRegister = $settings->get('guestuser_open', false);
+        if ($isOpenRegister) {
+            $this->addRulesForVisitor($acl);
+        }
+
+        $this->addRulesForGuest($acl);
+    }
+
+    /**
+     * Add ACL rules for sites.
+     *
+     * @param ZendAcl $acl
+     */
+    protected function addRulesForSites(ZendAcl $acl)
+    {
         $acl->allow(
             null,
             [\GuestUser\Controller\Site\GuestUserController::class],
@@ -199,7 +216,41 @@ SQL;
                 'confirm', 'confirm-email',
             ]
         );
+    }
 
+    /**
+     * Add ACL rules for visitors.
+     *
+     * @param ZendAcl $acl
+     */
+    protected function addRulesForVisitor(ZendAcl $acl)
+    {
+        $acl->allow(
+            null,
+            [\GuestUser\Controller\Site\GuestUserController::class],
+            ['register']
+        );
+        $acl->allow(
+            null,
+            [\Omeka\Entity\User::class],
+            // Change role and Activate user should be set to allow external
+            // logging (ldap, saml, etc.), not only guest registration here.
+            ['create', 'change-role', 'activate-user']
+        );
+        $acl->allow(
+            null,
+            [\Omeka\Api\Adapter\UserAdapter::class],
+            'create'
+        );
+    }
+
+    /**
+     * Add ACL rules for guest.
+     *
+     * @param ZendAcl $acl
+     */
+    protected function addRulesForGuest(ZendAcl $acl)
+    {
         $acl->allow(
             Acl::ROLE_GUEST,
             [\GuestUser\Controller\Site\GuestUserController::class],
@@ -220,26 +271,6 @@ SQL;
             [\Omeka\Api\Adapter\UserAdapter::class],
             ['read', 'update']
         );
-        $isOpenRegister = $settings->get('guestuser_open', false);
-        if ($isOpenRegister) {
-            $acl->allow(
-                null,
-                [\GuestUser\Controller\Site\GuestUserController::class],
-                ['register']
-            );
-            $acl->allow(
-                null,
-                [\Omeka\Entity\User::class],
-                // Change role and Activate user should be set to allow external
-                // logging (ldap, saml, etc.), not only guest registration here.
-                ['create', 'change-role', 'activate-user']
-            );
-            $acl->allow(
-                null,
-                [\Omeka\Api\Adapter\UserAdapter::class],
-                'create'
-            );
-        }
         $acl->deny(
             Acl::ROLE_GUEST,
             [
@@ -444,7 +475,7 @@ SQL;
             $fieldset = $form->get('user-settings');
             $fieldset->add([
                 'name' => 'guestuser_agreed_terms',
-                'type' => Checkbox::class,
+                'type' => Element\Checkbox::class,
                 'options' => [
                     'label' => 'Agreed terms', // @translate
                 ],
@@ -460,7 +491,7 @@ SQL;
         $fieldset = $form->get('user-settings');
         $fieldset->add([
             'name' => 'guestuser_agreed_terms',
-            'type' => Checkbox::class,
+            'type' => Element\Checkbox::class,
             'options' => [
                 'label' => 'Agreed terms', // @translate
             ],
