@@ -31,6 +31,7 @@ namespace GuestUser;
 
 use GuestUser\Entity\GuestUserToken;
 use GuestUser\Form\ConfigForm;
+use GuestUser\Permissions\Acl;
 use Omeka\Module\AbstractModule;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
 use Zend\EventManager\Event;
@@ -51,7 +52,7 @@ class Module extends AbstractModule
     public function onBootstrap(MvcEvent $event)
     {
         parent::onBootstrap($event);
-        $this->addAclRules();
+        $this->addAclRoleAndRules();
         $this->checkAgreement($event);
     }
 
@@ -176,10 +177,18 @@ SQL;
         }
     }
 
-    protected function addAclRules()
+    /**
+     * Add ACL rules for this module.
+     */
+    protected function addAclRoleAndRules()
     {
+        /** @var \Omeka\Permissions\Acl $acl */
         $services = $this->getServiceLocator();
         $acl = $services->get('Omeka\Acl');
+
+        $acl->addRole(Acl::ROLE_GUEST);
+        $acl->addRoleLabel(Acl::ROLE_GUEST, 'Guest'); // @translate
+
         $settings = $services->get('Omeka\Settings');
 
         $acl->allow(
@@ -192,7 +201,7 @@ SQL;
         );
 
         $acl->allow(
-            Permissions\Acl::ROLE_GUEST,
+            Acl::ROLE_GUEST,
             [\GuestUser\Controller\Site\GuestUserController::class],
             [
                 'logout', 'update-account', 'update-email',
@@ -201,7 +210,7 @@ SQL;
         );
 
         $acl->allow(
-            Permissions\Acl::ROLE_GUEST,
+            Acl::ROLE_GUEST,
             [\Omeka\Entity\User::class],
             ['read', 'update', 'change-password'],
             new IsSelfAssertion
@@ -232,7 +241,7 @@ SQL;
             );
         }
         $acl->deny(
-            Permissions\Acl::ROLE_GUEST,
+            Acl::ROLE_GUEST,
             [
                 'Omeka\Controller\Admin\Asset',
                 'Omeka\Controller\Admin\Index',
@@ -503,7 +512,7 @@ SQL;
         $userSettings = $services->get('Omeka\Settings\User');
         $entityManager = $services->get('Omeka\EntityManager');
         $guestUsers = $entityManager->getRepository('Omeka\Entity\User')
-            ->findBy(['role' => Permissions\Acl::ROLE_GUEST]);
+            ->findBy(['role' => Acl::ROLE_GUEST]);
         foreach ($guestUsers as $user) {
             $userSettings->setTargetId($user->getId());
             $userSettings->set('guestuser_agreed_terms', $reset);

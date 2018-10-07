@@ -46,7 +46,6 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            'Omeka\Acl' => Service\AclFactory::class,
             'Omeka\AuthenticationService' => Service\AuthenticationServiceFactory::class,
         ],
     ],
