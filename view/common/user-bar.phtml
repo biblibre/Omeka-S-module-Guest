@@ -1,4 +1,5 @@
 <?php
+$translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $this->headLink()->prependStylesheet($this->assetUrl('css/user-bar.css', 'Omeka'));
 $this->headLink()->prependStylesheet('//fonts.googleapis.com/css?family=Source+Code+Pro|Lato:400,400italic,700,700italic');
@@ -19,17 +20,17 @@ if (!isset($user)) $user = $this->identity();
     else:
         $url = $this->url('admin/id', ['controller' => 'user', 'id' => $user->getId()]);
     endif;
-    echo sprintf($this->translate('Signed in as %s'), '<a href="' . $url . '">' . $escape($user->getName()) . '</a>');
+    echo sprintf($translate('Signed in as %s'), '<a href="' . $url . '">' . $escape($user->getName()) . '</a>');
     ?>
     </span>
     <?php
     $url = $this->url('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'logout'], ['query' => $this->params()->fromQuery() ?: []], true);
-    echo $this->hyperlink($this->translate('Logout'), $url, ['class' => 'logout']);
+    echo $this->hyperlink($translate('Logout'), $url, ['class' => 'logout']);
     ?>
 <?php else: ?>
     <?php
     $url = $this->url('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'login'], ['query' => $this->params()->fromQuery() ?: []], true);
-    echo $this->hyperlink($this->translate('Log in'), $url, ['class' => 'login']);
+    echo $this->hyperlink($translate('Log in'), $url, ['class' => 'login']);
     ?>
 <?php endif; ?>
 </div>
