@@ -195,7 +195,7 @@ SQL;
         $settings = $services->get('Omeka\Settings');
         $isOpenRegister = $settings->get('guestuser_open', false);
         if ($isOpenRegister) {
-            $this->addRulesForVisitor($acl);
+            $this->addRulesForVisitors($acl);
         }
 
         $this->addRulesForGuest($acl);
@@ -223,7 +223,7 @@ SQL;
      *
      * @param ZendAcl $acl
      */
-    protected function addRulesForVisitor(ZendAcl $acl)
+    protected function addRulesForVisitors(ZendAcl $acl)
     {
         $acl->allow(
             null,
@@ -245,7 +245,7 @@ SQL;
     }
 
     /**
-     * Add ACL rules for guest.
+     * Add ACL rules for "guest" role.
      *
      * @param ZendAcl $acl
      */
