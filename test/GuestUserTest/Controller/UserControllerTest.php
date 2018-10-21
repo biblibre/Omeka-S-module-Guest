@@ -157,7 +157,7 @@ class UserControllerTest extends GuestUserControllerTestCase
      */
     public function logoutShouldLogoutUser()
     {
-        $user = $this->createGuestUser();
+        $this->createGuestUser();
         $this->login('guest@test.fr', 'test');
         $this->dispatch('/s/test/guest-user/logout');
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');

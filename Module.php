@@ -431,6 +431,7 @@ SQL;
         // Url helper can't be used, because the site slug is not set.
         // The current slug is used.
         $baseUrl = $request->getBaseUrl();
+        $matches = [];
         preg_match('~' . preg_quote($baseUrl, '~') . '/s/([^/]+).*~', $requestUriBase, $matches);
         if (empty($matches[1])) {
             $acceptUri = $baseUrl;

@@ -407,7 +407,6 @@ class GuestUserController extends AbstractActionController
         if (empty($user)) {
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
-        $id = $user->getId();
 
         $isExternalApp = $this->isExternalApp();
 
