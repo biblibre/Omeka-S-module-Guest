@@ -52,7 +52,13 @@ class GuestUserController extends AbstractActionController
         $externalAuth = $this->params()->fromQuery('auth');
         if ($externalAuth === 'error') {
             $siteSlug = $this->params()->fromRoute('site-slug');
-            $this->logger()->err(sprintf('A user failed to log on the site "%s".', $siteSlug)); // @translate
+            $params = $this->params()->fromPost();
+            $params += $this->params()->fromQuery();
+            if (array_key_exists('password', $params)) {
+                $params['password'] = '***';
+            }
+            $this->logger()->err(sprintf('A user failed to log on the site "%s"; params: %s.', // @translate
+                $siteSlug, json_encode($params, 320)));
             $response = $this->getResponse();
             $response->setStatusCode(400);
             if ($isExternalApp) {
