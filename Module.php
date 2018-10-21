@@ -50,6 +50,11 @@ class Module extends AbstractModule
         return include __DIR__ . '/config/module.config.php';
     }
 
+    /**
+     * {@inheritDoc}
+     * @see \Omeka\Module\AbstractModule::onBootstrap()
+     * @todo Find the right way to load GuestUser before other modules in order to add role.
+     */
     public function onBootstrap(MvcEvent $event)
     {
         parent::onBootstrap($event);
@@ -199,6 +204,7 @@ SQL;
         }
 
         $this->addRulesForGuest($acl);
+        $this->addRulesForBasket($acl);
     }
 
     /**
@@ -293,6 +299,32 @@ SQL;
                 'Omeka\Controller\SiteAdmin\Page',
             ]
         );
+    }
+
+    /**
+     * Add ACL rules for "guest" role for Basket.
+     *
+     * @todo This hack is needed temporary as long as GuestIpUser is available in dir.
+     * This method is used or not, depending on the order of the load of the modules.
+     *
+     * @param ZendAcl $acl
+     */
+    protected function addRulesForBasket(ZendAcl $acl)
+    {
+        if ($this->hasModule('Basket')) {
+            $acl->allow(
+                \GuestUser\Permissions\Acl::ROLE_GUEST,
+                \Basket\Entity\BasketItem::class
+            );
+            $acl->allow(
+                \GuestUser\Permissions\Acl::ROLE_GUEST,
+                \Basket\Api\Adapter\BasketItemAdapter::class
+            );
+            $acl->allow(
+                \GuestUser\Permissions\Acl::ROLE_GUEST,
+                'Basket\Controller\Index'
+            );
+        }
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
@@ -575,5 +607,23 @@ SQL;
         foreach ($sqls as $sql) {
             $connection->exec($sql);
         }
+    }
+
+    /**
+     * Check if a module is enabled.
+     *
+     * @param string $module
+     * @return bool
+     */
+    protected function hasModule($module)
+    {
+        static $moduleManager;
+
+        if (empty($moduleManager)) {
+            $moduleManager = $this->getServiceLocator()->get('Omeka\ModuleManager');
+        }
+
+        $module = $moduleManager->getModule($module);
+        return $module && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
     }
 }
