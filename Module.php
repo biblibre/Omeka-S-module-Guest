@@ -30,10 +30,10 @@
 namespace GuestUser;
 
 use GuestUser\Entity\GuestUserToken;
-use GuestUser\Form\ConfigForm;
 use GuestUser\Permissions\Acl;
-use Omeka\Module\AbstractModule;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
+use Omeka\Permissions\Assertion\OwnsEntityAssertion;
+use Omeka\Stdlib\Message;
 use Zend\EventManager\Event;
 use Zend\EventManager\SharedEventManagerInterface;
 use Zend\Form\Element;
@@ -43,13 +43,10 @@ use Zend\Permissions\Acl\Acl as ZendAcl;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
 
-class Module extends AbstractModule
-{
-    public function getConfig()
-    {
-        return include __DIR__ . '/config/module.config.php';
-    }
+require_once 'AbstractGenericModule.php';
 
+class Module extends AbstractGenericModule
+{
     /**
      * {@inheritDoc}
      * @see \Omeka\Module\AbstractModule::onBootstrap()
@@ -58,44 +55,28 @@ class Module extends AbstractModule
     public function onBootstrap(MvcEvent $event)
     {
         parent::onBootstrap($event);
+
         $this->addAclRoleAndRules();
         $this->checkAgreement($event);
     }
 
     public function install(ServiceLocatorInterface $serviceLocator)
     {
-        $connection = $serviceLocator->get('Omeka\Connection');
-        $sql = <<<'SQL'
-CREATE TABLE `guest_user_token` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created` datetime NOT NULL,
-  `confirmed` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `IDX_80ED0AF2A76ED395` (`user_id`),
-  CONSTRAINT `FK_80ED0AF2A76ED395` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQL;
-        $connection->exec($sql);
-
-        // If module was uninstalled/reinstalled, reactivate the guest users.
-        $sql = 'UPDATE user SET is_active = 1 WHERE role = "guest"';
-        $connection->exec($sql);
+        parent::install($serviceLocator);
 
         $settings = $serviceLocator->get('Omeka\Settings');
         $t = $serviceLocator->get('MvcTranslator');
         $config = require __DIR__ . '/config/module.config.php';
-        foreach ($config[strtolower(__NAMESPACE__)]['config'] as $name => $value) {
+        $space = strtolower(__NAMESPACE__);
+        foreach ($config[$space]['config'] as $name => $value) {
             switch ($name) {
                 case 'guestuser_login_text':
                 case 'guestuser_register_text':
                 case 'guestuser_dashboard_label':
                     $value = $t->translate($value);
+                    $settings->set($name, $value);
                     break;
             }
-            $settings->set($name, $value);
         }
     }
 
@@ -103,84 +84,7 @@ SQL;
     {
         $this->deactivateGuestUsers($serviceLocator);
 
-        $sql = <<<'SQL'
-DROP TABLE IF EXISTS guest_user_token;
-SQL;
-        $connection = $serviceLocator->get('Omeka\Connection');
-        $connection->exec($sql);
-
-        $this->manageSettings($serviceLocator->get('Omeka\Settings'), 'uninstall');
-    }
-
-    protected function manageSettings($settings, $process, $key = 'config')
-    {
-        $config = require __DIR__ . '/config/module.config.php';
-        $defaultSettings = $config[strtolower(__NAMESPACE__)][$key];
-        foreach ($defaultSettings as $name => $value) {
-            switch ($process) {
-                case 'install':
-                    $settings->set($name, $value);
-                    break;
-                case 'uninstall':
-                    $settings->delete($name);
-                    break;
-            }
-        }
-    }
-
-    public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
-    {
-        $connection = $serviceLocator->get('Omeka\Connection');
-
-        if (version_compare($oldVersion, '0.1.3', '<')) {
-            $settings = $serviceLocator->get('Omeka\Settings');
-            $config = include __DIR__ . '/config/module.config.php';
-            foreach ($config[strtolower(__NAMESPACE__)]['config'] as $name => $value) {
-                $oldName = str_replace('guestuser_', 'guest_user_', $name);
-                $settings->set($name, $settings->get($oldName, $value));
-                $settings->delete($oldName);
-            }
-        }
-
-        if (version_compare($oldVersion, '0.1.4', '<')) {
-            $sql = <<<'SQL'
-ALTER TABLE guest_user_tokens RENAME TO guest_user_token, ENGINE='InnoDB' COLLATE 'utf8mb4_unicode_ci';
-ALTER TABLE guest_user_token CHANGE id id INT AUTO_INCREMENT NOT NULL, CHANGE token token VARCHAR(255) NOT NULL, CHANGE email email VARCHAR(255) NOT NULL, CHANGE confirmed confirmed TINYINT(1) NOT NULL;
-ALTER TABLE guest_user_token ADD CONSTRAINT FK_80ED0AF2A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE;
-CREATE INDEX IDX_80ED0AF2A76ED395 ON guest_user_token (user_id);
-SQL;
-            $connection->exec($sql);
-        }
-
-        if (version_compare($oldVersion, '3.2.0', '<')) {
-            $this->resetAgreementsBySql($serviceLocator, true);
-
-            $settings = $serviceLocator->get('Omeka\Settings');
-            $config = include __DIR__ . '/config/module.config.php';
-            $settings->set(
-                'guestuser_terms_text',
-                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_text']
-            );
-            $settings->set(
-                'guestuser_terms_page',
-                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_page']
-            );
-            $settings->set(
-                'guestuser_terms_request_regex',
-                $config[strtolower(__NAMESPACE__)]['config']['guestuser_terms_request_regex']
-            );
-        }
-    }
-
-    protected function deactivateGuestUsers($serviceLocator)
-    {
-        $em = $serviceLocator->get('Omeka\EntityManager');
-        $guestUsers = $em->getRepository(\Omeka\Entity\User::class)->findBy(['role' => 'guest']);
-        foreach ($guestUsers as $user) {
-            $user->setIsActive(false);
-            $em->persist($user);
-        }
-        $em->flush();
+        parent::uninstall($serviceLocator);
     }
 
     /**
@@ -204,7 +108,6 @@ SQL;
         }
 
         $this->addRulesForGuest($acl);
-        $this->addRulesForBasket($acl);
     }
 
     /**
@@ -302,32 +205,6 @@ SQL;
         );
     }
 
-    /**
-     * Add ACL rules for "guest" role for Basket.
-     *
-     * @todo This hack is needed temporary as long as GuestIpUser is available in dir.
-     * This method is used or not, depending on the order of the load of the modules.
-     *
-     * @param ZendAcl $acl
-     */
-    protected function addRulesForBasket(ZendAcl $acl)
-    {
-        if ($this->hasModule('Basket')) {
-            $acl->allow(
-                \GuestUser\Permissions\Acl::ROLE_GUEST,
-                \Basket\Entity\BasketItem::class
-            );
-            $acl->allow(
-                \GuestUser\Permissions\Acl::ROLE_GUEST,
-                \Basket\Api\Adapter\BasketItemAdapter::class
-            );
-            $acl->allow(
-                \GuestUser\Permissions\Acl::ROLE_GUEST,
-                'Basket\Controller\Index'
-            );
-        }
-    }
-
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
         // TODO How to attach all public events only?
@@ -359,124 +236,31 @@ SQL;
 
     public function getConfigForm(PhpRenderer $renderer)
     {
-        $services = $this->getServiceLocator();
-        $config = $services->get('Config');
-        $settings = $services->get('Omeka\Settings');
-        $form = $services->get('FormElementManager')->get(ConfigForm::class);
-
-        $data = [];
-        $defaultSettings = $config[strtolower(__NAMESPACE__)]['config'];
-        foreach ($defaultSettings as $name => $value) {
-            $data[$name] = $settings->get($name, $value);
-        }
-
         $renderer->ckEditor();
-
-        $form->init();
-        $form->setData($data);
-        $html = $renderer->formCollection($form);
-        return $html;
+        return parent::getConfigForm($renderer);
     }
 
     public function handleConfigForm(AbstractController $controller)
     {
-        $services = $this->getServiceLocator();
-        $config = $services->get('Config');
-        $settings = $services->get('Omeka\Settings');
-        $form = $services->get('FormElementManager')->get(ConfigForm::class);
-
-        $params = $controller->getRequest()->getPost();
-
-        $form->init();
-        $form->setData($params);
-        if (!$form->isValid()) {
-            $controller->messenger()->addErrors($form->getMessages());
+        $result = parent::handleConfigForm($controller);
+        if ($result === false) {
             return false;
         }
 
-        $params = $form->getData();
-        $defaultSettings = $config[strtolower(__NAMESPACE__)]['config'];
-        $params = array_intersect_key($params, $defaultSettings);
-        foreach ($params as $name => $value) {
-            $settings->set($name, $value);
-        }
-
-        $params = $form->getData();
+        $services = $this->getServiceLocator();
+        $params = $controller->getRequest()->getPost();
         switch ($params['guestuser_reset_agreement_terms']) {
             case 'unset':
-                $t = $services->get('MvcTranslator');
                 $this->resetAgreementsBySql($services, false);
-                $controller->messenger()->addSuccess($t->translate('All guest users must agreed the terms one more time.')); // @translate
+                $message = new Message('All guest users must agreed the terms one more time.'); // @translate
+                $controller->messenger()->addSuccess($message);
                 break;
             case 'set':
-                $t = $services->get('MvcTranslator');
                 $this->resetAgreementsBySql($services, true);
-                $controller->messenger()->addSuccess($t->translate('All guest users agreed the terms.')); // @translate
+                $message = new Message('All guest users agreed the terms.'); // @translate
+                $controller->messenger()->addSuccess($message);
                 break;
         }
-    }
-
-    /**
-     * Check if the guest user accept agreement.
-     *
-     * @param MvcEvent $event
-     */
-    protected function checkAgreement(MvcEvent $event)
-    {
-        $services = $this->getServiceLocator();
-        $auth = $services->get('Omeka\AuthenticationService');
-        if (!$auth->hasIdentity()) {
-            return;
-        }
-
-        $user = $auth->getIdentity();
-        if ($user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
-            return;
-        }
-
-        $userSettings = $services->get('Omeka\Settings\User');
-        if ($userSettings->get('guestuser_agreed_terms')) {
-            return;
-        }
-
-        $router = $services->get('Router');
-        if (!$router instanceof \Zend\Router\Http\TreeRouteStack) {
-            return;
-        }
-
-        $request = $event->getRequest();
-        $requestUri = $request->getRequestUri();
-        $requestUriBase = strtok($requestUri, '?');
-
-        $settings = $services->get('Omeka\Settings');
-        $page = $settings->get('guestuser_terms_page');
-        $regex = $settings->get('guestuser_terms_request_regex');
-        if ($page) {
-            $regex .= ($regex ? '|' : '') . 'page/' . $page;
-        }
-        $regex = '~/(|' . $regex . '|maintenance|login|logout|migrate|guest-user/accept-terms)$~';
-        if (preg_match($regex, $requestUriBase)) {
-            return;
-        }
-
-        // TODO Use routing to get the site slug.
-
-        // Url helper can't be used, because the site slug is not set.
-        // The current slug is used.
-        $baseUrl = $request->getBaseUrl();
-        $matches = [];
-        preg_match('~' . preg_quote($baseUrl, '~') . '/s/([^/]+).*~', $requestUriBase, $matches);
-        if (empty($matches[1])) {
-            $acceptUri = $baseUrl;
-        } else {
-            $acceptUri = $baseUrl . '/s/' . $matches[1] . '/guest-user/accept-terms';
-        }
-
-        $response = $event->getResponse();
-        $response->getHeaders()->addHeaderLine('Location', $acceptUri);
-        $response->setStatusCode(302);
-        $response->sendHeaders();
-        exit;
     }
 
     public function appendLoginNav(Event $event)
@@ -568,6 +352,69 @@ SQL;
     }
 
     /**
+     * Check if the guest user accept agreement.
+     *
+     * @param MvcEvent $event
+     */
+    protected function checkAgreement(MvcEvent $event)
+    {
+        $services = $this->getServiceLocator();
+        $auth = $services->get('Omeka\AuthenticationService');
+        if (!$auth->hasIdentity()) {
+            return;
+        }
+
+        $user = $auth->getIdentity();
+        if ($user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
+            return;
+        }
+
+        $userSettings = $services->get('Omeka\Settings\User');
+        if ($userSettings->get('guestuser_agreed_terms')) {
+            return;
+        }
+
+        $router = $services->get('Router');
+        if (!$router instanceof \Zend\Router\Http\TreeRouteStack) {
+            return;
+        }
+
+        $request = $event->getRequest();
+        $requestUri = $request->getRequestUri();
+        $requestUriBase = strtok($requestUri, '?');
+
+        $settings = $services->get('Omeka\Settings');
+        $page = $settings->get('guestuser_terms_page');
+        $regex = $settings->get('guestuser_terms_request_regex');
+        if ($page) {
+            $regex .= ($regex ? '|' : '') . 'page/' . $page;
+        }
+        $regex = '~/(|' . $regex . '|maintenance|login|logout|migrate|guest-user/accept-terms)$~';
+        if (preg_match($regex, $requestUriBase)) {
+            return;
+        }
+
+        // TODO Use routing to get the site slug.
+
+        // Url helper can't be used, because the site slug is not set.
+        // The current slug is used.
+        $baseUrl = $request->getBaseUrl();
+        $matches = [];
+        preg_match('~' . preg_quote($baseUrl, '~') . '/s/([^/]+).*~', $requestUriBase, $matches);
+        if (empty($matches[1])) {
+            $acceptUri = $baseUrl;
+        } else {
+            $acceptUri = $baseUrl . '/s/' . $matches[1] . '/guest-user/accept-terms';
+        }
+
+        $response = $event->getResponse();
+        $response->getHeaders()->addHeaderLine('Location', $acceptUri);
+        $response->setStatusCode(302);
+        $response->sendHeaders();
+        exit;
+    }
+
+    /**
      * Reset all guest user agreements.
      *
      * @param bool $reset
@@ -610,21 +457,14 @@ SQL;
         }
     }
 
-    /**
-     * Check if a module is enabled.
-     *
-     * @param string $module
-     * @return bool
-     */
-    protected function hasModule($module)
+    protected function deactivateGuestUsers($serviceLocator)
     {
-        static $moduleManager;
-
-        if (empty($moduleManager)) {
-            $moduleManager = $this->getServiceLocator()->get('Omeka\ModuleManager');
+        $em = $serviceLocator->get('Omeka\EntityManager');
+        $guestUsers = $em->getRepository(\Omeka\Entity\User::class)->findBy(['role' => 'guest']);
+        foreach ($guestUsers as $user) {
+            $user->setIsActive(false);
+            $em->persist($user);
         }
-
-        $module = $moduleManager->getModule($module);
-        return $module && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+        $em->flush();
     }
 }

@@ -3,7 +3,7 @@ Guest User (module for Omeka S)
 
 [![Build Status](https://travis-ci.org/biblibre/omeka-s-module-GuestUser.svg?branch=master)](https://travis-ci.org/biblibre/omeka-s-module-GuestUser)
 
-[Guest User] is a module for [Omeka S] that creates a role called "guest", and
+[Guest User] is a module for [Omeka S] that creates a role called `guest`, and
 provides configuration options for a login and registration screen. Guest users
 become registered users in Omeka S, but have no other privileges to the admin
 side of your Omeka S installation. This module is thus intended to be a common
