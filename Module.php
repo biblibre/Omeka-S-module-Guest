@@ -218,6 +218,7 @@ SQL;
             null,
             [\GuestUser\Controller\Site\GuestUserController::class],
             [
+                // No logout.
                 'login', 'forgot-password', 'stale-token', 'auth-error',
                 'confirm', 'confirm-email',
             ]
@@ -258,7 +259,7 @@ SQL;
     protected function addRulesForGuest(ZendAcl $acl)
     {
         $acl->allow(
-            Acl::ROLE_GUEST,
+            [Acl::ROLE_GUEST],
             [\GuestUser\Controller\Site\GuestUserController::class],
             [
                 'logout', 'update-account', 'update-email',
@@ -267,7 +268,7 @@ SQL;
         );
 
         $acl->allow(
-            Acl::ROLE_GUEST,
+            [Acl::ROLE_GUEST],
             [\Omeka\Entity\User::class],
             ['read', 'update', 'change-password'],
             new IsSelfAssertion
@@ -278,7 +279,7 @@ SQL;
             ['read', 'update']
         );
         $acl->deny(
-            Acl::ROLE_GUEST,
+            [Acl::ROLE_GUEST],
             [
                 'Omeka\Controller\Admin\Asset',
                 'Omeka\Controller\Admin\Index',

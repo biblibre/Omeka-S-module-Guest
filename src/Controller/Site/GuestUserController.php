@@ -294,9 +294,9 @@ class GuestUserController extends AbstractActionController
         $guestUserToken->setEmail($recipient);
         $guestUserToken->setUser($user);
         $guestUserToken->setToken(sha1("tOkenS@1t" . microtime()));
-        $em = $this->getEntityManager();
-        $em->persist($guestUserToken);
-        $em->flush();
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($guestUserToken);
+        $entityManager->flush();
 
         switch ($type) {
             case 'update-email':
@@ -576,19 +576,20 @@ class GuestUserController extends AbstractActionController
     public function confirmAction()
     {
         $token = $this->params()->fromQuery('token');
-        $em = $this->getEntityManager();
-        $guestUserToken = $em->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
+        $entityManager = $this->getEntityManager();
+        $guestUserToken = $entityManager->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
         if (empty($guestUserToken)) {
-            return $this->messenger()->addError($this->translate('Invalid token stop')); // @translate
+            $this->messenger()->addError($this->translate('Invalid token stop')); // @translate
+            return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
         $guestUserToken->setConfirmed(true);
-        $em->persist($guestUserToken);
-        $user = $em->find(User::class, $guestUserToken->getUser()->getId());
+        $entityManager->persist($guestUserToken);
+        $user = $entityManager->find(User::class, $guestUserToken->getUser()->getId());
         // Bypass api, so no check of acl 'activate-user' for the user himself.
         $user->setIsActive(true);
-        $em->persist($user);
-        $em->flush();
+        $entityManager->persist($user);
+        $entityManager->flush();
 
         $siteTitle = $this->currentSite()->title();
         $body = new Message('Thanks for joining %s! You can now log in using the password you chose.', // @translate
@@ -605,12 +606,12 @@ class GuestUserController extends AbstractActionController
     public function confirmEmailAction()
     {
         $token = $this->params()->fromQuery('token');
-        $em = $this->getEntityManager();
+        $entityManager = $this->getEntityManager();
 
         $isExternalApp = $this->isExternalApp();
         $siteTitle = $this->currentSite()->title();
 
-        $guestUserToken = $em->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
+        $guestUserToken = $entityManager->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
         if (empty($guestUserToken)) {
             $message = new Message($this->translate('Invalid token: your email was not confirmed for %s.'), // @translate
                 $siteTitle);
@@ -630,13 +631,13 @@ class GuestUserController extends AbstractActionController
         }
 
         $guestUserToken->setConfirmed(true);
-        $em->persist($guestUserToken);
+        $entityManager->persist($guestUserToken);
         $email = $guestUserToken->getEmail();
-        $user = $em->find(User::class, $guestUserToken->getUser()->getId());
+        $user = $entityManager->find(User::class, $guestUserToken->getUser()->getId());
         // Bypass api, so no check of acl 'activate-user' for the user himself.
         $user->setEmail($email);
-        $em->persist($user);
-        $em->flush();
+        $entityManager->persist($user);
+        $entityManager->flush();
 
         $message = new Message('Your new email "%s" is confirmed for %s.', // @translate
             $email, $siteTitle);
@@ -684,16 +685,15 @@ class GuestUserController extends AbstractActionController
      */
     protected function _getForm(User $user = null, array $options = [])
     {
-        $options = array_merge(
-            [
-                'is_public' => true,
-                'user_id' => $user ? $user->getId() : 0,
-                'include_password' => true,
-                'include_role' => false,
-                'include_key' => false,
-            ],
-            $options
-        );
+        $defaultOptions = [
+            'is_public' => true,
+            'user_id' => $user ? $user->getId() : 0,
+            'include_password' => true,
+            'include_role' => false,
+            'include_key' => false,
+        ];
+        $options += $defaultOptions;
+
         $form = $this->getForm(UserForm::class, $options);
 
         // Remove elements from the admin user form, that shouldn’t be available
