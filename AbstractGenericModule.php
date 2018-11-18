@@ -153,74 +153,6 @@ abstract class AbstractGenericModule extends AbstractModule
         $this->handleAnySettings($event, 'user_settings');
     }
 
-    protected function handleAnySettings(Event $event, $settingsType)
-    {
-        $services = $this->getServiceLocator();
-
-        $settingsTypes = [
-            // 'config' => 'Omeka\Settings',
-            'settings' => 'Omeka\Settings',
-            'site_settings' => 'Omeka\Settings\Site',
-            'user_settings' => 'Omeka\Settings\User',
-        ];
-        if (!isset($settingsTypes[$settingsType])) {
-            return;
-        }
-
-        $settingFieldsets = [
-            // 'config' => Form\ConfigForm::class,
-            'settings' => Form\SettingsFieldset::class,
-            'site_settings' => Form\SiteSettingsFieldset::class,
-            'user_settings' => Form\UserSettingsFieldset::class,
-        ];
-        if (!isset($settingFieldsets[$settingsType])) {
-            return;
-        }
-
-        $settings = $services->get($settingsTypes[$settingsType]);
-        $data = $this->prepareDataToPopulate($settings, $settingsType);
-        if (empty($data)) {
-            return;
-        }
-
-        $space = strtolower(__NAMESPACE__);
-
-        $fieldset = $services->get('FormElementManager')->get($settingFieldsets[$settingsType]);
-        $fieldset->setName($space);
-        $form = $event->getTarget();
-        $form->add($fieldset);
-        $form->get($space)->populateValues($data);
-    }
-
-    /**
-     * Prepare data for a form or a fieldset.
-     *
-     * To be overridden by module for specific keys.
-     *
-     * @todo Use form methods to populate.
-     * @param SettingsInterface $settings
-     * @param string $settingsType
-     * @return array
-     */
-    protected function prepareDataToPopulate(SettingsInterface $settings, $settingsType)
-    {
-        $services = $this->getServiceLocator();
-        $config = $services->get('Config');
-        $space = strtolower(__NAMESPACE__);
-        if (empty($config[$space][$settingsType])) {
-            return;
-        }
-
-        $defaultSettings = $config[$space][$settingsType];
-
-        $data = [];
-        foreach ($defaultSettings as $name => $value) {
-            $val = $settings->get($name, $value);
-            $data[$name] = $val;
-        }
-        return $data;
-    }
-
     /**
      * Execute a sql from a file.
      *
@@ -333,6 +265,82 @@ abstract class AbstractGenericModule extends AbstractModule
                     break;
             }
         }
+    }
+
+    /**
+     * Prepare a settings fieldset.
+     *
+     * @param Event $event
+     * @param string $settingsType
+     */
+    protected function handleAnySettings(Event $event, $settingsType)
+    {
+        $services = $this->getServiceLocator();
+
+        $settingsTypes = [
+            // 'config' => 'Omeka\Settings',
+            'settings' => 'Omeka\Settings',
+            'site_settings' => 'Omeka\Settings\Site',
+            'user_settings' => 'Omeka\Settings\User',
+        ];
+        if (!isset($settingsTypes[$settingsType])) {
+            return;
+        }
+
+        // TODO Check fieldsets in the config of the module.
+        $settingFieldsets = [
+            // 'config' => __NAMESPACE__ . '\Form\ConfigForm',
+            'settings' => __NAMESPACE__ . '\Form\SettingsFieldset',
+            'site_settings' => __NAMESPACE__ . '\Form\SiteSettingsFieldset',
+            'user_settings' => __NAMESPACE__ . '\Form\UserSettingsFieldset',
+        ];
+        if (!isset($settingFieldsets[$settingsType])) {
+            return;
+        }
+
+        $settings = $services->get($settingsTypes[$settingsType]);
+        $data = $this->prepareDataToPopulate($settings, $settingsType);
+        if (empty($data)) {
+            return;
+        }
+
+        $space = strtolower(__NAMESPACE__);
+
+        $fieldset = $services->get('FormElementManager')->get($settingFieldsets[$settingsType]);
+        $fieldset->setName($space);
+        $form = $event->getTarget();
+        $form->add($fieldset);
+        $form->get($space)->populateValues($data);
+    }
+
+    /**
+     * Prepare data for a form or a fieldset.
+     *
+     * To be overridden by module for specific keys.
+     *
+     * @todo Use form methods to populate.
+     * @param SettingsInterface $settings
+     * @param string $settingsType
+     * @return array
+     */
+    protected function prepareDataToPopulate(SettingsInterface $settings, $settingsType)
+    {
+        $services = $this->getServiceLocator();
+        $config = $services->get('Config');
+        $space = strtolower(__NAMESPACE__);
+        if (empty($config[$space][$settingsType])) {
+            return;
+        }
+
+        $defaultSettings = $config[$space][$settingsType];
+
+        $data = [];
+        foreach ($defaultSettings as $name => $value) {
+            $val = $settings->get($name, $value);
+            $data[$name] = $val;
+        }
+
+        return $data;
     }
 
     /**
