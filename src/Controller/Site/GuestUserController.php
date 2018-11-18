@@ -32,6 +32,15 @@ class GuestUserController extends AbstractActionController
      */
     protected $entityManager;
 
+    protected $defaultRoles = [
+        \Omeka\Permissions\Acl::ROLE_RESEARCHER,
+        \Omeka\Permissions\Acl::ROLE_AUTHOR,
+        \Omeka\Permissions\Acl::ROLE_REVIEWER,
+        \Omeka\Permissions\Acl::ROLE_EDITOR,
+        \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
+        \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
+    ];
+
     /**
      * @param AuthenticationService $authenticationService
      * @param EntityManager $entityManager
@@ -45,7 +54,7 @@ class GuestUserController extends AbstractActionController
     public function loginAction()
     {
         if ($this->isUserLogged()) {
-            return $this->redirect()->toRoute('site', [], true);
+            return $this->redirectToAdminOrSite();
         }
 
         $auth = $this->getAuthenticationService();
@@ -159,7 +168,7 @@ class GuestUserController extends AbstractActionController
     public function forgotPasswordAction()
     {
         if ($this->isUserLogged()) {
-            return $this->redirect()->toRoute('site', [], true);
+            return $this->redirectToAdminOrSite();
         }
 
         $form = $this->getForm(ForgotPasswordForm::class);
@@ -204,7 +213,7 @@ class GuestUserController extends AbstractActionController
     public function registerAction()
     {
         if ($this->isUserLogged()) {
-            return $this->redirect()->toRoute('site', [], true);
+            return $this->redirectToAdminOrSite();
         }
 
         $user = new User();
@@ -669,6 +678,19 @@ class GuestUserController extends AbstractActionController
     protected function isUserLogged()
     {
         return $this->getAuthenticationService()->hasIdentity();
+    }
+
+    /**
+     * Redirect to admin or site according to the role of the user.
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function redirectToAdminOrSite()
+    {
+        $user = $this->getAuthenticationService()->getIdentity();
+        return $user && in_array($user->getRole(), $this->defaultRoles)
+            ? $this->redirect()->toRoute('admin', [], true)
+            : $this->redirect()->toRoute('site', [], true);
     }
 
     protected function checkPostAndValidForm(\Zend\Form\Form $form)
