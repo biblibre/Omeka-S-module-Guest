@@ -834,6 +834,12 @@ class GuestUserController extends AbstractActionController
         $mailer = $this->mailer();
         $message = $mailer->createMessage();
 
+        // FIXME Html is not yet supported.
+        $isHtml = strpos($body, '<') === 0;
+        if ($isHtml) {
+            $body = strip_tags($body);
+        }
+
         $message->addTo($recipient, $name)
             ->setSubject($subject)
             ->setBody($body);
