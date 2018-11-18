@@ -17,6 +17,9 @@ use Zend\Session\Container;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
+/**
+ * Manage guest users pages.
+ */
 class GuestUserController extends AbstractActionController
 {
     /**
@@ -41,10 +44,11 @@ class GuestUserController extends AbstractActionController
 
     public function loginAction()
     {
-        $auth = $this->getAuthenticationService();
-        if ($auth->hasIdentity()) {
+        if ($this->isUserLogged()) {
             return $this->redirect()->toRoute('site', [], true);
         }
+
+        $auth = $this->getAuthenticationService();
 
         $isExternalApp = $this->isExternalApp();
 
@@ -154,8 +158,7 @@ class GuestUserController extends AbstractActionController
 
     public function forgotPasswordAction()
     {
-        $auth = $this->getAuthenticationService();
-        if ($auth->hasIdentity()) {
+        if ($this->isUserLogged()) {
             return $this->redirect()->toRoute('site', [], true);
         }
 
@@ -200,8 +203,7 @@ class GuestUserController extends AbstractActionController
 
     public function registerAction()
     {
-        $auth = $this->getAuthenticationService();
-        if ($auth->hasIdentity()) {
+        if ($this->isUserLogged()) {
             return $this->redirect()->toRoute('site', [], true);
         }
 
@@ -318,10 +320,12 @@ class GuestUserController extends AbstractActionController
 
     public function updateAccountAction()
     {
-        $user = $this->identity();
-        if (empty($user)) {
+        if (!$this->isUserLogged()) {
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
+
+        /** @var \Omeka\Entity\User $user */
+        $user = $this->getAuthenticationService()->getIdentity();
         $id = $user->getId();
 
         $label = $this->getOption('guestuser_dashboard_label')
@@ -408,11 +412,12 @@ class GuestUserController extends AbstractActionController
 
     public function updateEmailAction()
     {
-        /** @var \Omeka\Entity\User $user */
-        $user = $this->identity();
-        if (empty($user)) {
+        if (!$this->isUserLogged()) {
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
+
+        /** @var \Omeka\Entity\User $user */
+        $user = $this->getAuthenticationService()->getIdentity();
 
         $isExternalApp = $this->isExternalApp();
 
@@ -474,8 +479,7 @@ class GuestUserController extends AbstractActionController
 
     public function meAction()
     {
-        $auth = $this->getAuthenticationService();
-        if (!$auth->hasIdentity()) {
+        if (!$this->isUserLogged()) {
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
@@ -499,8 +503,7 @@ class GuestUserController extends AbstractActionController
 
     public function acceptTermsAction()
     {
-        $user = $this->identity();
-        if (empty($user)) {
+        if (!$this->isUserLogged()) {
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
@@ -654,6 +657,18 @@ class GuestUserController extends AbstractActionController
             'action' => 'me',
         ]);
         return $this->redirect()->toUrl($redirectUrl);
+    }
+
+    /**
+     * Check if a user is logged.
+     *
+     * This method simplifies derivative modules that use the same code.
+     *
+     * @return bool
+     */
+    protected function isUserLogged()
+    {
+        return $this->getAuthenticationService()->hasIdentity();
     }
 
     protected function checkPostAndValidForm(\Zend\Form\Form $form)
