@@ -251,9 +251,8 @@ class GuestUserController extends AbstractActionController
                 'email' => $userInfo['o:email'],
             ]);
             if ($user) {
-                $token = $entityManager->getRepository(GuestUserToken::class)->findOneBy([
-                    'email' => $userInfo['o:email'],
-                ]);
+                $token = $entityManager->getRepository(GuestUserToken::class)
+                    ->findOneBy(['email' => $userInfo['o:email']], ['id' => 'DESC']);
                 if (empty($token) || $token->isConfirmed()) {
                     $this->messenger()->addError('Already registered.'); // @translate
                 } else {
