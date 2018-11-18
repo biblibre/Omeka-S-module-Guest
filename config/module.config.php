@@ -111,11 +111,11 @@ return [
             'guestuser_capabilities' => '',
             'guestuser_short_capabilities' => '',
             'guestuser_message_confirm_email' => '<p>Hi {user_name},</p>
-<p>You have registered for an account on {main_title} / {site_site} ({site_url}).</p>
+<p>You have registered for an account on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your registration by following this link: {token_url}.</p>
 <p>If you did not request to join {main_title} please disregard this email.</p>', // @translate
             'guestuser_message_update_email' => '<p>Hi {user_name},</p>
-<p>You have requested to update email on {main_title} / {site_site} ({site_url}).</p>
+<p>You have requested to update email on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your email by following this link: {token_url}.</p>
 <p>If you did not request to update your email on {main_title}, please disregard this email.</p>', // @translate
             'guestuser_terms_text' => 'I agree the terms and conditions.', // @translate

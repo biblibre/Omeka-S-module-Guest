@@ -790,13 +790,13 @@ class GuestUserController extends AbstractActionController
 
         switch ($template) {
             case 'confirm-email':
-                $subject = 'Your request to join {main_title} / {site_site}'; // @translate
+                $subject = 'Your request to join {main_title} / {site_title}'; // @translate
                 $body = $settings->get('guestuser_message_confirm_email',
                     $this->getConfig()['guestuser']['config']['guestuser_message_confirm_email']);
                 break;
 
             case 'update-email':
-                $subject = 'Update email on {main_title} / {site_site}'; // @translate
+                $subject = 'Update email on {main_title} / {site_title}'; // @translate
                 $body = $settings->get('guestuser_message_update_email',
                     $this->getConfig()['guestuser']['config']['guestuser_message_confirm_email']);
                 break;
