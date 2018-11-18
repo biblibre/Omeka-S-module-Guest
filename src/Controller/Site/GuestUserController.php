@@ -756,60 +756,6 @@ class GuestUserController extends AbstractActionController
     }
 
     /**
-     * Create and save a token.
-     *
-     * @param User $user
-     * @param string $identifier Another identifier than the user email, for
-     * example for an update.
-     * @param bool $short If set, the token will be an integer of 6 numbers
-     * (for phone confirmation). Else, it will be an alphanumeric code (for
-     * email).
-     * @return \GuestUser\Entity\GuestUserToken
-     */
-    protected function createGuestUserToken(User $user, $identifier = null, $short = false)
-    {
-        $entityManager = $this->getEntityManager();
-        $repository = $entityManager->getRepository(\GuestUser\Entity\GuestUserToken::class);
-
-        if (PHP_VERSION_ID < 70000) {
-            $tokenString = $short
-                ? function() { return sprintf('%06d', mt_rand(10203, 989796)); }
-                : function() { return sha1('tOkenS@1t' . microtime()); };
-        } else {
-            $tokenString = $short
-                // TODO Improve the quality of the token to avoid repeated number.
-                ? function() { return sprintf('%06d', random_int(10203, 989796)); }
-                : function() { return substr(str_replace(['+', '/', '-', '='], '', base64_encode(random_bytes(16))), 0, 10); };
-        }
-
-        // TODO Clear old tokens (30 days).
-        // This check is mainly for short tokens.
-        while (true) {
-            $token = $tokenString();
-            // Check if the token is unique (needed only for short code).
-            $result = $repository->findOneBy(['token' => $token]);
-            if (!$result) {
-                break;
-            }
-        }
-
-        $identifier = $identifier ?: $user->getEmail();
-
-        $guestUserToken = new GuestUserToken;
-        $guestUserToken->setEmail($identifier);
-        $guestUserToken->setUser($user);
-        $guestUserToken->setToken($token);
-
-        if (!$user->getId()) {
-            $entityManager->persist($user);
-        }
-        $entityManager->persist($guestUserToken);
-        $entityManager->flush();
-
-        return $guestUserToken;
-    }
-
-    /**
      * Prepare the template.
      *
      * @param string $template In case of a token message, this is the action.
