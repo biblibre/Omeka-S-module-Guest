@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \GuestUser\Form\EmailForm $form
+ */
+
 $translate = $this->plugin('translate');
 $this->htmlElement('body')->appendAttribute('class', 'guest-user account');
 $form->prepare();

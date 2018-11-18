@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \GuestUserIp\Form\RegisterExternalForm $form
+ */
+
 $translate = $this->plugin('translate');
 $this->htmlElement('body')->appendAttribute('class', 'guest-user register');
 $form->prepare();
