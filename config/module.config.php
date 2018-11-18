@@ -42,6 +42,7 @@ return [
     'controller_plugins' => [
         'factories' => [
             'createGuestUserToken' => Service\ControllerPlugin\CreateGuestUserTokenFactory::class,
+            'sendEmail' => Service\ControllerPlugin\SendEmailFactory::class,
             'userSites' => Service\ControllerPlugin\UserSitesFactory::class,
         ],
     ],

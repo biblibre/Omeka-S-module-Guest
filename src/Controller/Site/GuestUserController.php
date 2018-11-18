@@ -820,39 +820,6 @@ class GuestUserController extends AbstractActionController
     }
 
     /**
-     * Send an email.
-     *
-     * @param string $recipient
-     * @param string $subject
-     * @param string $body
-     * @param string $name
-     * @return bool|string True, or a message in case of error.
-     */
-    protected function sendEmail($recipient, $subject, $body, $name = null)
-    {
-        /** @var \Omeka\Stdlib\Mailer $mailer */
-        $mailer = $this->mailer();
-        $message = $mailer->createMessage();
-
-        // FIXME Html is not yet supported.
-        $isHtml = strpos($body, '<') === 0;
-        if ($isHtml) {
-            $body = strip_tags($body);
-        }
-
-        $message->addTo($recipient, $name)
-            ->setSubject($subject)
-            ->setBody($body);
-        try {
-            $mailer->send($message);
-            return true;
-        } catch (\Exception $e) {
-            $this->logger()->err((string) $e);
-            return (string) $e;
-        }
-    }
-
-    /**
      * Check if a request is done via an external application, specified in the
      * config.
      *
@@ -874,11 +841,17 @@ class GuestUserController extends AbstractActionController
         return strpos($requestedWith, $checkRequestedWith) === 0;
     }
 
+    /**
+     * @return \Zend\Authentication\AuthenticationService
+     */
     protected function getAuthenticationService()
     {
         return $this->authenticationService;
     }
 
+    /**
+     * @return \Doctrine\ORM\EntityManager
+     */
     protected function getEntityManager()
     {
         return $this->entityManager;
