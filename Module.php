@@ -179,8 +179,8 @@ SQL;
         foreach ($guestUsers as $user) {
             $user->setIsActive(false);
             $em->persist($user);
-            $em->flush();
         }
+        $em->flush();
     }
 
     /**
