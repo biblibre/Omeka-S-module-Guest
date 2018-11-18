@@ -188,7 +188,7 @@ SQL;
      */
     protected function addAclRoleAndRules()
     {
-        /** @var Zend\Permissions\Acl $acl */
+        /** @var \Zend\Permissions\Acl $acl */
         $services = $this->getServiceLocator();
         $acl = $services->get('Omeka\Acl');
 

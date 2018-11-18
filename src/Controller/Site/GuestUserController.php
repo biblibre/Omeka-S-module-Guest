@@ -262,9 +262,9 @@ class GuestUserController extends AbstractActionController
                 'email' => $userInfo['o:email'],
             ]);
             if ($user) {
-                $token = $entityManager->getRepository(GuestUserToken::class)
+                $guestUserToken = $entityManager->getRepository(GuestUserToken::class)
                     ->findOneBy(['email' => $userInfo['o:email']], ['id' => 'DESC']);
-                if (empty($token) || $token->isConfirmed()) {
+                if (empty($guestUserToken) || $guestUserToken->isConfirmed()) {
                     $this->messenger()->addError('Already registered.'); // @translate
                 } else {
                     $this->messenger()->addError('Check your email to confirm your registration.'); // @translate
@@ -307,92 +307,6 @@ class GuestUserController extends AbstractActionController
         $message = $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         $this->messenger()->addSuccess($message);
         return $this->redirect()->toRoute('site/guest-user', ['action' => 'login'], [], true);
-    }
-
-    /**
-     * Create and save a token.
-     *
-     * @param User $user
-     * @param string $identifier Another identifier than the user email, for
-     * example for an update.
-     * @return \GuestUser\Entity\GuestUserToken
-     */
-    protected function createGuestUserToken(User $user, $identifier = null)
-    {
-        $identifier = $identifier ?: $user->getEmail();
-
-        $guestUserToken = new GuestUserToken;
-        $guestUserToken->setEmail($identifier);
-        $guestUserToken->setUser($user);
-        $guestUserToken->setToken(sha1("tOkenS@1t" . microtime()));
-        $entityManager = $this->getEntityManager();
-        $entityManager->persist($guestUserToken);
-        $entityManager->flush();
-        return $guestUserToken;
-    }
-
-    /**
-     * Prepare the template.
-     *
-     * @param string $template In case of a token message, this is the action.
-     * @param array $data
-     * @return array Filled subject and body as PsrMessage, from templates
-     * formatted with moustache style.
-     */
-    protected function prepareMessage($template, array $data)
-    {
-        $settings = $this->settings();
-        $currentSite = $this->currentSite();
-        $default = [
-            'main_title' => $settings->get('installation_title', 'Omeka S'),
-            'site_title' => $currentSite->title(),
-            'site_url' => $currentSite->siteUrl(null, true),
-            'user_name' => '',
-            'token' => null,
-        ];
-
-        $data += $default;
-
-        if ($data['token']) {
-            $data['token'] = $data['token']->getToken();
-            $urlOptions = ['force_canonical' => true];
-            $urlOptions['query']['token'] = $data['token'];
-            $data['token_url'] = $this->url()->fromRoute(
-                'site/guest-user',
-                ['site-slug' => $currentSite->slug(), 'action' => $template],
-                $urlOptions
-            );
-        }
-
-        switch ($template) {
-            case 'confirm-email':
-                $subject = 'Your request to join {main_title} / {site_site}'; // @translate
-                $body = $settings->get('guestuser_message_confirm_email',
-                    $this->config['guestuser']['config']['guestuser_message_confirm_email']);
-                break;
-
-            case 'update-email':
-                $subject = 'Update email on {main_title} / {site_site}'; // @translate
-                $body = $settings->get('guestuser_message_update_email',
-                    $this->config['guestuser']['config']['guestuser_message_confirm_email']);
-                break;
-
-            // Allows to manage derivative modules.
-            default:
-                $subject = !empty($data['subject']) ? $data['subject'] : '[No subject]'; // @translate
-                $body = !empty($data['body']) ? $data['body'] : '[No message]'; // @translate
-                break;
-        }
-
-        unset($data['subject']);
-        unset($data['body']);
-        $subject = new PsrMessage($subject, $data);
-        $body = new PsrMessage($body, $data);
-
-        return [
-            'subject' => $subject,
-            'body'=> $body,
-        ];
     }
 
     public function updateAccountAction()
@@ -842,6 +756,92 @@ class GuestUserController extends AbstractActionController
     }
 
     /**
+     * Create and save a token.
+     *
+     * @param User $user
+     * @param string $identifier Another identifier than the user email, for
+     * example for an update.
+     * @return \GuestUser\Entity\GuestUserToken
+     */
+    protected function createGuestUserToken(User $user, $identifier = null)
+    {
+        $identifier = $identifier ?: $user->getEmail();
+
+        $guestUserToken = new GuestUserToken;
+        $guestUserToken->setEmail($identifier);
+        $guestUserToken->setUser($user);
+        $guestUserToken->setToken(sha1("tOkenS@1t" . microtime()));
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($guestUserToken);
+        $entityManager->flush();
+        return $guestUserToken;
+    }
+
+    /**
+     * Prepare the template.
+     *
+     * @param string $template In case of a token message, this is the action.
+     * @param array $data
+     * @return array Filled subject and body as PsrMessage, from templates
+     * formatted with moustache style.
+     */
+    protected function prepareMessage($template, array $data)
+    {
+        $settings = $this->settings();
+        $currentSite = $this->currentSite();
+        $default = [
+            'main_title' => $settings->get('installation_title', 'Omeka S'),
+            'site_title' => $currentSite->title(),
+            'site_url' => $currentSite->siteUrl(null, true),
+            'user_name' => '',
+            'token' => null,
+        ];
+
+        $data += $default;
+
+        if ($data['token']) {
+            $data['token'] = $data['token']->getToken();
+            $urlOptions = ['force_canonical' => true];
+            $urlOptions['query']['token'] = $data['token'];
+            $data['token_url'] = $this->url()->fromRoute(
+                'site/guest-user',
+                ['site-slug' => $currentSite->slug(), 'action' => $template],
+                $urlOptions
+            );
+        }
+
+        switch ($template) {
+            case 'confirm-email':
+                $subject = 'Your request to join {main_title} / {site_site}'; // @translate
+                $body = $settings->get('guestuser_message_confirm_email',
+                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_email']);
+                break;
+
+            case 'update-email':
+                $subject = 'Update email on {main_title} / {site_site}'; // @translate
+                $body = $settings->get('guestuser_message_update_email',
+                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_email']);
+                break;
+
+                // Allows to manage derivative modules.
+            default:
+                $subject = !empty($data['subject']) ? $data['subject'] : '[No subject]'; // @translate
+                $body = !empty($data['body']) ? $data['body'] : '[No message]'; // @translate
+                break;
+        }
+
+        unset($data['subject']);
+        unset($data['body']);
+        $subject = new PsrMessage($subject, $data);
+        $body = new PsrMessage($body, $data);
+
+        return [
+            'subject' => $subject,
+            'body'=> $body,
+        ];
+    }
+
+    /**
      * Send an email.
      *
      * @param string $recipient
@@ -898,5 +898,13 @@ class GuestUserController extends AbstractActionController
     protected function getEntityManager()
     {
         return $this->entityManager;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getConfig()
+    {
+        return $this->config;
     }
 }
