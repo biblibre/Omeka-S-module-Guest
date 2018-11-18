@@ -50,28 +50,32 @@ abstract class AbstractGenericModule extends AbstractModule
 
     public function install(ServiceLocatorInterface $serviceLocator)
     {
-        $this->checkDependency($serviceLocator);
-        $this->execSqlFromFile($serviceLocator, __DIR__ . '/data/install/schema.sql');
-        $this->manageConfig($serviceLocator, 'install');
-        $this->manageMainSettings($serviceLocator, 'install');
-        $this->manageSiteSettings($serviceLocator, 'install');
-        $this->manageUserSettings($serviceLocator, 'install');
+        $this->setServiceLocator($serviceLocator);
+        $this->checkDependency();
+        $this->checkDependencies();
+        $this->execSqlFromFile(__DIR__ . '/data/install/schema.sql');
+        $this->manageConfig('install');
+        $this->manageMainSettings('install');
+        $this->manageSiteSettings('install');
+        $this->manageUserSettings('install');
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
-        $this->execSqlFromFile($serviceLocator, __DIR__ . '/data/install/uninstall.sql');
-        $this->manageConfig($serviceLocator, 'uninstall');
-        $this->manageMainSettings($serviceLocator, 'uninstall');
-        $this->manageSiteSettings($serviceLocator, 'uninstall');
+        $this->setServiceLocator($serviceLocator);
+        $this->execSqlFromFile(__DIR__ . '/data/install/uninstall.sql');
+        $this->manageConfig('uninstall');
+        $this->manageMainSettings('uninstall');
+        $this->manageSiteSettings('uninstall');
         // Don't uninstall user settings, they don't belong to admin.
-        // $this->manageUserSettings($serviceLocator, 'uninstall');
+        // $this->manageUserSettings('uninstall');
     }
 
     public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
     {
         $filepath = __DIR__ . '/data/scripts/upgrade.php';
         if (file_exists($filepath) && filesize($filepath) && is_readable($filepath)) {
+            $this->setServiceLocator($serviceLocator);
             require_once $filepath;
         }
     }
@@ -217,29 +221,53 @@ abstract class AbstractGenericModule extends AbstractModule
         return $data;
     }
 
-    protected function execSqlFromFile(ServiceLocatorInterface $services, $filepath)
+    /**
+     * Execute a sql from a file.
+     *
+     * @param string $filepath
+     * @return mixed
+     */
+    protected function execSqlFromFile($filepath)
     {
         if (!file_exists($filepath) || !filesize($filepath) || !is_readable($filepath)) {
             return;
         }
+        $services = $this->getServiceLocator();
         $connection = $services->get('Omeka\Connection');
         $sql = file_get_contents($filepath);
-        $connection->exec($sql);
+        return $connection->exec($sql);
     }
 
-    protected function manageConfig(ServiceLocatorInterface $services, $process)
+    /**
+     * Set or delete settings of the config of a module.
+     *
+     * @param string $process
+     */
+    protected function manageConfig($process)
     {
+        $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
         $this->manageAnySettings($settings, 'config', $process);
     }
 
-    protected function manageMainSettings(ServiceLocatorInterface $services, $process)
+    /**
+     * Set or delete main settings.
+     *
+     * @param string $process
+     */
+    protected function manageMainSettings($process)
     {
+        $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
         $this->manageAnySettings($settings, 'settings', $process);
     }
 
-    protected function manageSiteSettings(ServiceLocatorInterface $services, $process)
+    /**
+     * Set or delete settings of all sites.
+     *
+     * @param string $process
+     */
+    protected function manageSiteSettings($process)
     {
         $settingsType = 'site_settings';
         $config = require __DIR__ . '/config/module.config.php';
@@ -247,6 +275,7 @@ abstract class AbstractGenericModule extends AbstractModule
         if (empty($config[$space][$settingsType])) {
             return;
         }
+        $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings\Site');
         $api = $services->get('Omeka\ApiManager');
         $sites = $api->search('sites')->getContent();
@@ -256,7 +285,12 @@ abstract class AbstractGenericModule extends AbstractModule
         }
     }
 
-    protected function manageUserSettings(ServiceLocatorInterface $services, $process)
+    /**
+     * Set or delete settings of all users.
+     *
+     * @param string $process
+     */
+    protected function manageUserSettings($process)
     {
         $settingsType = 'user_settings';
         $config = require __DIR__ . '/config/module.config.php';
@@ -264,6 +298,7 @@ abstract class AbstractGenericModule extends AbstractModule
         if (empty($config[$space][$settingsType])) {
             return;
         }
+        $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings\User');
         $api = $services->get('Omeka\ApiManager');
         $users = $api->search('users')->getContent();
@@ -273,6 +308,13 @@ abstract class AbstractGenericModule extends AbstractModule
         }
     }
 
+    /**
+     * Set or delete all settings of a specific type.
+     *
+     * @param SettingsInterface $settings
+     * @param string $settingsType
+     * @param string $process
+     */
     protected function manageAnySettings(SettingsInterface $settings, $settingsType, $process)
     {
         $config = require __DIR__ . '/config/module.config.php';
@@ -293,12 +335,51 @@ abstract class AbstractGenericModule extends AbstractModule
         }
     }
 
-    protected function checkDependency(ServiceLocatorInterface $services)
+    /**
+     * Check if the module has a dependency.
+     *
+     * This method is distinct of checkDependencies() for performance purpose.
+     *
+     * @throws ModuleCannotInstallException
+     */
+    protected function checkDependency()
     {
-        if (empty($this->dependency) || $this->isModuleActive($services, $this->dependency)) {
+        if (empty($this->dependency) || $this->isModuleActive($this->dependency)) {
             return;
         }
 
+        $services = $this->getServiceLocator();
+        $translator = $services->get('MvcTranslator');
+        $message = new Message(
+            $translator->translate('This module requires the module "%s".'), // @translate
+            $this->dependency
+        );
+        throw new ModuleCannotInstallException($message);
+    }
+
+    /**
+     * Check if the module has dependencies.
+     *
+     * @throws ModuleCannotInstallException
+     */
+    protected function checkDependencies()
+    {
+        if (empty($this->dependencies)) {
+            return;
+        }
+
+        $areAllActive = true;
+        foreach ($this->dependencies as $dependency) {
+            if (!$this->isModuleActive($dependency)) {
+                $areAllActive = false;
+                break;
+            }
+        }
+        if ($areAllActive) {
+            return;
+        }
+
+        $services = $this->getServiceLocator();
         $translator = $services->get('MvcTranslator');
         $message = new Message($translator->translate('This module requires the module "%s".'), // @translate
             $this->dependency
@@ -309,12 +390,12 @@ abstract class AbstractGenericModule extends AbstractModule
     /**
      * Check if a module is active.
      *
-     * @param ServiceLocatorInterface $services
      * @param string $moduleClass
      * @return bool
      */
-    protected function isModuleActive(ServiceLocatorInterface $services, $moduleClass)
+    protected function isModuleActive($moduleClass)
     {
+        $services = $this->getServiceLocator();
         $moduleManager = $services->get('Omeka\ModuleManager');
         $module = $moduleManager->getModule($moduleClass);
         return $module
@@ -324,17 +405,17 @@ abstract class AbstractGenericModule extends AbstractModule
     /**
      * Disable a module.
      *
-     * @param ServiceLocatorInterface $services
      * @param string $moduleClass
      */
-    protected function disableModule(ServiceLocatorInterface $services, $moduleClass)
+    protected function disableModule($moduleClass)
     {
         // Check if the module is enabled first to avoid an exception.
-        if (!$this->isModuleActive($services, $moduleClass)) {
+        if (!$this->isModuleActive($moduleClass)) {
             return;
         }
 
         // Check if the user is a global admin to avoid right issues.
+        $services = $this->getServiceLocator();
         $user = $services->get('Omeka\AuthenticationService')->getIdentity();
         if (!$user || $user->getRole() !== \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN) {
             return;
@@ -358,19 +439,26 @@ abstract class AbstractGenericModule extends AbstractModule
     }
 
     /**
-     * Clean the text area and get each line separately.
-     *
-     * This method fixes Apple.
+     * Get each line of a string separately.
      *
      * @param string $string
      * @return array
      */
-    protected function cleanTextareaInput($string)
+    protected function stringToList($string)
     {
-        // The str_replace() allows to fix Apple copy/paste.
-        return array_filter(array_map('trim', explode(
-            PHP_EOL,
-            str_replace(["\r\n", "\n\r", "\r", "\n"], PHP_EOL, $string)
-        )));
+        return array_filter(array_map('trim', explode("\n", $this->fixEndOfLine($string))));
+    }
+
+    /**
+     * Clean the text area from end of lines.
+     *
+     * This method fixes Apple copy/paste from a textarea input.
+     *
+     * @param string $string
+     * @return string
+     */
+    protected function fixEndOfLine($string)
+    {
+        return str_replace(["\r\n", "\n\r", "\r", "\n"], "\n", $string);
     }
 }
