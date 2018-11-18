@@ -94,6 +94,38 @@ class ConfigForm extends Form
         ]);
 
         $this->add([
+            'name' => 'guestuser_message_confirm_email',
+            'type' => CkeditorInline::class,
+            'options' => [
+                'label' => 'Email sent to confirm registration', // @translate
+                'info' => 'The text of the email to confirm the registration and to send the token.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'guestuser_message_confirm_email',
+                'placeholder' => 'Hi {user_name},
+You have registered for an account on {main_title} / {site_site} ({site_url}).
+Please confirm your registration by following this link: {token_url}.
+If you did not request to join {main_title} please disregard this email.', // @translate
+            ],
+        ]);
+
+        $this->add([
+            'name' => 'guestuser_message_update_email',
+            'type' => CkeditorInline::class,
+            'options' => [
+                'label' => 'Email sent to update email', // @translate
+                'info' => 'The text of the email sent when the user wants to update it.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'guestuser_message_update_email',
+                'placeholder' => 'Hi {user_name},
+You have requested to update email on {main_title} / {site_site} ({site_url}).
+Please confirm your email by following this link: {token_url}.
+If you did not request to update your email on {main_title}, please disregard this email.', // @translate
+            ],
+        ]);
+
+        $this->add([
             'name' => 'guestuser_terms_text',
             'type' => CkeditorInline::class,
             'options' => [

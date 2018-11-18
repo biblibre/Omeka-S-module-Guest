@@ -33,6 +33,11 @@ class GuestUserController extends AbstractActionController
      */
     protected $entityManager;
 
+    /**
+     * @var array
+     */
+    protected $config;
+
     protected $defaultRoles = [
         \Omeka\Permissions\Acl::ROLE_RESEARCHER,
         \Omeka\Permissions\Acl::ROLE_AUTHOR,
@@ -45,11 +50,16 @@ class GuestUserController extends AbstractActionController
     /**
      * @param AuthenticationService $authenticationService
      * @param EntityManager $entityManager
+     * @param array $config
      */
-    public function __construct(AuthenticationService $authenticationService, EntityManager $entityManager)
-    {
+    public function __construct(
+        AuthenticationService $authenticationService,
+        EntityManager $entityManager,
+        array $config
+    ) {
         $this->authenticationService = $authenticationService;
         $this->entityManager = $entityManager;
+        $this->config = $config;
     }
 
     public function loginAction()
@@ -339,7 +349,6 @@ class GuestUserController extends AbstractActionController
             'site_url' => $currentSite->siteUrl(null, true),
             'user_name' => '',
             'token' => null,
-            'token_url' => '',
         ];
 
         $data += $default;
@@ -358,26 +367,25 @@ class GuestUserController extends AbstractActionController
         switch ($template) {
             case 'confirm-email':
                 $subject = 'Your request to join {main_title} / {site_site}'; // @translate
-                $body = 'Hi {user_name},
-You have registered for an account on {main_title} / {site_site} ({site_url}).
-Please confirm your registration by following this link: {token_url}.
-If you did not request to join {main_title} please disregard this email.'; // @translate
+                $body = $settings->get('guestuser_message_confirm_email',
+                    $this->config['guestuser']['config']['guestuser_message_confirm_email']);
                 break;
 
             case 'update-email':
                 $subject = 'Update email on {main_title} / {site_site}'; // @translate
-                $body = 'Hi {user_name},
-You have requested to update email on {main_title} / {site_site} ({site_url}).
-Please confirm your email by following this link: {token_url}.
-If you did not request to update your email on {main_title}, please disregard this email.'; // @translate
+                $body = $settings->get('guestuser_message_update_email',
+                    $this->config['guestuser']['config']['guestuser_message_confirm_email']);
                 break;
 
+            // Allows to manage derivative modules.
             default:
                 $subject = !empty($data['subject']) ? $data['subject'] : '[No subject]'; // @translate
                 $body = !empty($data['body']) ? $data['body'] : '[No message]'; // @translate
                 break;
         }
 
+        unset($data['subject']);
+        unset($data['body']);
         $subject = new PsrMessage($subject, $data);
         $body = new PsrMessage($body, $data);
 

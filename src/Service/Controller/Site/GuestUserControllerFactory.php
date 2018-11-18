@@ -11,7 +11,8 @@ class GuestUserControllerFactory implements FactoryInterface
     {
         return new GuestUserController(
             $services->get('Omeka\AuthenticationService'),
-            $services->get('Omeka\EntityManager')
+            $services->get('Omeka\EntityManager'),
+            $services->get('Config')
         );
     }
 }
