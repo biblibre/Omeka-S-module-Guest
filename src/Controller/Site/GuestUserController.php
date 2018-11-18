@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityManager;
 use GuestUser\Entity\GuestUserToken;
 use GuestUser\Form\AcceptTermsForm;
 use GuestUser\Form\EmailForm;
+use GuestUser\Stdlib\PsrMessage;
 use Omeka\Entity\User;
 use Omeka\Form\ForgotPasswordForm;
 use Omeka\Form\LoginForm;
@@ -280,50 +281,110 @@ class GuestUserController extends AbstractActionController
             }
         }
 
+        $guestUserToken = $this->createGuestUserToken($user);
+        $message = $this->prepareMessage('confirm-email', [
+            'user_name' => $user->getName(),
+            'token' => $guestUserToken,
+        ]);
+        $result = $this->sendEmail($user->getEmail(), $message['subject'], $message['body'], $user->getName());
+        if (!$result) {
+            $message = new Message($this->translate('An error occurred when the email was sent.')); // @translate
+            $this->messenger()->addError($message);
+            $this->logger()->err('[GuestUser] ' . $message);
+            return $view;
+        }
+
         $message = $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         $this->messenger()->addSuccess($message);
-
-        $this->sendMessageWithToken($user);
         return $this->redirect()->toRoute('site/guest-user', ['action' => 'login'], [], true);
     }
 
     /**
-     * Send a message with a guest user token.
+     * Create and save a token.
      *
      * @param User $user
-     * @param string $recipient
-     * @param string $type
-     * @return bool|string|null True if success, message if error, null when the
-     * result is delayed.
+     * @param string $identifier Another identifier than the user email, for
+     * example for an update.
+     * @return \GuestUser\Entity\GuestUserToken
      */
-    protected function sendMessageWithToken(User $user, $recipient = null, $type = null)
+    protected function createGuestUserToken(User $user, $identifier = null)
     {
-        $recipient = $recipient ?: $user->getEmail();
+        $identifier = $identifier ?: $user->getEmail();
 
         $guestUserToken = new GuestUserToken;
-        $guestUserToken->setEmail($recipient);
+        $guestUserToken->setEmail($identifier);
         $guestUserToken->setUser($user);
         $guestUserToken->setToken(sha1("tOkenS@1t" . microtime()));
         $entityManager = $this->getEntityManager();
         $entityManager->persist($guestUserToken);
         $entityManager->flush();
+        return $guestUserToken;
+    }
 
-        switch ($type) {
-            case 'update-email':
-                $action = 'confirm-email';
-                $subject = 'Update email on %1$s / %2$s'; // @translate
-                $body = 'You have requested to update email on %1$s / %2$s (%3$s). Please confirm your email by following this link: %4$s. If you did not request to update your email on %1$s, please disregard this email.'; // @translate
+    /**
+     * Prepare the template.
+     *
+     * @param string $template In case of a token message, this is the action.
+     * @param array $data
+     * @return array Filled subject and body as PsrMessage, from templates
+     * formatted with moustache style.
+     */
+    protected function prepareMessage($template, array $data)
+    {
+        $settings = $this->settings();
+        $currentSite = $this->currentSite();
+        $default = [
+            'main_title' => $settings->get('installation_title', 'Omeka S'),
+            'site_title' => $currentSite->title(),
+            'site_url' => $currentSite->siteUrl(null, true),
+            'user_name' => '',
+            'token' => null,
+            'token_url' => '',
+        ];
+
+        $data += $default;
+
+        if ($data['token']) {
+            $data['token'] = $data['token']->getToken();
+            $urlOptions = ['force_canonical' => true];
+            $urlOptions['query']['token'] = $data['token'];
+            $data['token_url'] = $this->url()->fromRoute(
+                'site/guest-user',
+                ['site-slug' => $currentSite->slug(), 'action' => $template],
+                $urlOptions
+            );
+        }
+
+        switch ($template) {
+            case 'confirm-email':
+                $subject = 'Your request to join {main_title} / {site_site}'; // @translate
+                $body = 'Hi {user_name},
+You have registered for an account on {main_title} / {site_site} ({site_url}).
+Please confirm your registration by following this link: {token_url}.
+If you did not request to join {main_title} please disregard this email.'; // @translate
                 break;
-            case 'create':
+
+            case 'update-email':
+                $subject = 'Update email on {main_title} / {site_site}'; // @translate
+                $body = 'Hi {user_name},
+You have requested to update email on {main_title} / {site_site} ({site_url}).
+Please confirm your email by following this link: {token_url}.
+If you did not request to update your email on {main_title}, please disregard this email.'; // @translate
+                break;
+
             default:
-                $action = 'confirm';
-                $subject = 'Your request to join %1$s / %2$s'; // @translate
-                $body = 'You have registered for an account on %1$s / %2$s (%3$s). Please confirm your registration by following this link: %4$s. If you did not request to join %1$s please disregard this email.'; // @translate
+                $subject = !empty($data['subject']) ? $data['subject'] : '[No subject]'; // @translate
+                $body = !empty($data['body']) ? $data['body'] : '[No message]'; // @translate
                 break;
         }
 
-        // Confirms that they registration request is legit.
-        return $this->sendConfirmationEmail($user, $guestUserToken, $recipient, $action, $subject, $body);
+        $subject = new PsrMessage($subject, $data);
+        $body = new PsrMessage($body, $data);
+
+        return [
+            'subject' => $subject,
+            'body'=> $body,
+        ];
     }
 
     public function updateAccountAction()
@@ -461,7 +522,20 @@ class GuestUserController extends AbstractActionController
                 ]);
             }
 
-            $this->sendMessageWithToken($user, $email, 'update-email');
+            $guestUserToken = $this->createGuestUserToken($user);
+            $message = $this->prepareMessage('update-email', [
+                'user_name' => $user->getName(),
+                'token' => $guestUserToken,
+            ]);
+            $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
+            if (!$result) {
+                $message = new Message($this->translate('An error occurred when the email was sent.')); // @translate
+                $this->logger()->err('[GuestUser] ' . $message);
+                return new JsonModel([
+                    'result' => 'error',
+                    'message' => $message,
+                ]);
+            }
 
             $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
             return new JsonModel([
@@ -478,7 +552,18 @@ class GuestUserController extends AbstractActionController
         $values = $form->getData();
         $email = $values['o:email'];
 
-        $this->sendMessageWithToken($user, $email, 'update-email');
+        $guestUserToken = $this->createGuestUserToken($user);
+        $message = $this->prepareMessage('update-email', [
+            'user_name' => $user->getName(),
+            'token' => $guestUserToken,
+        ]);
+        $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
+        if (!$result) {
+            $message = new Message($this->translate('An error occurred when the email was sent.')); // @translate
+            $this->messenger()->addError($message);
+            $this->logger()->err('[GuestUser] ' . $message);
+            return $view;
+        }
 
         $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
         $this->messenger()->addSuccess($message);
@@ -751,48 +836,19 @@ class GuestUserController extends AbstractActionController
     /**
      * Send an email.
      *
-     * @param User $user
-     * @param string $token
      * @param string $recipient
-     * @param string $action
      * @param string $subject
      * @param string $body
+     * @param string $name
      * @return bool|string True, or a message in case of error.
      */
-    protected function sendConfirmationEmail(User $user, $token, $recipient, $action, $subject, $body)
+    protected function sendEmail($recipient, $subject, $body, $name = null)
     {
         /** @var \Omeka\Stdlib\Mailer $mailer */
         $mailer = $this->mailer();
         $message = $mailer->createMessage();
 
-        $mainTitle = $mailer->getInstallationTitle();
-        $siteTitle = $this->currentSite()->title();
-        $siteUrl = $this->currentSite()->siteUrl(null, true);
-        $url = $this->url()->fromRoute(
-            'site/guest-user',
-            [
-                'site-slug' => $this->currentSite()->slug(),
-                'action' => $action,
-            ],
-            [
-                'query' => [
-                    'token' => $token->getToken(),
-                ],
-                'force_canonical' => true,
-            ]
-        );
-
-        $subject = new Message($subject, $mainTitle, $siteTitle);
-        $body = new Message(
-            $body,
-            $mainTitle,
-            $siteTitle,
-            $siteUrl,
-            $url,
-            $mainTitle
-        );
-
-        $message->addTo($recipient, $user->getName())
+        $message->addTo($recipient, $name)
             ->setSubject($subject)
             ->setBody($body);
         try {
