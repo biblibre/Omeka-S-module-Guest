@@ -47,13 +47,15 @@ class CreateGuestUserToken extends AbstractPlugin
                 : function() { return substr(str_replace(['+', '/', '-', '='], '', base64_encode(random_bytes(16))), 0, 10); };
         }
 
+        $token = $tokenString();
+
         // Check if the token is unique (needed only for short code).
         while ($short) {
-            $token = $tokenString();
             $result = $repository->findOneBy(['token' => $token]);
             if (!$result) {
                 break;
             }
+            $token = $tokenString();
         }
 
         $identifier = $identifier ?: $user->getEmail();
