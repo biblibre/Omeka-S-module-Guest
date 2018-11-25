@@ -3,6 +3,7 @@ namespace GuestUser\Mvc\Controller\Plugin;
 
 use GuestUser\Stdlib\PsrMessage;
 use Omeka\Stdlib\Mailer as MailerService;
+use Zend\Log\Logger;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
 /**
@@ -16,11 +17,18 @@ class SendEmail extends AbstractPlugin
     protected $mailer;
 
     /**
-     * @param MailerService $mailer
+     * @var Logger
      */
-    public function __construct(MailerService $mailer)
+    protected $logger;
+
+    /**
+     * @param MailerService $mailer
+     * @param Logger $logger
+     */
+    public function __construct(MailerService $mailer, Logger $logger)
     {
         $this->mailer = $mailer;
+        $this->logger = $logger;
     }
 
     /**
@@ -92,9 +100,15 @@ BODY;
 
         try {
             $mailer->send($message);
+            // Log email sent for security purpose.
+            $msg = new PsrMessage(
+                'A mail was sent to {email} with subject {subject}', // @translate
+                ['email' => $recipient, 'subject' => $subject]
+            );
+            $this->logger->info($msg);
             return true;
         } catch (\Exception $e) {
-            $this->logger()->err((string) $e);
+            $this->logger->err((string) $e);
             return (string) $e;
         }
     }
