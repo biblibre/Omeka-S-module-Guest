@@ -29,7 +29,10 @@
 
 namespace GuestUser;
 
+require_once __DIR__ . '/src/Module/AbstractGenericModule.php';
+
 use GuestUser\Entity\GuestUserToken;
+use GuestUser\Module\AbstractGenericModule;
 use GuestUser\Permissions\Acl;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
 use Omeka\Permissions\Assertion\OwnsEntityAssertion;
@@ -42,8 +45,6 @@ use Zend\Mvc\MvcEvent;
 use Zend\Permissions\Acl\Acl as ZendAcl;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
-
-require_once 'AbstractGenericModule.php';
 
 class Module extends AbstractGenericModule
 {
@@ -66,7 +67,7 @@ class Module extends AbstractGenericModule
 
         $settings = $serviceLocator->get('Omeka\Settings');
         $t = $serviceLocator->get('MvcTranslator');
-        $config = require __DIR__ . '/config/module.config.php';
+        $config = $this->getConfig();
         $space = strtolower(__NAMESPACE__);
         foreach ($config[$space]['config'] as $name => $value) {
             switch ($name) {
@@ -327,7 +328,8 @@ class Module extends AbstractGenericModule
         $guestUserSettings = [
             'guestuser_agreed_terms',
         ];
-        $config = $services->get('Config')[strtolower(__NAMESPACE__)]['user_settings'];
+        $space = strtolower(__NAMESPACE__);
+        $config = $services->get('Config')[$space]['user_settings'];
         $fieldset = $form->get('user-settings');
         foreach ($guestUserSettings as $name) {
             $fieldset->get($name)->setAttribute(

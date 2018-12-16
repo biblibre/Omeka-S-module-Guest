@@ -26,7 +26,7 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 
-namespace GuestUser;
+namespace GuestUser\Module;
 
 use Omeka\Module\AbstractModule;
 use Omeka\Module\Exception\ModuleCannotInstallException;
@@ -38,14 +38,50 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
 
 /**
- * This generic class allows to manage all methods that should run once only
- * and that are generic to all modules. A little config over code.
+ * This class allows to manage all methods that should run only once and that
+ * are generic to all modules (install and settings).
+ *
+ * The logic is "config over code": so all settings have just to be set in the
+ * main `config/module.config.php` file, inside a key with the lowercase module
+ * name,  with sub-keys `config`, `settings`, `site_settings`, `user_settings`
+ * and `block_settings`. All the forms have just to be standard Zend form.
+ * Eventual install and uninstall sql can be set in `data/install/` and upgrade
+ * code in `data/scripts`. A dependency on another module can be set as a
+ * property of the main module  ($this->dependency and $this->dependencies).
+ * To add it in a plugin, simply add at the  beginning of the file Module.php:
+ * ```php
+ * require_once dirname(__DIR__) . '/Next/src/Module/AbstractGenericModule.php';
+ * ```
+ * To avoid a dependency to this module, copy the file above file in your module
+ * and replace the namespace.
  */
 abstract class AbstractGenericModule extends AbstractModule
 {
+    /**
+     * This is the root namespace of the module, instead the one of the current
+     * abstract class.
+     *
+     * @var string
+     */
+    protected $namespace;
+
+    public function __construct()
+    {
+        $this->namespace = (new \ReflectionClass($this))->getNamespaceName();
+    }
+
+    /**
+     *
+     * @return string
+     */
+    protected function modulePath()
+    {
+        return OMEKA_PATH . '/modules/' . $this->namespace;
+    }
+
     public function getConfig()
     {
-        return include __DIR__ . '/config/module.config.php';
+        return include $this->modulePath() . '/config/module.config.php';
     }
 
     public function install(ServiceLocatorInterface $serviceLocator)
@@ -53,7 +89,7 @@ abstract class AbstractGenericModule extends AbstractModule
         $this->setServiceLocator($serviceLocator);
         $this->checkDependency();
         $this->checkDependencies();
-        $this->execSqlFromFile(__DIR__ . '/data/install/schema.sql');
+        $this->execSqlFromFile($this->modulePath() . '/data/install/schema.sql');
         $this->manageConfig('install');
         $this->manageMainSettings('install');
         $this->manageSiteSettings('install');
@@ -63,7 +99,7 @@ abstract class AbstractGenericModule extends AbstractModule
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
         $this->setServiceLocator($serviceLocator);
-        $this->execSqlFromFile(__DIR__ . '/data/install/uninstall.sql');
+        $this->execSqlFromFile($this->modulePath() . '/data/install/uninstall.sql');
         $this->manageConfig('uninstall');
         $this->manageMainSettings('uninstall');
         $this->manageSiteSettings('uninstall');
@@ -73,7 +109,7 @@ abstract class AbstractGenericModule extends AbstractModule
 
     public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
     {
-        $filepath = __DIR__ . '/data/scripts/upgrade.php';
+        $filepath = $this->modulePath() . '/data/scripts/upgrade.php';
         if (file_exists($filepath) && filesize($filepath) && is_readable($filepath)) {
             $this->setServiceLocator($serviceLocator);
             require_once $filepath;
@@ -85,7 +121,7 @@ abstract class AbstractGenericModule extends AbstractModule
         $services = $this->getServiceLocator();
 
         $formManager = $services->get('FormElementManager');
-        $formClass = __NAMESPACE__ . '\Form\ConfigForm';
+        $formClass = $this->namespace . '\Form\ConfigForm';
         if (!$formManager->has($formClass)) {
             return;
         }
@@ -107,15 +143,15 @@ abstract class AbstractGenericModule extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $config = $services->get('Config');
-        $space = strtolower(__NAMESPACE__);
+        $space = strtolower($this->namespace);
         if (empty($config[$space]['config'])) {
-            return;
+            return true;
         }
 
         $formManager = $services->get('FormElementManager');
-        $formClass = Form\ConfigForm::class;
+        $formClass = $this->namespace . '\Form\ConfigForm';
         if (!$formManager->has($formClass)) {
-            return;
+            return true;
         }
 
         $params = $controller->getRequest()->getPost();
@@ -136,6 +172,7 @@ abstract class AbstractGenericModule extends AbstractModule
         foreach ($params as $name => $value) {
             $settings->set($name, $value);
         }
+        return true;
     }
 
     public function handleMainSettings(Event $event)
@@ -202,8 +239,9 @@ abstract class AbstractGenericModule extends AbstractModule
     protected function manageSiteSettings($process)
     {
         $settingsType = 'site_settings';
-        $config = require __DIR__ . '/config/module.config.php';
-        $space = strtolower(__NAMESPACE__);
+        $services = $this->getServiceLocator();
+        $config = $services->get('Config');
+        $space = strtolower($this->namespace);
         if (empty($config[$space][$settingsType])) {
             return;
         }
@@ -225,8 +263,9 @@ abstract class AbstractGenericModule extends AbstractModule
     protected function manageUserSettings($process)
     {
         $settingsType = 'user_settings';
-        $config = require __DIR__ . '/config/module.config.php';
-        $space = strtolower(__NAMESPACE__);
+        $services = $this->getServiceLocator();
+        $config = $services->get('Config');
+        $space = strtolower($this->namespace);
         if (empty($config[$space][$settingsType])) {
             return;
         }
@@ -249,8 +288,9 @@ abstract class AbstractGenericModule extends AbstractModule
      */
     protected function manageAnySettings(SettingsInterface $settings, $settingsType, $process)
     {
-        $config = require __DIR__ . '/config/module.config.php';
-        $space = strtolower(__NAMESPACE__);
+        $services = $this->getServiceLocator();
+        $config = $services->get('Config');
+        $space = strtolower($this->namespace);
         if (empty($config[$space][$settingsType])) {
             return;
         }
@@ -289,10 +329,10 @@ abstract class AbstractGenericModule extends AbstractModule
 
         // TODO Check fieldsets in the config of the module.
         $settingFieldsets = [
-            // 'config' => __NAMESPACE__ . '\Form\ConfigForm',
-            'settings' => __NAMESPACE__ . '\Form\SettingsFieldset',
-            'site_settings' => __NAMESPACE__ . '\Form\SiteSettingsFieldset',
-            'user_settings' => __NAMESPACE__ . '\Form\UserSettingsFieldset',
+            // 'config' => $this->namespace . '\Form\ConfigForm',
+            'settings' => $this->namespace . '\Form\SettingsFieldset',
+            'site_settings' => $this->namespace . '\Form\SiteSettingsFieldset',
+            'user_settings' => $this->namespace . '\Form\UserSettingsFieldset',
         ];
         if (!isset($settingFieldsets[$settingsType])) {
             return;
@@ -304,7 +344,7 @@ abstract class AbstractGenericModule extends AbstractModule
             return;
         }
 
-        $space = strtolower(__NAMESPACE__);
+        $space = strtolower($this->namespace);
 
         $fieldset = $services->get('FormElementManager')->get($settingFieldsets[$settingsType]);
         $fieldset->setName($space);
@@ -327,7 +367,7 @@ abstract class AbstractGenericModule extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $config = $services->get('Config');
-        $space = strtolower(__NAMESPACE__);
+        $space = strtolower($this->namespace);
         if (empty($config[$space][$settingsType])) {
             return;
         }
@@ -372,25 +412,14 @@ abstract class AbstractGenericModule extends AbstractModule
      */
     protected function checkDependencies()
     {
-        if (empty($this->dependencies)) {
-            return;
-        }
-
-        $areAllActive = true;
-        foreach ($this->dependencies as $dependency) {
-            if (!$this->isModuleActive($dependency)) {
-                $areAllActive = false;
-                break;
-            }
-        }
-        if ($areAllActive) {
+        if (empty($this->dependencies) || $this->areModulesActive($this->dependencies)) {
             return;
         }
 
         $services = $this->getServiceLocator();
         $translator = $services->get('MvcTranslator');
-        $message = new Message($translator->translate('This module requires the module "%s".'), // @translate
-            $this->dependency
+        $message = new Message($translator->translate('This module requires modules "%s".'), // @translate
+            implode('", "', $this->dependencies)
         );
         throw new ModuleCannotInstallException($message);
     }
@@ -404,10 +433,31 @@ abstract class AbstractGenericModule extends AbstractModule
     protected function isModuleActive($moduleClass)
     {
         $services = $this->getServiceLocator();
+        /** @var \Omeka\Module\Manager $moduleManager */
         $moduleManager = $services->get('Omeka\ModuleManager');
         $module = $moduleManager->getModule($moduleClass);
         return $module
             && $module->getState() === \Omeka\Module\Manager::STATE_ACTIVE;
+    }
+
+    /**
+     * Check if a list of modules are active.
+     *
+     * @param array $moduleClasses
+     * @return bool
+     */
+    protected function areModulesActive(array $moduleClasses)
+    {
+        $services = $this->getServiceLocator();
+        /** @var \Omeka\Module\Manager $moduleManager */
+        $moduleManager = $services->get('Omeka\ModuleManager');
+        foreach ($moduleClasses as $moduleClass) {
+            $module = $moduleManager->getModule($moduleClass);
+            if (!$module || $module->getState() !== \Omeka\Module\Manager::STATE_ACTIVE) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

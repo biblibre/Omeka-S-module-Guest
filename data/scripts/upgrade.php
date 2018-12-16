@@ -1,24 +1,24 @@
 <?php
 namespace GuestUser;
 
+
 /**
  * @var Module $this
  * @var \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
- * @var string $oldVersion
  * @var string $newVersion
+ * @var string $oldVersion
+ *
+ * @var \Doctrine\DBAL\Connection $connection
+ * @var \Doctrine\ORM\EntityManager $entityManager
+ * @var \Omeka\Api\Manager $api
  */
 $services = $serviceLocator;
-
-/**
- * @var \Omeka\Settings\Settings $settings
- * @var \Doctrine\DBAL\Connection $connection
- * @var \Omeka\Api\Manager $api
- * @var array $config
- */
 $settings = $services->get('Omeka\Settings');
-$connection = $services->get('Omeka\Connection');
-$api = $services->get('Omeka\ApiManager');
 $config = require dirname(dirname(__DIR__)) . '/config/module.config.php';
+$connection = $services->get('Omeka\Connection');
+$entityManager = $services->get('Omeka\EntityManager');
+$plugins = $services->get('ControllerPluginManager');
+$api = $plugins->get('api');
 $space = strtolower(__NAMESPACE__);
 
 if (version_compare($oldVersion, '0.1.3', '<')) {
