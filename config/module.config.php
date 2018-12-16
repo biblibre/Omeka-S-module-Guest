@@ -21,6 +21,7 @@ return [
     'view_helpers' => [
         'invokables' => [
             'guestUserWidget' => View\Helper\GuestUserWidget::class,
+            'userBar' => View\Helper\UserBar::class,
         ],
     ],
     'form_elements' => [
