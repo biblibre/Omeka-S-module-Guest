@@ -643,7 +643,7 @@ class GuestUserController extends AbstractActionController
             $this->messenger()->addError($message); // @translate
             $redirectUrl = $this->url()->fromRoute('site/guest-user', [
                 'site-slug' => $this->currentSite()->slug(),
-                'action' => 'update-email',
+                'action' => $this->isUserLogged() ? 'update-email' : 'login',
             ]);
             return $this->redirect()->toUrl($redirectUrl);
         }
@@ -669,7 +669,7 @@ class GuestUserController extends AbstractActionController
         $this->messenger()->addSuccess($message);
         $redirectUrl = $this->url()->fromRoute('site/guest-user', [
             'site-slug' => $this->currentSite()->slug(),
-            'action' => 'me',
+            'action' => $this->isUserLogged() ? 'me' : 'login',
         ]);
         return $this->redirect()->toUrl($redirectUrl);
     }
