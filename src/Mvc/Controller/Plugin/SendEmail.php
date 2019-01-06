@@ -105,7 +105,7 @@ BODY;
                 'A mail was sent to {email} with subject {subject}', // @translate
                 ['email' => $recipient, 'subject' => $subject]
             );
-            $this->logger->info($msg);
+            $this->logger->info($msg->getMessage(), $msg->getContext());
             return true;
         } catch (\Exception $e) {
             $this->logger->err((string) $e);

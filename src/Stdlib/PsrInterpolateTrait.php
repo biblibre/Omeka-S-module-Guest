@@ -12,7 +12,7 @@ trait PsrInterpolateTrait
      *
      * Keys that are not stringable are kept as class or type.
      *
-     * @link https://www.php-fig.org/psr/psr-3/
+     * @see https://www.php-fig.org/psr/psr-3/
      *
      * @param string $message Message with PSR-3 placeholders.
      * @param array $context Associative array with placeholders and strings.
@@ -20,12 +20,12 @@ trait PsrInterpolateTrait
      */
     public function interpolate($message, array $context = null)
     {
-        $message = (string) $message;
-        if (strpos($message, '{') === false) {
+        if (empty($context)) {
             return $message;
         }
 
-        if (empty($context)) {
+        $message = (string) $message;
+        if (strpos($message, '{') === false) {
             return $message;
         }
 
@@ -36,6 +36,11 @@ trait PsrInterpolateTrait
                 || (is_object($val) && method_exists($val, '__toString'))
             ) {
                 $replacements['{' . $key . '}'] = $val;
+                continue;
+            }
+
+            if (is_array($val)) {
+                $replacements['{' . $key . '}'] = 'array' . @json_encode($val);
                 continue;
             }
 

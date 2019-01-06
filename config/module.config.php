@@ -22,6 +22,8 @@ return [
         'invokables' => [
             'guestUserWidget' => View\Helper\GuestUserWidget::class,
             'userBar' => View\Helper\UserBar::class,
+            // Required to manage PsrMessage.
+            'messages' => View\Helper\Messages::class,
         ],
     ],
     'form_elements' => [
