@@ -293,6 +293,7 @@ class GuestUserController extends AbstractActionController
 
         $guestUserToken = $this->createGuestUserToken($user);
         $message = $this->prepareMessage('confirm-email', [
+            'user_email' => $user->getEmail(),
             'user_name' => $user->getName(),
             'token' => $guestUserToken,
         ]);
@@ -446,6 +447,7 @@ class GuestUserController extends AbstractActionController
 
             $guestUserToken = $this->createGuestUserToken($user);
             $message = $this->prepareMessage('update-email', [
+                'user_email' => $email,
                 'user_name' => $user->getName(),
                 'token' => $guestUserToken,
             ]);
@@ -476,6 +478,7 @@ class GuestUserController extends AbstractActionController
 
         $guestUserToken = $this->createGuestUserToken($user);
         $message = $this->prepareMessage('update-email', [
+            'user_email' => $email,
             'user_name' => $user->getName(),
             'token' => $guestUserToken,
         ]);
@@ -771,6 +774,7 @@ class GuestUserController extends AbstractActionController
             'main_title' => $settings->get('installation_title', 'Omeka S'),
             'site_title' => $currentSite->title(),
             'site_url' => $currentSite->siteUrl(null, true),
+            'user_email' => '',
             'user_name' => '',
             'token' => null,
         ];
@@ -798,7 +802,7 @@ class GuestUserController extends AbstractActionController
             case 'update-email':
                 $subject = 'Update email on {main_title} / {site_title}'; // @translate
                 $body = $settings->get('guestuser_message_update_email',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_email']);
+                    $this->getConfig()['guestuser']['config']['guestuser_message_update_email']);
                 break;
 
                 // Allows to manage derivative modules.
