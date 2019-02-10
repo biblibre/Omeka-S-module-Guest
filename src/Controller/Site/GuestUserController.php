@@ -781,7 +781,7 @@ class GuestUserController extends AbstractActionController
 
         $data += $default;
 
-        if ($data['token']) {
+        if (isset($data['token'])) {
             $data['token'] = $data['token']->getToken();
             $urlOptions = ['force_canonical' => true];
             $urlOptions['query']['token'] = $data['token'];
