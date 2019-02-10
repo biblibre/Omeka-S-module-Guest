@@ -445,6 +445,23 @@ class GuestUserController extends AbstractActionController
                 ]);
             }
 
+            if ($email === $user->getEmail()) {
+                return new JsonModel([
+                    'result' => 'error',
+                    'message' => new Message($this->translate('The new email is the same than the current one.')), // @translate
+                ]);
+            }
+
+            $existUser = $this->api()->searchOne('users', ['email' => $email])->getContent();
+            if ($existUser) {
+                // Avoid a hack of the database.
+                sleep(1);
+                return new JsonModel([
+                    'result' => 'error',
+                    'message' => new Message($this->translate('The email "%s" is not yours.'), $email), // @translate
+                ]);
+            }
+
             $guestUserToken = $this->createGuestUserToken($user);
             $message = $this->prepareMessage('update-email', [
                 'user_email' => $email,
@@ -475,6 +492,23 @@ class GuestUserController extends AbstractActionController
 
         $values = $form->getData();
         $email = $values['o:email'];
+
+        if ($email === $user->getEmail()) {
+            return new JsonModel([
+                'result' => 'error',
+                'message' => new Message($this->translate('The new email is the same than the current one.')), // @translate
+            ]);
+        }
+
+        $existUser = $this->api()->searchOne('users', ['email' => $email])->getContent();
+        if ($existUser) {
+            // Avoid a hack of the database.
+            sleep(1);
+            return new JsonModel([
+                'result' => 'error',
+                'message' => new Message($this->translate('The email "%s" is not yours.'), $email), // @translate
+            ]);
+        }
 
         $guestUserToken = $this->createGuestUserToken($user);
         $message = $this->prepareMessage('update-email', [
