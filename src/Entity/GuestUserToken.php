@@ -32,7 +32,7 @@ namespace GuestUser\Entity;
 use DateTime;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Omeka\Entity\AbstractEntity;
-use Omeka\Entity\User as User;
+use Omeka\Entity\User;
 
 /**
  * @Entity
@@ -87,6 +87,7 @@ class GuestUserToken extends AbstractEntity
     public function setEmail($email)
     {
         $this->email = $email;
+        return $this;
     }
 
     public function getEmail()
@@ -97,6 +98,7 @@ class GuestUserToken extends AbstractEntity
     public function setUser(User $user)
     {
         $this->user = $user;
+        return $this;
     }
 
     public function getUser()
@@ -107,6 +109,7 @@ class GuestUserToken extends AbstractEntity
     public function setToken($token)
     {
         $this->token = $token;
+        return $this;
     }
 
     public function getToken()
@@ -117,6 +120,7 @@ class GuestUserToken extends AbstractEntity
     public function setConfirmed($confirmed)
     {
         $this->confirmed = $confirmed;
+        return $this;
     }
 
     public function isConfirmed()
@@ -130,5 +134,6 @@ class GuestUserToken extends AbstractEntity
     public function prePersist(LifecycleEventArgs $eventArgs)
     {
         $this->created = new DateTime('now');
+        return $this;
     }
 }
