@@ -186,7 +186,7 @@ If you did not request to update your email on {main_title}, please disregard th
                 'info' => 'If unchecked, the user will be logged out if terms are not accepted.', // @translate
             ],
             'attributes' => [
-                'id' => 'guestuser-termes-force-agree',
+                'id' => 'guestuser-terms-force-agree',
             ],
         ]);
 

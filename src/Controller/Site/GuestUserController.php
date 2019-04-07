@@ -839,7 +839,7 @@ class GuestUserController extends AbstractActionController
                     $this->getConfig()['guestuser']['config']['guestuser_message_update_email']);
                 break;
 
-                // Allows to manage derivative modules.
+            // Allows to manage derivative modules.
             default:
                 $subject = !empty($data['subject']) ? $data['subject'] : '[No subject]'; // @translate
                 $body = !empty($data['body']) ? $data['body'] : '[No message]'; // @translate
