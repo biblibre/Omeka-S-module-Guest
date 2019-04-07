@@ -109,6 +109,7 @@ class Module extends AbstractGenericModule
         }
 
         $this->addRulesForGuest($acl);
+        $this->addRulesForBasket($acl);
     }
 
     /**
@@ -203,6 +204,35 @@ class Module extends AbstractGenericModule
                 'Omeka\Controller\SiteAdmin\Index',
                 'Omeka\Controller\SiteAdmin\Page',
             ]
+        );
+    }
+
+    /**
+     * Add ACL rules for "guest" role for Basket.
+     *
+     * @todo Remove this hack and replace to manage some modules that use roles in public front-end.
+     *
+     * This method is used or not, depending on the order of the load of the modules (until 1.4).
+     *
+     * @param ZendAcl $acl
+     */
+    protected function addRulesForBasket(ZendAcl $acl)
+    {
+        if (!$this->isModuleActive('Basket')) {
+            return;
+        }
+
+        $acl->allow(
+            [\GuestUser\Permissions\Acl::ROLE_GUEST],
+            [\Basket\Entity\BasketItem::class]
+        );
+        $acl->allow(
+            [\GuestUser\Permissions\Acl::ROLE_GUEST],
+            [\Basket\Api\Adapter\BasketItemAdapter::class]
+        );
+        $acl->allow(
+            [\GuestUser\Permissions\Acl::ROLE_GUEST],
+            ['Basket\Controller\Index']
         );
     }
 
