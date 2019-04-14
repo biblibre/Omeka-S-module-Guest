@@ -540,13 +540,12 @@ class GuestUserController extends AbstractActionController
 
         $widget = [];
         $widget['label'] = $this->translate('My Account'); // @translate
-        $widget['content'] = $partial('common/guest-user-account');
+        $widget['content'] = $partial('guest-user/site/guest-user/widget/account');
 
         $args = $eventManager->prepareArgs(['widgets' => []]);
         $args['widgets']['account'] = $widget;
 
-        $event = new MvcEvent('guestuser.widgets', $this, $args);
-        $eventManager->triggerEvent($event);
+        $eventManager->triggerEvent(new MvcEvent('guestuser.widgets', $this, $args));
 
         $view = new ViewModel;
         $view->setVariable('widgets', $args['widgets']);
