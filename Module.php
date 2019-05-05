@@ -35,7 +35,6 @@ use GuestUser\Entity\GuestUserToken;
 use GuestUser\Module\AbstractGenericModule;
 use GuestUser\Permissions\Acl;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
-use Omeka\Permissions\Assertion\OwnsEntityAssertion;
 use Omeka\Stdlib\Message;
 use Zend\EventManager\Event;
 use Zend\EventManager\SharedEventManagerInterface;
