@@ -28,10 +28,10 @@
 
 namespace GuestUser\Module;
 
+use GuestUser\Stdlib\PsrMessage;
 use Omeka\Module\AbstractModule;
 use Omeka\Module\Exception\ModuleCannotInstallException;
 use Omeka\Settings\SettingsInterface;
-use Omeka\Stdlib\Message;
 use Zend\EventManager\Event;
 use Zend\Mvc\Controller\AbstractController;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -394,9 +394,9 @@ abstract class AbstractGenericModule extends AbstractModule
 
         $services = $this->getServiceLocator();
         $translator = $services->get('MvcTranslator');
-        $message = new Message(
-            $translator->translate('This module requires the module "%s".'), // @translate
-            $this->dependency
+        $message = new PsrMessage(
+            $translator->translate('This module requires the module "{dependency}".'), // @translate
+            ['dependency' => $this->dependency]
         );
         throw new ModuleCannotInstallException($message);
     }
@@ -414,8 +414,8 @@ abstract class AbstractGenericModule extends AbstractModule
 
         $services = $this->getServiceLocator();
         $translator = $services->get('MvcTranslator');
-        $message = new Message($translator->translate('This module requires modules "%s".'), // @translate
-            implode('", "', $this->dependencies)
+        $message = new PsrMessage($translator->translate('This module requires modules "{dependencies}".'), // @translate
+            ['dependencies' => implode('", "', $this->dependencies)]
         );
         throw new ModuleCannotInstallException($message);
     }

@@ -34,8 +34,8 @@ require_once __DIR__ . '/src/Module/AbstractGenericModule.php';
 use GuestUser\Entity\GuestUserToken;
 use GuestUser\Module\AbstractGenericModule;
 use GuestUser\Permissions\Acl;
+use GuestUser\Stdlib\PsrMessage;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
-use Omeka\Stdlib\Message;
 use Zend\EventManager\Event;
 use Zend\EventManager\SharedEventManagerInterface;
 use Zend\Form\Element;
@@ -282,12 +282,12 @@ class Module extends AbstractGenericModule
         switch ($params['guestuser_reset_agreement_terms']) {
             case 'unset':
                 $this->resetAgreementsBySql($services, false);
-                $message = new Message('All guest users must agreed the terms one more time.'); // @translate
+                $message = new PsrMessage('All guest users must agreed the terms one more time.'); // @translate
                 $controller->messenger()->addSuccess($message);
                 break;
             case 'set':
                 $this->resetAgreementsBySql($services, true);
-                $message = new Message('All guest users agreed the terms.'); // @translate
+                $message = new PsrMessage('All guest users agreed the terms.'); // @translate
                 $controller->messenger()->addSuccess($message);
                 break;
         }

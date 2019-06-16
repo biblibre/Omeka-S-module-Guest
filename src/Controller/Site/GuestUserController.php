@@ -10,7 +10,6 @@ use Omeka\Entity\User;
 use Omeka\Form\ForgotPasswordForm;
 use Omeka\Form\LoginForm;
 use Omeka\Form\UserForm;
-use Omeka\Stdlib\Message;
 use Zend\Authentication\AuthenticationService;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Mvc\MvcEvent;
@@ -299,7 +298,7 @@ class GuestUserController extends AbstractActionController
         ]);
         $result = $this->sendEmail($user->getEmail(), $message['subject'], $message['body'], $user->getName());
         if (!$result) {
-            $message = new Message($this->translate('An error occurred when the email was sent.')); // @translate
+            $message = new PsrMessage('An error occurred when the email was sent.'); // @translate
             $this->messenger()->addError($message);
             $this->logger()->err('[GuestUser] ' . $message);
             return $view;
@@ -424,7 +423,7 @@ class GuestUserController extends AbstractActionController
             if ($isExternalApp) {
                 return new JsonModel([
                     'result' => 'error',
-                    'message' => $this->translate('The request should be a POST.'), // @translate
+                    'message' => new PsrMessage('The request should be a POST.'), // @translate
                 ]);
             }
             return $view;
@@ -441,14 +440,14 @@ class GuestUserController extends AbstractActionController
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 return new JsonModel([
                     'result' => 'error',
-                    'message' => new Message($this->translate('"%1$s" is not an email.'), $email), // @translate
+                    'message' => new PsrMessage('"{email}" is not an email.', ['email' => $email]), // @translate
                 ]);
             }
 
             if ($email === $user->getEmail()) {
                 return new JsonModel([
                     'result' => 'error',
-                    'message' => new Message($this->translate('The new email is the same than the current one.')), // @translate
+                    'message' => new PsrMessage('The new email is the same than the current one.'), // @translate
                 ]);
             }
 
@@ -458,7 +457,7 @@ class GuestUserController extends AbstractActionController
                 sleep(1);
                 return new JsonModel([
                     'result' => 'error',
-                    'message' => new Message($this->translate('The email "%s" is not yours.'), $email), // @translate
+                    'message' => new PsrMessage('The email "{email}" is not yours.', ['email' => $email]), // @translate
                 ]);
             }
 
@@ -470,7 +469,7 @@ class GuestUserController extends AbstractActionController
             ]);
             $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
             if (!$result) {
-                $message = new Message($this->translate('An error occurred when the email was sent.')); // @translate
+                $message = new PsrMessage('An error occurred when the email was sent.'); // @translate
                 $this->logger()->err('[GuestUser] ' . $message);
                 return new JsonModel([
                     'result' => 'error',
@@ -478,7 +477,7 @@ class GuestUserController extends AbstractActionController
                 ]);
             }
 
-            $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
+            $message = new PsrMessage('Check your email "{email}" to confirm the change.', ['email' => $email]); // @translate
             return new JsonModel([
                 'result' => 'success',
                 'message' => $message,
@@ -494,20 +493,16 @@ class GuestUserController extends AbstractActionController
         $email = $values['o:email'];
 
         if ($email === $user->getEmail()) {
-            return new JsonModel([
-                'result' => 'error',
-                'message' => new Message($this->translate('The new email is the same than the current one.')), // @translate
-            ]);
+            $this->messenger()->addWarning(new PsrMessage('The new email is the same than the current one.')); // @translate
+            return $view;
         }
 
         $existUser = $this->api()->searchOne('users', ['email' => $email])->getContent();
         if ($existUser) {
             // Avoid a hack of the database.
             sleep(1);
-            return new JsonModel([
-                'result' => 'error',
-                'message' => new Message($this->translate('The email "%s" is not yours.'), $email), // @translate
-            ]);
+            $this->messenger()->addError(new PsrMessage('The email "{email}" is not yours.', ['email' => $email])); // @translate
+            return $view;
         }
 
         $guestUserToken = $this->createGuestUserToken($user);
@@ -518,13 +513,13 @@ class GuestUserController extends AbstractActionController
         ]);
         $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
         if (!$result) {
-            $message = new Message($this->translate('An error occurred when the email was sent.')); // @translate
+            $message = new PsrMessage('An error occurred when the email was sent.'); // @translate
             $this->messenger()->addError($message);
             $this->logger()->err('[GuestUser] ' . $message);
             return $view;
         }
 
-        $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
+        $message = new PsrMessage('Check your email "{email}" to confirm the change.', ['email' => $email]); // @translate
         $this->messenger()->addSuccess($message);
         return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
     }
@@ -561,7 +556,7 @@ class GuestUserController extends AbstractActionController
         $userSettings = $this->userSettings();
         $agreed = $userSettings->get('guestuser_agreed_terms');
         if ($agreed) {
-            $message = new Message($this->translate('You already agreed the terms and conditions.')); // @translate
+            $message = new PsrMessage('You already agreed the terms and conditions.'); // @translate
             $this->messenger()->addSuccess($message);
             return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
         }
@@ -601,14 +596,14 @@ class GuestUserController extends AbstractActionController
 
         if (!$accept) {
             if ($forced) {
-                $message = new Message($this->translate('The access to this website requires you accept the current terms and conditions.')); // @translate
+                $message = new PsrMessage('The access to this website requires you accept the current terms and conditions.'); // @translate
                 $this->messenger()->addError($message);
                 return $view;
             }
             return $this->redirect()->toRoute('site/guest-user', ['action' => 'logout'], [], true);
         }
 
-        $message = new Message($this->translate('Thanks for accepting the terms and condtions.')); // @translate
+        $message = new PsrMessage('Thanks for accepting the terms and condtions.'); // @translate
         $this->messenger()->addSuccess($message);
         switch ($this->settings()->get('guestuser_terms_redirect')) {
             case 'home':
@@ -646,8 +641,8 @@ class GuestUserController extends AbstractActionController
         $entityManager->flush();
 
         $siteTitle = $this->currentSite()->title();
-        $body = new Message('Thanks for joining %s! You can now log in using the password you chose.', // @translate
-            $siteTitle);
+        $body = new PsrMessage('Thanks for joining {site_title}! You can now log in using the password you chose.', // @translate
+            ['site_title' => $siteTitle]);
 
         $this->messenger()->addSuccess($body);
         $redirectUrl = $this->url()->fromRoute('site/guest-user', [
@@ -667,12 +662,12 @@ class GuestUserController extends AbstractActionController
 
         $guestUserToken = $entityManager->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
         if (empty($guestUserToken)) {
-            $message = new Message($this->translate('Invalid token: your email was not confirmed for %s.'), // @translate
-                $siteTitle);
+            $message = new PsrMessage('Invalid token: your email was not confirmed for {site_title}.', // @translate
+                ['site_title' => $siteTitle]);
             if ($isExternalApp) {
                 return new JsonModel([
                     'result' => 'error',
-                    'message' => new Message($message), // @translate
+                    'message' => $message, // @translate
                 ]);
             }
 
@@ -693,8 +688,8 @@ class GuestUserController extends AbstractActionController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        $message = new Message('Your new email "%s" is confirmed for %s.', // @translate
-            $email, $siteTitle);
+        $message = new PsrMessage('Your new email "{email}" is confirmed for {site_title}.', // @translate
+            ['email' => $email, 'site_title' => $siteTitle]);
         if ($isExternalApp) {
             return new JsonModel([
                 'result' => 'success',
