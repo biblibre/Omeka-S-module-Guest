@@ -71,7 +71,6 @@ abstract class AbstractGenericModule extends AbstractModule
     }
 
     /**
-     *
      * @return string
      */
     protected function modulePath()
@@ -119,7 +118,6 @@ abstract class AbstractGenericModule extends AbstractModule
     public function getConfigForm(PhpRenderer $renderer)
     {
         $services = $this->getServiceLocator();
-
         $formManager = $services->get('FormElementManager');
         $formClass = $this->namespace . '\Form\ConfigForm';
         if (!$formManager->has($formClass)) {
@@ -414,7 +412,8 @@ abstract class AbstractGenericModule extends AbstractModule
 
         $services = $this->getServiceLocator();
         $translator = $services->get('MvcTranslator');
-        $message = new PsrMessage($translator->translate('This module requires modules "{dependencies}".'), // @translate
+        $message = new PsrMessage(
+            $translator->translate('This module requires modules "{dependencies}".'), // @translate
             ['dependencies' => implode('", "', $this->dependencies)]
         );
         throw new ModuleCannotInstallException($message);

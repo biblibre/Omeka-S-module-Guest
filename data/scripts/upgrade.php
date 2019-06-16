@@ -1,7 +1,6 @@
 <?php
 namespace GuestUser;
 
-
 /**
  * @var Module $this
  * @var \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
@@ -36,7 +35,7 @@ ALTER TABLE guest_user_token CHANGE id id INT AUTO_INCREMENT NOT NULL, CHANGE to
 ALTER TABLE guest_user_token ADD CONSTRAINT FK_80ED0AF2A76ED395 FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE;
 CREATE INDEX IDX_80ED0AF2A76ED395 ON guest_user_token (user_id);
 SQL;
-    $connection->exec($sql);;
+    $connection->exec($sql);
 }
 
 if (version_compare($oldVersion, '3.2.0', '<')) {

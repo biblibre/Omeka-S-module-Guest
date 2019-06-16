@@ -31,7 +31,6 @@ class Login implements LinkInterface
         return isset($data['label']) && '' !== trim($data['label'])
             ? $data['label']
             : 'Login'; // @translate
-
     }
 
     public function toZend(array $data, SiteRepresentation $site)
