@@ -6,9 +6,6 @@
  * @var array $links
  */
 
-// Make compatible with old themes that call partial directly.
-if (!array_key_exists('user', get_defined_vars())): echo $this->userBar(); return; endif;
-
 $translate = $this->plugin('translate');
 $hyperlink = $this->plugin('hyperlink');
 $urlHelper = $this->plugin('url');
@@ -16,39 +13,32 @@ $this->headLink()
     ->prependStylesheet($this->assetUrl('css/user-bar.css', 'Omeka'))
     ->prependStylesheet('//fonts.googleapis.com/css?family=Source+Code+Pro|Lato:400,400italic,700,700italic');
 
-$adminRights = $user && $this->userIsAllowed('Omeka\Controller\Admin\Index', 'index');
+$adminRights = isset($user) && $this->userIsAllowed('Omeka\Controller\Admin\Index', 'index');
 ?>
-<style>
-#user-bar .admin:not(:last-child):not(:nth-last-child(2)):not(:nth-last-child(3)):after {
-    content: "\2022";
-    margin: 0 12px;
-}
-#user-bar .user-id {
-    margin-left: auto;
-}
-</style>
 <div id="user-bar">
-<?php if ($user): ?>
+<?php if (isset($user)): ?>
+    <div class="site-links">
     <?php foreach ($links as $link): ?>
-    <span class="admin <?php echo $link['resource'] . ' ' . $link['action']; ?>">
-        <?php echo $hyperlink($link['text'], $link['url']); ?>
-    </span>
+        <span class="admin <?php echo $link['resource'] . ' ' . $link['action']; ?>">
+            <?php echo $hyperlink($link['text'], $link['url']); ?>
+        </span>
     <?php endforeach; ?>
+    </div>
 
-    <span class="user-id">
-        <?php
-        $url = $adminRights
-            ? $urlHelper('admin/id', ['controller' => 'user', 'id' => $user->getId()])
-            : $urlHelper('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'me', 'id' => $user->getId()]);
-        echo sprintf($translate('Signed in as %s'), $hyperlink($user->getName(), $url));
-        ?>
-    </span>
-    <span class="logout">
+    <div class="user-links">
+        <span class="user-id">
+            <?php
+            $url = $adminRights
+                ? $urlHelper('admin/id', ['controller' => 'user', 'id' => $user->getId()])
+                : $urlHelper('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'me', 'id' => $user->getId()]);
+            echo sprintf($translate('Signed in as %s'), $hyperlink($user->getName(), $url));
+            ?>
+        </span>
         <?php
         $url = $urlHelper('site/guest-user', ['site-slug' => $site->slug(), 'action' => 'logout'], ['query' => $this->params()->fromQuery() ?: []], true);
         echo $hyperlink($translate('Logout'), $url, ['class' => 'logout']);
         ?>
-    </span>
+    </div>
 <?php else: ?>
     <span class="login">
         <?php

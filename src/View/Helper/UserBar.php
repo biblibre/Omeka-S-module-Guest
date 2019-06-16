@@ -17,6 +17,11 @@ class UserBar extends AbstractHelper
     const PARTIAL_NAME = 'common/user-bar';
 
     /**
+     * The default partial view script.
+     */
+    const PARTIAL_NAME_GUEST = 'common/user-bar-guest';
+
+    /**
      * Render the user bar.
      *
      * @param string|null $partialName Name of view script, or a view model
@@ -41,9 +46,14 @@ class UserBar extends AbstractHelper
             return '';
         }
 
-        $links = $user ? $this->links($view, $site, $user) : [];
-
-        $partialName = $partialName ?: self::PARTIAL_NAME;
+        $isGuest = $user && $user->getRole() === \GuestUser\Permissions\Acl::ROLE_GUEST;
+        if ($isGuest) {
+            $links = [];
+            $partialName = $partialName ?: self::PARTIAL_NAME_GUEST;
+        } else {
+            $links = $this->links($view, $site, $user);
+            $partialName = $partialName ?: self::PARTIAL_NAME;
+        }
 
         return $view->partial(
             $partialName,
@@ -90,12 +100,6 @@ class UserBar extends AbstractHelper
         // There is no default label for resources, so get it from the controller (sometime upper-cased).
         $params = $view->params();
         $controller = strtolower($params->fromRoute('__CONTROLLER__'));
-        $mapLabels = [
-            'item' => 'Item', // @translate
-            'item-set' => 'Item set', // @translate
-            'media' => 'Media', // @translate
-            'page' => 'Page', // @translate
-        ];
         $mapPluralLabels = [
             'item' => 'Items', // @translate
             'item-set' => 'Item sets', // @translate
@@ -103,8 +107,8 @@ class UserBar extends AbstractHelper
             'page' => 'Pages', // @translate
         ];
 
-        if (!isset($mapLabels[$controller])) {
-            return [];
+        if (!isset($mapPluralLabels[$controller])) {
+            return $links;
         }
 
         $routeParams = $params->fromRoute();
@@ -120,7 +124,7 @@ class UserBar extends AbstractHelper
                 $links[] = [
                     'resource' => $controller,
                     'action' => 'edit',
-                    'text' => sprintf($translate('Edit %s'), $translate($mapLabels[$controller])), // @translate
+                    'text' => $translate('Edit'),
                     'url' => $page->adminUrl('edit'),
                 ];
             }
@@ -151,17 +155,16 @@ class UserBar extends AbstractHelper
                     $links[] = [
                         'resource' => $controller,
                         'action' => 'edit',
-                        'text' => sprintf($translate('Edit %s'), $translate($mapLabels[$controller])), // @translate
+                        'text' => $translate('Edit'),
                         'url' => $resource->adminUrl('edit'),
                     ];
-                } else {
-                    $links[] = [
-                        'resource' => $controller,
-                        'action' => 'show',
-                        'text' => sprintf($translate('Show %s'), $translate($mapLabels[$controller])), // @translate
-                        'url' => $resource->adminUrl(),
-                    ];
                 }
+                $links[] = [
+                    'resource' => $controller,
+                    'action' => 'show',
+                    'text' => $translate('View'),
+                    'url' => $resource->adminUrl(),
+                ];
             }
         }
 

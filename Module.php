@@ -136,23 +136,24 @@ class Module extends AbstractGenericModule
      */
     protected function addRulesForVisitors(ZendAcl $acl)
     {
-        $acl->allow(
-            null,
-            [\GuestUser\Controller\Site\GuestUserController::class],
-            ['register']
-        );
-        $acl->allow(
-            null,
-            [\Omeka\Entity\User::class],
-            // Change role and Activate user should be set to allow external
-            // logging (ldap, saml, etc.), not only guest registration here.
-            ['create', 'change-role', 'activate-user']
-        );
-        $acl->allow(
-            null,
-            [\Omeka\Api\Adapter\UserAdapter::class],
-            'create'
-        );
+        $acl
+            ->allow(
+                null,
+                [\GuestUser\Controller\Site\GuestUserController::class],
+                ['register']
+            )
+            ->allow(
+                null,
+                [\Omeka\Entity\User::class],
+                // Change role and Activate user should be set to allow external
+                // logging (ldap, saml, etc.), not only guest registration here.
+                ['create', 'change-role', 'activate-user']
+            )
+            ->allow(
+                null,
+                [\Omeka\Api\Adapter\UserAdapter::class],
+                'create'
+            );
     }
 
     /**
@@ -162,48 +163,48 @@ class Module extends AbstractGenericModule
      */
     protected function addRulesForGuest(ZendAcl $acl)
     {
-        $acl->allow(
-            [Acl::ROLE_GUEST],
-            [\GuestUser\Controller\Site\GuestUserController::class],
-            [
-                'logout', 'update-account', 'update-email',
-                'me', 'accept-terms',
-            ]
-        );
-
-        $acl->allow(
-            [Acl::ROLE_GUEST],
-            [\Omeka\Entity\User::class],
-            ['read', 'update', 'change-password'],
-            new IsSelfAssertion
-        );
-        $acl->allow(
-            null,
-            [\Omeka\Api\Adapter\UserAdapter::class],
-            ['read', 'update']
-        );
-        $acl->deny(
-            [Acl::ROLE_GUEST],
-            [
-                'Omeka\Controller\Admin\Asset',
-                'Omeka\Controller\Admin\Index',
-                'Omeka\Controller\Admin\Item',
-                'Omeka\Controller\Admin\ItemSet',
-                'Omeka\Controller\Admin\Job',
-                'Omeka\Controller\Admin\Media',
-                'Omeka\Controller\Admin\Module',
-                'Omeka\Controller\Admin\Property',
-                'Omeka\Controller\Admin\ResourceClass',
-                'Omeka\Controller\Admin\ResourceTemplate',
-                'Omeka\Controller\Admin\Setting',
-                'Omeka\Controller\Admin\SystemInfo',
-                'Omeka\Controller\Admin\Vocabulary',
-                'Omeka\Controller\Admin\User',
-                'Omeka\Controller\Admin\Vocabulary',
-                'Omeka\Controller\SiteAdmin\Index',
-                'Omeka\Controller\SiteAdmin\Page',
-            ]
-        );
+        $acl
+            ->allow(
+                [Acl::ROLE_GUEST],
+                [\GuestUser\Controller\Site\GuestUserController::class],
+                [
+                    'logout', 'update-account', 'update-email',
+                    'me', 'accept-terms',
+                ]
+            )
+            ->allow(
+                [Acl::ROLE_GUEST],
+                [\Omeka\Entity\User::class],
+                ['read', 'update', 'change-password'],
+                new IsSelfAssertion
+            )
+            ->allow(
+                null,
+                [\Omeka\Api\Adapter\UserAdapter::class],
+                ['read', 'update']
+            )
+            ->deny(
+                [Acl::ROLE_GUEST],
+                [
+                    'Omeka\Controller\Admin\Asset',
+                    'Omeka\Controller\Admin\Index',
+                    'Omeka\Controller\Admin\Item',
+                    'Omeka\Controller\Admin\ItemSet',
+                    'Omeka\Controller\Admin\Job',
+                    'Omeka\Controller\Admin\Media',
+                    'Omeka\Controller\Admin\Module',
+                    'Omeka\Controller\Admin\Property',
+                    'Omeka\Controller\Admin\ResourceClass',
+                    'Omeka\Controller\Admin\ResourceTemplate',
+                    'Omeka\Controller\Admin\Setting',
+                    'Omeka\Controller\Admin\SystemInfo',
+                    'Omeka\Controller\Admin\Vocabulary',
+                    'Omeka\Controller\Admin\User',
+                    'Omeka\Controller\Admin\Vocabulary',
+                    'Omeka\Controller\SiteAdmin\Index',
+                    'Omeka\Controller\SiteAdmin\Page',
+                ]
+            );
     }
 
     /**
