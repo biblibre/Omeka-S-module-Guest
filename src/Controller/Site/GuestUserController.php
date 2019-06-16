@@ -451,10 +451,11 @@ class GuestUserController extends AbstractActionController
                 ]);
             }
 
-            $existUser = $this->api()->searchOne('users', ['email' => $email])->getContent();
+            $existUser = $this->getEntityManager()->getRepository(User::class)
+                ->findOneBy(['email' => $email]);
             if ($existUser) {
                 // Avoid a hack of the database.
-                sleep(1);
+                sleep(2);
                 return new JsonModel([
                     'result' => 'error',
                     'message' => new PsrMessage('The email "{email}" is not yours.', ['email' => $email]), // @translate
@@ -497,10 +498,11 @@ class GuestUserController extends AbstractActionController
             return $view;
         }
 
-        $existUser = $this->api()->searchOne('users', ['email' => $email])->getContent();
+        $existUser = $this->getEntityManager()->getRepository(User::class)
+            ->findOneBy(['email' => $email]);
         if ($existUser) {
             // Avoid a hack of the database.
-            sleep(1);
+            sleep(2);
             $this->messenger()->addError(new PsrMessage('The email "{email}" is not yours.', ['email' => $email])); // @translate
             return $view;
         }
