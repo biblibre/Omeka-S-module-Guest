@@ -17,4 +17,8 @@ $urlHelper = $this->plugin('url');
         <?php $url = $urlHelper('site/guest-user', ['action' => 'update-email'], [], true); ?>
         <?= $hyperlink($translate('Update email'), $url) ?>
     </li>
+    <li>
+        <?php $url = $urlHelper('site/guest-user', ['action' => 'logout'], [], true); ?>
+        <?= $hyperlink($translate('Logout'), $url) ?>
+    </li>
 </ul>
