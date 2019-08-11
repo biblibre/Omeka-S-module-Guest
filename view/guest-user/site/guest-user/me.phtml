@@ -1,19 +1,25 @@
 <?php
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var array $widgets
  */
 
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$setting = $plugins->get('setting');
+$pageTitle = $plugins->get('pageTitle');
+
+$guestUserWidget = $plugins->get('guestUserWidget');
+
 $this->htmlElement('body')->appendAttribute('class', 'guest-user account');
-
-$pageTitle =  $this->setting('guestuser_dashboard_label');
-echo $this->pageTitle($pageTitle);
 ?>
-<?php echo $this->messages(); ?>
 
-<h1><?php $this->pageTitle($pageTitle); ?></h1>
+<?= $pageTitle($translate($setting('guestuser_dashboard_label'))) ?>
 
-<?php foreach ($this->widgets as $widget): ?>
+<?= $this->messages() ?>
+
+<?php foreach ($widgets as $widget): ?>
 <div class="guest-user-widget">
-<?php echo $this->guestUserWidget($widget); ?>
+    <?= $guestUserWidget($widget) ?>
 </div>
 <?php endforeach; ?>

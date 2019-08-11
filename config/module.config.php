@@ -107,7 +107,7 @@ return [
             'guestuser_recaptcha' => false,
             'guestuser_login_text' => 'Login', // @translate
             'guestuser_register_text' => 'Register', // @translate
-            'guestuser_dashboard_label' => 'My Account', // @translate
+            'guestuser_dashboard_label' => 'My dashboard', // @translate
             'guestuser_capabilities' => '',
             'guestuser_short_capabilities' => '',
             'guestuser_message_confirm_email' => '<p>Hi {user_name},</p>

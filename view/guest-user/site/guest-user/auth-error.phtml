@@ -5,7 +5,12 @@
 
 $translate = $this->plugin('translate');
 ?>
-<h1><?php echo $translate('Authentication error'); ?></h1>
 
-<p><?php echo $translate('An error occurred during the authentication via a third party authenticator.'); ?></p>
-<p><?php echo $translate('Contact your administrator for more information.'); ?></p>
+<h1><?= $translate('Authentication error') ?></h1>
+
+<p>
+    <?= $translate('An error occurred during the authentication via a third party authenticator.') ?>
+</p>
+<p>
+    <?= $translate('Contact your administrator for more information.') ?>
+</p>

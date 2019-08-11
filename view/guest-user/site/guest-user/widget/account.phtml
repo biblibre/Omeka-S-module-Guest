@@ -4,15 +4,17 @@
  */
 
 $translate = $this->plugin('translate');
+$hyperlink = $this->plugin('hyperlink');
 $urlHelper = $this->plugin('url');
 ?>
+
 <ul>
     <li>
         <?php $url = $urlHelper('site/guest-user', ['action' => 'update-account'], [], true); ?>
-        <?php echo $this->hyperlink($translate('Update account info and password'), $url); ?>
+        <?= $hyperlink($translate('Update account info and password'), $url) ?>
     </li>
     <li>
         <?php $url = $urlHelper('site/guest-user', ['action' => 'update-email'], [], true); ?>
-        <?php echo $this->hyperlink($translate('Update email'), $url); ?>
+        <?= $hyperlink($translate('Update email'), $url) ?>
     </li>
 </ul>

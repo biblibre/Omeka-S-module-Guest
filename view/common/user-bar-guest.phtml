@@ -19,8 +19,8 @@ $adminRights = isset($user) && $this->userIsAllowed('Omeka\Controller\Admin\Inde
 <?php if (isset($user)): ?>
     <div class="site-links">
     <?php foreach ($links as $link): ?>
-        <span class="admin <?php echo $link['resource'] . ' ' . $link['action']; ?>">
-            <?php echo $hyperlink($link['text'], $link['url']); ?>
+        <span class="admin <?= $link['resource'] . ' ' . $link['action'] ?>">
+            <?= $hyperlink($link['text'], $link['url']) ?>
         </span>
     <?php endforeach; ?>
     </div>
