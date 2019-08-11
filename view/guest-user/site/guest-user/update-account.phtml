@@ -5,6 +5,7 @@
  */
 
 $translate = $this->plugin('translate');
+
 $this->htmlElement('body')->appendAttribute('class', 'guest-user account');
 $form->prepare();
 ?>
@@ -14,12 +15,11 @@ $form->prepare();
 <?= $this->pageTitle($this->label) ?>
 
 <?= $this->form()->openTag($form) ?>
+<?= $this->formCollection($form, false) ?>
+<?php $this->trigger('view.add.form.after'); ?>
 <div id="page-actions">
     <button><?= $translate('Update') ?></button>
 </div>
-
-<?= $this->formCollection($form, false) ?>
-<?php $this->trigger('view.add.form.after'); ?>
 <?= $this->form()->closeTag() ?>
 
 <?php $this->trigger('view.add.after'); ?>

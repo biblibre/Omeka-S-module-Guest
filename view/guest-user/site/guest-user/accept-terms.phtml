@@ -19,12 +19,11 @@ $form->prepare();
 <?= $text ?>
 
 <?= $this->form()->openTag($form) ?>
+<?= $this->formCollection($form, false) ?>
+<?php $this->trigger('view.add.form.after'); ?>
 <div id="page-actions">
     <button><?= $translate('Accept') ?></button>
 </div>
-
-<?= $this->formCollection($form, false) ?>
-<?php $this->trigger('view.add.form.after'); ?>
 <?= $this->form()->closeTag() ?>
 
 <?php if ($page): ?>

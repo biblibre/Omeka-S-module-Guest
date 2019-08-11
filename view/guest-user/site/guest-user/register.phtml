@@ -6,6 +6,7 @@
  */
 
 $translate = $this->plugin('translate');
+
 $this->htmlElement('body')->appendAttribute('class', 'guest-user register');
 $form->prepare();
 ?>
@@ -13,14 +14,14 @@ $form->prepare();
 <?= $this->messages() ?>
 
 <?= $this->pageTitle($translate('Register')) ?>
+<label><?= $registerLabel ?></label>
+
 <?= $this->form()->openTag($form) ?>
+<?= $this->formCollection($form, false) ?>
+<?php $this->trigger('view.add.form.after'); ?>
 <div id="page-actions">
     <button><?= $translate('Register') ?></button>
 </div>
-<label ><?= $registerLabel ?></label>
-
-<?=  $this->formCollection($form, false) ?>
-<?php $this->trigger('view.add.form.after'); ?>
 <?= $this->form()->closeTag() ?>
 
 <?php $this->trigger('view.add.after'); ?>
