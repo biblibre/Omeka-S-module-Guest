@@ -1,8 +1,8 @@
 <?php
 namespace GuestUser\Site\Navigation\Link;
 
-use Omeka\Site\Navigation\Link\LinkInterface;
 use Omeka\Api\Representation\SiteRepresentation;
+use Omeka\Site\Navigation\Link\LinkInterface;
 use Omeka\Stdlib\ErrorStore;
 
 class Login implements LinkInterface

@@ -54,6 +54,7 @@ return [
         'invokables' => [
             'register' => Site\Navigation\Link\Register::class,
             'login' => Site\Navigation\Link\Login::class,
+            'loginBoard' => Site\Navigation\Link\LoginBoard::class,
             'logout' => Site\Navigation\Link\Logout::class,
         ],
     ],
