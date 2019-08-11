@@ -227,19 +227,30 @@ class Module extends AbstractModule
             return;
         }
 
-        $acl
-            ->allow(
-                [\GuestUser\Permissions\Acl::ROLE_GUEST],
-                [\Basket\Entity\BasketItem::class]
-            )
-            ->allow(
-                [\GuestUser\Permissions\Acl::ROLE_GUEST],
-                [\Basket\Api\Adapter\BasketItemAdapter::class]
-            )
-            ->allow(
-                [\GuestUser\Permissions\Acl::ROLE_GUEST],
-                ['Basket\Controller\Index']
+        // Compatibility with old vesion of Basket.
+        if ($acl->hasResource('Basket\Controller\Index')) {
+            $acl
+                ->allow(
+                    [\GuestUser\Permissions\Acl::ROLE_GUEST],
+                    [
+                        \Basket\Entity\BasketItem::class,
+                        \Basket\Api\Adapter\BasketItemAdapter::class,
+                        'Basket\Controller\Site\Basket',
+                        'Basket\Controller\Site\GuestBoard',
+                    ]
             );
+        } else {
+            $acl
+                ->allow(
+                    [\GuestUser\Permissions\Acl::ROLE_GUEST],
+                    [
+                        \Basket\Entity\BasketItem::class,
+                        \Basket\Api\Adapter\BasketItemAdapter::class,
+                        'Basket\Controller\Site\Basket',
+                        'Basket\Controller\Site\GuestBoard',
+                    ]
+            );
+        }
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
