@@ -245,9 +245,20 @@ class GuestUserController extends AbstractActionController
 
         // TODO Add password required only for login.
         $values = $form->getData();
-        if (empty($values['change-password']['password'])) {
-            $this->messenger()->addError('A password must be set.'); // @translate
-            return $view;
+
+        // Manage old and new user forms (Omeka 1.4).
+        if (array_key_exists('password', $values['change-password'])) {
+            if (empty($values['change-password']['password'])) {
+                $this->messenger()->addError('A password must be set.'); // @translate
+                return $view;
+            }
+            $password = $values['change-password']['password'];
+        } else {
+            if (empty($values['change-password']['password-confirm']['password'])) {
+                $this->messenger()->addError('A password must be set.'); // @translate
+                return $view;
+            }
+            $password = $values['change-password']['password-confirm']['password'];
         }
 
         $userInfo = $values['user-information'];
@@ -276,7 +287,7 @@ class GuestUserController extends AbstractActionController
         }
 
         $user = $response->getContent()->getEntity();
-        $user->setPassword($values['change-password']['password']);
+        $user->setPassword($password);
         $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
         // The account is active, but not confirmed, so login is not possible.
         // Guest user has no right to set active his account.
@@ -382,9 +393,14 @@ class GuestUserController extends AbstractActionController
             }
         }
 
-        $passwordValues = $values['change-password'];
+        // Manage old and new user forms (Omeka 1.4).
+        if (array_key_exists('password', $values['change-password'])) {
+            $passwordValues = $values['change-password'];
+        } else {
+            $passwordValues = $values['change-password']['password-confirm'];
+        }
         if (!empty($passwordValues['password'])) {
-            // TODO Add a current password check when update account.
+            // TODO Add a current password check when update account. Check is done in Omeka 1.4.
             // if (!$user->verifyPassword($passwordValues['current-password'])) {
             //     $this->messenger()->addError('The current password entered was invalid'); // @translate
             //     return $view;
