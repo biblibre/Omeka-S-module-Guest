@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright BibLibre, 2016
- * Copyright Daniel Berthereau, 2017-2018
+ * Copyright Daniel Berthereau, 2017-2019
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -29,10 +29,14 @@
 
 namespace GuestUser;
 
-require_once __DIR__ . '/src/Module/AbstractGenericModule.php';
+if (!class_exists(\Generic\AbstractModule::class)) {
+    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
+        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
+        : __DIR__ . '/src/Generic/AbstractModule.php';
+}
 
+use Generic\AbstractModule;
 use GuestUser\Entity\GuestUserToken;
-use GuestUser\Module\AbstractGenericModule;
 use GuestUser\Permissions\Acl;
 use GuestUser\Stdlib\PsrMessage;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
@@ -45,8 +49,10 @@ use Zend\Permissions\Acl\Acl as ZendAcl;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\View\Renderer\PhpRenderer;
 
-class Module extends AbstractGenericModule
+class Module extends AbstractModule
 {
+    const NAMESPACE = __NAMESPACE__;
+
     /**
      * {@inheritDoc}
      * @see \Omeka\Module\AbstractModule::onBootstrap()
@@ -222,18 +228,19 @@ class Module extends AbstractGenericModule
             return;
         }
 
-        $acl->allow(
-            [\GuestUser\Permissions\Acl::ROLE_GUEST],
-            [\Basket\Entity\BasketItem::class]
-        );
-        $acl->allow(
-            [\GuestUser\Permissions\Acl::ROLE_GUEST],
-            [\Basket\Api\Adapter\BasketItemAdapter::class]
-        );
-        $acl->allow(
-            [\GuestUser\Permissions\Acl::ROLE_GUEST],
-            ['Basket\Controller\Index']
-        );
+        $acl
+            ->allow(
+                [\GuestUser\Permissions\Acl::ROLE_GUEST],
+                [\Basket\Entity\BasketItem::class]
+            )
+            ->allow(
+                [\GuestUser\Permissions\Acl::ROLE_GUEST],
+                [\Basket\Api\Adapter\BasketItemAdapter::class]
+            )
+            ->allow(
+                [\GuestUser\Permissions\Acl::ROLE_GUEST],
+                ['Basket\Controller\Index']
+            );
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
