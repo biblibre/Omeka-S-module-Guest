@@ -14,13 +14,13 @@ class Register implements LinkInterface
 
     public function getFormTemplate()
     {
-        return 'common/navigation-link-form/login';
+        return 'common/navigation-link-form/label';
     }
 
     public function isValid(array $data, ErrorStore $errorStore)
     {
         if (!isset($data['label'])) {
-            $errorStore->addError('o:navigation', 'Invalid navigation: register link missing label');
+            $errorStore->addError('o:navigation', sprintf('Invalid navigation: link without label (%s)', $this->getName())); // @translate
             return false;
         }
         return true;
@@ -28,7 +28,7 @@ class Register implements LinkInterface
 
     public function getLabel(array $data, SiteRepresentation $site)
     {
-        return isset($data['label']) && '' !== trim($data['label'])
+        return isset($data['label']) && trim($data['label']) !== ''
             ? $data['label']
             : 'Register'; // @translate
     }
@@ -50,7 +50,7 @@ class Register implements LinkInterface
     public function toJstree(array $data, SiteRepresentation $site)
     {
         return [
-            'label' => $data['label'],
+            'label' => isset($data['label']) ? trim($data['label']) : '',
         ];
     }
 }
