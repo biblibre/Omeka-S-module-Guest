@@ -47,7 +47,6 @@ use Zend\Mvc\Controller\AbstractController;
 use Zend\Mvc\MvcEvent;
 use Zend\Permissions\Acl\Acl as ZendAcl;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\View\Renderer\PhpRenderer;
 
 class Module extends AbstractModule
 {
@@ -270,12 +269,6 @@ class Module extends AbstractModule
             'view.edit.form.before',
             [$this, 'addUserFormValue']
         );
-    }
-
-    public function getConfigForm(PhpRenderer $renderer)
-    {
-        $renderer->ckEditor();
-        return parent::getConfigForm($renderer);
     }
 
     public function handleConfigForm(AbstractController $controller)
