@@ -97,11 +97,16 @@ class Module extends AbstractModule
      */
     protected function addAclRoleAndRules()
     {
-        /** @var \Zend\Permissions\Acl $acl */
+        /** @var \Omeka\Permissions\Acl $acl */
         $services = $this->getServiceLocator();
         $acl = $services->get('Omeka\Acl');
 
-        $acl->addRole(Acl::ROLE_GUEST);
+        // This check allows to add the role "guest" by dependencies without
+        // complex process. It avoids issues when the module is disabled too.
+        // TODO Find a way to set the role "guest" during init or via Omeka\Service\AclFactory (allowing multiple delegators).
+        if (!$acl->hasRole(Acl::ROLE_GUEST)) {
+            $acl->addRole(Acl::ROLE_GUEST);
+        }
         $acl->addRoleLabel(Acl::ROLE_GUEST, 'Guest'); // @translate
 
         $this->addRulesForSites($acl);
