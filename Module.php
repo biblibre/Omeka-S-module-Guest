@@ -67,6 +67,9 @@ class Module extends AbstractModule
 
     public function install(ServiceLocatorInterface $serviceLocator)
     {
+        $this->setServiceLocator($serviceLocator);
+        $hasOldGuestUser = $this->checkOldGuestUser();
+
         parent::install($serviceLocator);
 
         $settings = $serviceLocator->get('Omeka\Settings');
@@ -82,6 +85,10 @@ class Module extends AbstractModule
                     $settings->set($name, $value);
                     break;
             }
+        }
+
+        if ($hasOldGuestUser) {
+            require_once __DIR__ . '/data/scripts/upgrade_guest_user.php';
         }
     }
 
@@ -455,5 +462,49 @@ SQL;
             $em->persist($user);
         }
         $em->flush();
+    }
+
+    /**
+     * Check if an old version of module GuestUser is installed.
+     *
+     * @throws \Omeka\Module\Exception\ModuleCannotInstallException
+     * @return bool
+     */
+    protected function checkOldGuestUser()
+    {
+        $services = $this->getServiceLocator();
+        $hasGuestUser = false;
+        $hasOldGuestUser = false;
+
+        /** @var \Omeka\Module\Manager $moduleManager */
+        $moduleManager = $services->get('Omeka\ModuleManager');
+        $module = $moduleManager->getModule('GuestUser');
+        $hasGuestUser = (bool) $module;
+        if (!$hasGuestUser) {
+            return false;
+        }
+
+        $translator = $services->get('MvcTranslator');
+        $hasOldGuestUser = version_compare($module->getIni('version'), '3.3.5', '<');
+        if ($hasOldGuestUser) {
+            $message = $translator
+                ->translate('This module cannot be used at the same time as module GuestUser for versions lower than 3.3.5. So it should be upgraded first, or disabled. When ready, the users and settings will be upgraded for all versions.'); // @translate
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException($message);
+        }
+
+        $message = new \Omeka\Stdlib\Message(
+            'The module GuestUser is installed. Users and settings from this module are upgraded.' // @translate
+        );
+        $messenger = new \Omeka\Mvc\Controller\Plugin\Messenger();
+        $messenger->addSuccess($message);
+
+        $message = new \Omeka\Stdlib\Message(
+            'To upgrade customized templates from module GuestUser, see %sreadme%s.', // @translate
+            '<a href="https://github.com/Daniel-KM/Omeka-S-module-Guest">',
+            '</a>'
+        );
+        $message->setEscapeHtml(false);
+        $messenger->addWarning($message);
+        return true;
     }
 }
