@@ -27,7 +27,7 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 
-namespace GuestUser;
+namespace Guest;
 
 if (!class_exists(\Generic\AbstractModule::class)) {
     require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
@@ -36,9 +36,9 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
-use GuestUser\Entity\GuestUserToken;
-use GuestUser\Permissions\Acl;
-use GuestUser\Stdlib\PsrMessage;
+use Guest\Entity\GuestToken;
+use Guest\Permissions\Acl;
+use Guest\Stdlib\PsrMessage;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
 use Zend\EventManager\Event;
 use Zend\EventManager\SharedEventManagerInterface;
@@ -55,7 +55,7 @@ class Module extends AbstractModule
     /**
      * {@inheritDoc}
      * @see \Omeka\Module\AbstractModule::onBootstrap()
-     * @todo Find the right way to load GuestUser before other modules in order to add role.
+     * @todo Find the right way to load Guest before other modules in order to add role.
      */
     public function onBootstrap(MvcEvent $event)
     {
@@ -75,9 +75,9 @@ class Module extends AbstractModule
         $space = strtolower(__NAMESPACE__);
         foreach ($config[$space]['config'] as $name => $value) {
             switch ($name) {
-                case 'guestuser_login_text':
-                case 'guestuser_register_text':
-                case 'guestuser_dashboard_label':
+                case 'guest_login_text':
+                case 'guest_register_text':
+                case 'guest_dashboard_label':
                     $value = $t->translate($value);
                     $settings->set($name, $value);
                     break;
@@ -87,7 +87,7 @@ class Module extends AbstractModule
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
-        $this->deactivateGuestUsers($serviceLocator);
+        $this->deactivateGuests($serviceLocator);
 
         parent::uninstall($serviceLocator);
     }
@@ -110,7 +110,7 @@ class Module extends AbstractModule
         $acl->addRoleLabel(Acl::ROLE_GUEST, 'Guest'); // @translate
 
         $settings = $services->get('Omeka\Settings');
-        $isOpenRegister = $settings->get('guestuser_open', false);
+        $isOpenRegister = $settings->get('guest_open', false);
         $this->addRulesForAnonymous($acl, $isOpenRegister);
         $this->addRulesForGuest($acl);
     }
@@ -126,7 +126,7 @@ class Module extends AbstractModule
         $acl
             ->allow(
                 null,
-                [\GuestUser\Controller\Site\AnonymousController::class]
+                [\Guest\Controller\Site\AnonymousController::class]
             );
         if ($isOpenRegister) {
             $acl
@@ -146,7 +146,7 @@ class Module extends AbstractModule
             $acl
                 ->deny(
                     null,
-                    [\GuestUser\Controller\Site\AnonymousController::class],
+                    [\Guest\Controller\Site\AnonymousController::class],
                     ['register']
                 );
         }
@@ -162,7 +162,7 @@ class Module extends AbstractModule
         $acl
             ->allow(
                 [Acl::ROLE_GUEST],
-                [\GuestUser\Controller\Site\GuestUserController::class]
+                [\Guest\Controller\Site\GuestController::class]
             )
             ->allow(
                 [Acl::ROLE_GUEST],
@@ -214,7 +214,7 @@ class Module extends AbstractModule
             [$this, 'deleteGuestToken']
         );
 
-        // Add the guest user element form to the user form.
+        // Add the guest element form to the user form.
         $sharedEventManager->attach(
             \Omeka\Form\UserForm::class,
             'form.add_elements',
@@ -237,15 +237,15 @@ class Module extends AbstractModule
 
         $services = $this->getServiceLocator();
         $params = $controller->getRequest()->getPost();
-        switch ($params['guestuser_reset_agreement_terms']) {
+        switch ($params['guest_reset_agreement_terms']) {
             case 'unset':
                 $this->resetAgreementsBySql($services, false);
-                $message = new PsrMessage('All guest users must agreed the terms one more time.'); // @translate
+                $message = new PsrMessage('All guests must agreed the terms one more time.'); // @translate
                 $controller->messenger()->addSuccess($message);
                 break;
             case 'set':
                 $this->resetAgreementsBySql($services, true);
-                $message = new PsrMessage('All guest users agreed the terms.'); // @translate
+                $message = new PsrMessage('All guests agreed the terms.'); // @translate
                 $controller->messenger()->addSuccess($message);
                 break;
         }
@@ -281,7 +281,7 @@ class Module extends AbstractModule
 
             $fieldset = $form->get('user-settings');
             $fieldset->add([
-                'name' => 'guestuser_agreed_terms',
+                'name' => 'guest_agreed_terms',
                 'type' => Element\Checkbox::class,
                 'options' => [
                     'label' => 'Agreed terms', // @translate
@@ -297,7 +297,7 @@ class Module extends AbstractModule
         // Admin board.
         $fieldset = $form->get('user-settings');
         $fieldset->add([
-            'name' => 'guestuser_agreed_terms',
+            'name' => 'guest_agreed_terms',
             'type' => Element\Checkbox::class,
             'options' => [
                 'label' => 'Agreed terms', // @translate
@@ -312,13 +312,13 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $userSettings = $services->get('Omeka\Settings\User');
         $userSettings->setTargetId($user->id());
-        $guestUserSettings = [
-            'guestuser_agreed_terms',
+        $guestSettings = [
+            'guest_agreed_terms',
         ];
         $space = strtolower(__NAMESPACE__);
         $config = $services->get('Config')[$space]['user_settings'];
         $fieldset = $form->get('user-settings');
-        foreach ($guestUserSettings as $name) {
+        foreach ($guestSettings as $name) {
             $fieldset->get($name)->setAttribute(
                 'value',
                 $userSettings->get($name, $config[$name])
@@ -332,7 +332,7 @@ class Module extends AbstractModule
 
         $em = $this->getServiceLocator()->get('Omeka\EntityManager');
         $id = $request->getId();
-        $user = $em->getRepository(GuestUserToken::class)->findOneBy(['user' => $id]);
+        $user = $em->getRepository(GuestToken::class)->findOneBy(['user' => $id]);
         if (empty($user)) {
             return;
         }
@@ -341,7 +341,7 @@ class Module extends AbstractModule
     }
 
     /**
-     * Check if the guest user accept agreement.
+     * Check if the guest accept agreement.
      *
      * @param MvcEvent $event
      */
@@ -354,12 +354,12 @@ class Module extends AbstractModule
         }
 
         $user = $auth->getIdentity();
-        if ($user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
+        if ($user->getRole() !== \Guest\Permissions\Acl::ROLE_GUEST) {
             return;
         }
 
         $userSettings = $services->get('Omeka\Settings\User');
-        if ($userSettings->get('guestuser_agreed_terms')) {
+        if ($userSettings->get('guest_agreed_terms')) {
             return;
         }
 
@@ -373,12 +373,12 @@ class Module extends AbstractModule
         $requestUriBase = strtok($requestUri, '?');
 
         $settings = $services->get('Omeka\Settings');
-        $page = $settings->get('guestuser_terms_page');
-        $regex = $settings->get('guestuser_terms_request_regex');
+        $page = $settings->get('guest_terms_page');
+        $regex = $settings->get('guest_terms_request_regex');
         if ($page) {
             $regex .= ($regex ? '|' : '') . 'page/' . $page;
         }
-        $regex = '~/(|' . $regex . '|maintenance|login|logout|migrate|guest-user/accept-terms)$~';
+        $regex = '~/(|' . $regex . '|maintenance|login|logout|migrate|guest/accept-terms)$~';
         if (preg_match($regex, $requestUriBase)) {
             return;
         }
@@ -393,7 +393,7 @@ class Module extends AbstractModule
         if (empty($matches[1])) {
             $acceptUri = $baseUrl;
         } else {
-            $acceptUri = $baseUrl . '/s/' . $matches[1] . '/guest-user/accept-terms';
+            $acceptUri = $baseUrl . '/s/' . $matches[1] . '/guest/accept-terms';
         }
 
         $response = $event->getResponse();
@@ -404,7 +404,7 @@ class Module extends AbstractModule
     }
 
     /**
-     * Reset all guest user agreements.
+     * Reset all guest agreements.
      *
      * @param bool $reset
      */
@@ -413,16 +413,16 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $userSettings = $services->get('Omeka\Settings\User');
         $entityManager = $services->get('Omeka\EntityManager');
-        $guestUsers = $entityManager->getRepository('Omeka\Entity\User')
+        $guests = $entityManager->getRepository('Omeka\Entity\User')
             ->findBy(['role' => Acl::ROLE_GUEST]);
-        foreach ($guestUsers as $user) {
+        foreach ($guests as $user) {
             $userSettings->setTargetId($user->getId());
-            $userSettings->set('guestuser_agreed_terms', $reset);
+            $userSettings->set('guest_agreed_terms', $reset);
         }
     }
 
     /**
-     * Reset all guest user agreements via sql (quicker for big base).
+     * Reset all guest agreements via sql (quicker for big base).
      *
      * @param ServiceLocatorInterface $serviceLocator
      * @param bool $reset
@@ -432,10 +432,10 @@ class Module extends AbstractModule
         $reset = $reset ? 'true' : 'false';
         $sql = <<<SQL
 DELETE FROM user_setting
-WHERE id="guestuser_agreed_terms";
+WHERE id="guest_agreed_terms";
 
 INSERT INTO user_setting (id, user_id, value)
-SELECT "guestuser_agreed_terms", user.id, "$reset"
+SELECT "guest_agreed_terms", user.id, "$reset"
 FROM user
 WHERE role="guest";
 SQL;
@@ -446,11 +446,11 @@ SQL;
         }
     }
 
-    protected function deactivateGuestUsers($serviceLocator)
+    protected function deactivateGuests($serviceLocator)
     {
         $em = $serviceLocator->get('Omeka\EntityManager');
-        $guestUsers = $em->getRepository(\Omeka\Entity\User::class)->findBy(['role' => 'guest']);
-        foreach ($guestUsers as $user) {
+        $guests = $em->getRepository(\Omeka\Entity\User::class)->findBy(['role' => 'guest']);
+        foreach ($guests as $user) {
             $user->setIsActive(false);
             $em->persist($user);
         }

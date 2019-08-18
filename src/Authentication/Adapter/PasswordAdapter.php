@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\Authentication\Adapter;
+namespace Guest\Authentication\Adapter;
 
 use Omeka\Authentication\Adapter\PasswordAdapter as OmekaPasswordAdapter;
 use Zend\Authentication\Result;

@@ -1,7 +1,7 @@
 <?php
-namespace GuestUser\Service\ControllerPlugin;
+namespace Guest\Service\ControllerPlugin;
 
-use GuestUser\Mvc\Controller\Plugin\SendEmail;
+use Guest\Mvc\Controller\Plugin\SendEmail;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 

@@ -1,14 +1,14 @@
 <?php
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
- * @var \GuestUser\Form\AcceptTermsForm $form
+ * @var \Guest\Form\AcceptTermsForm $form
  * @var string $text
  * @var string $page
  */
 
 $translate = $this->plugin('translate');
 
-$this->htmlElement('body')->appendAttribute('class', 'guest-user accept-terms');
+$this->htmlElement('body')->appendAttribute('class', 'guest accept-terms');
 $form->prepare();
 ?>
 

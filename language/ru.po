@@ -8,7 +8,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Omeka\n"
-"Report-Msgid-Bugs-To: http://github.com/omeka/plugin-GuestUser/issues\n"
+"Report-Msgid-Bugs-To: http://github.com/omeka/plugin-Guest/issues\n"
 "POT-Creation-Date: 2012-01-09 21:49-0500\n"
 "PO-Revision-Date: 2014-01-29 10:13+0000\n"
 "Last-Translator: Mikhail Shvartsman <Shvar@rsl.ru>\n"
@@ -22,29 +22,29 @@ msgstr ""
 msgid "Guest"
 msgstr "Гость"
 
-#: GuestUserPlugin.php:75 GuestUserPlugin.php:184
+#: GuestPlugin.php:75 GuestPlugin.php:184
 msgid "Login"
 msgstr "Логин"
 
-#: GuestUserPlugin.php:76 GuestUserPlugin.php:185
+#: GuestPlugin.php:76 GuestPlugin.php:185
 #: controllers/UserController.php:225 views/public/user/register.php:6
 msgid "Register"
 msgstr "Зарегистрироваться"
 
-#: GuestUserPlugin.php:208
+#: GuestPlugin.php:208
 msgid "My Account"
 msgstr "Моя учётная запись"
 
-#: GuestUserPlugin.php:212
+#: GuestPlugin.php:212
 msgid "Update account info and password"
 msgstr "Обновить информацию об учётной записи и пароле"
 
-#: GuestUserPlugin.php:225
+#: GuestPlugin.php:225
 #, php-format
 msgid "Your %s account"
 msgstr "Ваша %s учётная запись"
 
-#: GuestUserPlugin.php:226
+#: GuestPlugin.php:226
 msgid ""
 "An admin has made your account active. You can now log in with your password"
 msgstr "Администратор активировал вашу учётную запись. Теперь вы можете войти в неё, используя пароль."
@@ -56,7 +56,7 @@ msgstr "Особенности регистрации"
 #: config_form.php:8
 msgid ""
 "Add some text to the registration screen so people will know what they get for registering.\n"
-"        As you enable and configure plugins that make use of the guest user, please give them guidance\n"
+"        As you enable and configure plugins that make use of the guest, please give them guidance\n"
 "        about what they can and cannot do."
 msgstr "Добавьте некоторый текст для регистрационной формы: таким образом люди будут знать, что они получают при регистрации.\nПоскольку вы активируете и конфигурируете плагины для гостевых пользователей, пожалуйста,\nпредоставьте им указания, что они могут делать, а что нет."
 
@@ -99,7 +99,7 @@ msgid "Allow open registration?"
 msgstr "Разрешить открытую регистрацию?"
 
 #: config_form.php:74
-msgid "Allow guest user registration without administrator approval?"
+msgid "Allow guest registration without administrator approval?"
 msgstr "Разрешить гостевую регистрацию без одобрения администратора?"
 
 #: config_form.php:92

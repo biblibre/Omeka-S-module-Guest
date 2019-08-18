@@ -1,26 +1,24 @@
 <?php
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
- * @var \GuestUser\Form\UserForm $form
- * @var string $registerLabel
+ * @var \Omeka\Form\UserForm $form
  */
 
 $translate = $this->plugin('translate');
 
-$this->htmlElement('body')->appendAttribute('class', 'guest-user register');
+$this->htmlElement('body')->appendAttribute('class', 'guest account');
 $form->prepare();
 ?>
 
 <?= $this->messages() ?>
 
-<?= $this->pageTitle($translate('Register')) ?>
-<label><?= $registerLabel ?></label>
+<?= $this->pageTitle($this->label) ?>
 
 <?= $this->form()->openTag($form) ?>
 <?= $this->formCollection($form, false) ?>
 <?php $this->trigger('view.add.form.after'); ?>
 <div id="page-actions">
-    <button><?= $translate('Register') ?></button>
+    <button><?= $translate('Update') ?></button>
 </div>
 <?= $this->form()->closeTag() ?>
 

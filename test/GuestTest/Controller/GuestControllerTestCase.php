@@ -1,11 +1,11 @@
 <?php
 
-namespace GuestUserTest\Controller;
+namespace GuestTest\Controller;
 
 use OmekaTestHelper\Controller\OmekaControllerTestCase;
-use GuestUserTest\Service\MockMailerFactory;
+use GuestTest\Service\MockMailerFactory;
 
-abstract class GuestUserControllerTestCase extends OmekaControllerTestCase
+abstract class GuestControllerTestCase extends OmekaControllerTestCase
 {
     protected $testSite;
     protected $testUser;
@@ -31,7 +31,7 @@ abstract class GuestUserControllerTestCase extends OmekaControllerTestCase
     {
         $serviceLocator = $this->getServiceLocator();
         $config = $serviceLocator->get('Config');
-        $config['service_manager']['factories']['Omeka\Mailer'] = 'GuestUserTest\Service\MockMailerFactory';
+        $config['service_manager']['factories']['Omeka\Mailer'] = 'GuestTest\Service\MockMailerFactory';
         $serviceLocator->setAllowOverride(true);
         $serviceLocator->setService('Config', $config);
         $serviceLocator->setFactory('Omeka\Mailer', new MockMailerFactory);

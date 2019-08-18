@@ -9,17 +9,17 @@ $translate = $plugins->get('translate');
 $setting = $plugins->get('setting');
 $pageTitle = $plugins->get('pageTitle');
 
-$guestUserWidget = $plugins->get('guestUserWidget');
+$guestWidget = $plugins->get('guestWidget');
 
-$this->htmlElement('body')->appendAttribute('class', 'guest-user account');
+$this->htmlElement('body')->appendAttribute('class', 'guest account');
 ?>
 
-<?= $pageTitle($translate($setting('guestuser_dashboard_label'))) ?>
+<?= $pageTitle($translate($setting('guest_dashboard_label'))) ?>
 
 <?= $this->messages() ?>
 
 <?php foreach ($widgets as $widget): ?>
-<div class="guest-user-widget">
-    <?= $guestUserWidget($widget) ?>
+<div class="guest-widget">
+    <?= $guestWidget($widget) ?>
 </div>
 <?php endforeach; ?>

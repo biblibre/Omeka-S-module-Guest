@@ -1,6 +1,6 @@
 <?php
 
-namespace GuestUser\Stdlib;
+namespace Guest\Stdlib;
 
 use Zend\I18n\Translator\TranslatorAwareInterface;
 use Zend\I18n\Translator\TranslatorAwareTrait;

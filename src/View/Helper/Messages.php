@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\View\Helper;
+namespace Guest\View\Helper;
 
 use Omeka\Mvc\Controller\Plugin\Messenger;
 use Omeka\Stdlib\Message;
@@ -58,7 +58,7 @@ class Messages extends AbstractHelper
             foreach ($messages as $message) {
                 $escapeHtml = true; // escape HTML by default
                 // "instanceof PsrMessage" cannot be used, since it can be
-                // another object (PsrMessage from Log or GuestUser, etc.), as
+                // another object (PsrMessage from Log or Guest, etc.), as
                 // long as it's not in the core or in a specific module.
                 if ($message instanceof TranslatorAwareInterface) {
                     $escapeHtml = $message->escapeHtml();

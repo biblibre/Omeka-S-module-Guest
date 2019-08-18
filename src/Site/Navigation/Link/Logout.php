@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\Site\Navigation\Link;
+namespace Guest\Site\Navigation\Link;
 
 use Omeka\Site\Navigation\Link\LinkInterface;
 use Omeka\Api\Representation\SiteRepresentation;
@@ -37,11 +37,11 @@ class Logout implements LinkInterface
     {
         return [
             'label' => $data['label'],
-            'route' => 'site/guest-user/guest',
+            'route' => 'site/guest/guest',
             'class' => 'logout-link',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => \GuestUser\Controller\Site\GuestUserController::class,
+                'controller' => \Guest\Controller\Site\GuestController::class,
                 'action' => 'logout',
             ],
         ];

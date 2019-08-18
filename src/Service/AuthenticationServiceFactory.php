@@ -1,8 +1,8 @@
 <?php
-namespace GuestUser\Service;
+namespace Guest\Service;
 
-use GuestUser\Authentication\Adapter\PasswordAdapter;
-use GuestUser\Entity\GuestUserToken;
+use Guest\Authentication\Adapter\PasswordAdapter;
+use Guest\Entity\GuestToken;
 use Interop\Container\ContainerInterface;
 use Omeka\Authentication\Adapter\KeyAdapter;
 use Omeka\Authentication\Storage\DoctrineWrapper;
@@ -27,7 +27,7 @@ class AuthenticationServiceFactory implements FactoryInterface
      */
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
-        // Copy of the Omeka service, with a Guest User password adapter and one
+        // Copy of the Omeka service, with a Guest password adapter and one
         // line to set the token repository.
 
         $entityManager = $services->get('Omeka\EntityManager');
@@ -52,7 +52,7 @@ class AuthenticationServiceFactory implements FactoryInterface
                 // Authenticate using user/password for all other requests.
                 $storage = new DoctrineWrapper(new Session, $userRepository);
                 $adapter = new PasswordAdapter($userRepository);
-                $adapter->setTokenRepository($entityManager->getRepository(GuestUserToken::class));
+                $adapter->setTokenRepository($entityManager->getRepository(GuestToken::class));
             }
         }
 

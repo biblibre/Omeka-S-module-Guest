@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\Site\Navigation\Link;
+namespace Guest\Site\Navigation\Link;
 
 use Omeka\Site\Navigation\Link\LinkInterface;
 use Omeka\Api\Representation\SiteRepresentation;
@@ -37,11 +37,11 @@ class Register implements LinkInterface
     {
         return [
             'label' => $data['label'],
-            'route' => 'site/guest-user/anonymous',
+            'route' => 'site/guest/anonymous',
             'class' => 'register-link',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => \GuestUser\Controller\Site\AnonymousController::class,
+                'controller' => \Guest\Controller\Site\AnonymousController::class,
                 'action' => 'register',
             ],
         ];

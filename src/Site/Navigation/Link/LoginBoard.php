@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\Site\Navigation\Link;
+namespace Guest\Site\Navigation\Link;
 
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Site\Navigation\Link\LinkInterface;
@@ -48,11 +48,11 @@ class LoginBoard implements LinkInterface
         if ($site->getServiceLocator()->get('Omeka\AuthenticationService')->hasIdentity()) {
             return [
                 'label' => $data['label-board'],
-                'route' => 'site/guest-user/guest',
+                'route' => 'site/guest',
                 'class' => 'guest-board-link',
                 'params' => [
                     'site-slug' => $site->slug(),
-                    'controller' => \GuestUser\Controller\Site\GuestUserController::class,
+                    'controller' => \Guest\Controller\Site\GuestController::class,
                     'action' => 'me',
                 ],
             ];
@@ -60,11 +60,11 @@ class LoginBoard implements LinkInterface
 
         return [
             'label' => $data['label-login'],
-            'route' => 'site/guest-user/anonymous',
+            'route' => 'site/guest/anonymous',
             'class' => 'login-link',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => \GuestUser\Controller\Site\AnonymousController::class,
+                'controller' => \Guest\Controller\Site\AnonymousController::class,
                 'action' => 'login',
             ],
         ];

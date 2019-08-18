@@ -27,7 +27,7 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 
-namespace GuestUser\Entity;
+namespace Guest\Entity;
 
 use DateTime;
 use Doctrine\ORM\Event\LifecycleEventArgs;
@@ -38,7 +38,7 @@ use Omeka\Entity\User;
  * @Entity
  * @HasLifecycleCallbacks
  */
-class GuestUserToken extends AbstractEntity
+class GuestToken extends AbstractEntity
 {
     /**
      * @Id

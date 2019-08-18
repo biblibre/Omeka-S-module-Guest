@@ -1,18 +1,18 @@
 <?php
 
-namespace GuestUserTest\Controller;
+namespace GuestTest\Controller;
 
 use Zend\Form\Element\Csrf;
-use GuestUser\Entity\GuestUserToken;
+use Guest\Entity\GuestToken;
 
-class UserControllerTest extends GuestUserControllerTestCase
+class UserControllerTest extends GuestControllerTestCase
 {
-    protected $guestUser;
+    protected $guest;
 
     public function tearDown()
     {
         $this->loginAsAdmin();
-        $this->deleteGuestUser();
+        $this->deleteGuest();
         parent::tearDown();
     }
 
@@ -21,7 +21,7 @@ class UserControllerTest extends GuestUserControllerTestCase
      */
     public function registerShouldDisplayLogin()
     {
-        $this->postDispatch('/s/test/guest-user/register', [
+        $this->postDispatch('/s/test/guest/register', [
             'user-information' => [
                 'o:email' => 'test3@test.fr',
                 'o:name' => 'test',
@@ -41,30 +41,30 @@ class UserControllerTest extends GuestUserControllerTestCase
 
         $mailer = $this->getServiceLocator()->get('Omeka\Mailer');
         $body = $mailer->getMessage()->getBody();
-        $link = '<a href=\''.$siteRepresentation->siteUrl().'/guest-user/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
+        $link = '<a href=\''.$siteRepresentation->siteUrl().'/guest/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
         $this->assertContains('You have registered for an account on '.$link.'Test</a>. Please confirm your registration by following '.$link.'this link</a>.  If you did not request to join Test please disregard this email.', $body);
     }
 
     /**
      * @test
      */
-    public function tokenlinkShouldValidateGuestUser()
+    public function tokenlinkShouldValidateGuest()
     {
-        $user = $this->createGuestUser();
+        $user = $this->createGuest();
         $userToken = $this->getUserToken($user->email());
-        $this->dispatch('/s/test/guest-user/confirm?token='.$userToken->getToken());
+        $this->dispatch('/s/test/guest/confirm?token='.$userToken->getToken());
         $this->assertTrue($userToken->isConfirmed());
-        $this->assertRedirect('guest-user/login');
+        $this->assertRedirect('guest/login');
         $this->assertXPathQueryContentContains('//li[@class="success"]', 'Thanks for joining Test! You can now log using the password you chose.');
     }
 
     /**
      * @test
      */
-    public function wrongTokenlinkShouldNotValidateGuestUser()
+    public function wrongTokenlinkShouldNotValidateGuest()
     {
-        $user = $this->createGuestUser();
-        $this->dispatch('/s/test/guest-user/confirm?token=1234');
+        $user = $this->createGuest();
+        $this->dispatch('/s/test/guest/confirm?token=1234');
 
         $this->assertFalse($this->getUserToken($user->email())->isConfirmed());
     }
@@ -74,13 +74,13 @@ class UserControllerTest extends GuestUserControllerTestCase
      */
     public function updateAccountWithNoPassword()
     {
-        $user = $this->createGuestUser();
+        $user = $this->createGuest();
         $em = $this->getEntityManager();
         $this->getUserToken($user->email())->setConfirmed(true);
         $em->flush();
         $this->login('guest@test.fr', 'test');
 
-        $this->postDispatch('/s/test/guest-user/update-account', [
+        $this->postDispatch('/s/test/guest/update-account', [
             'user-information' => [
                 'o:email' => 'test4@test.fr',
                 'o:name' => 'test2',
@@ -96,13 +96,13 @@ class UserControllerTest extends GuestUserControllerTestCase
      */
     public function deleteUnconfirmedUserShouldRemoveToken()
     {
-        $user = $this->createGuestUser();
+        $user = $this->createGuest();
         $userId = $user->id();
         $em = $this->getEntityManager();
 
-        $this->deleteGuestUser();
+        $this->deleteGuest();
 
-        $userToken = $em->getRepository(GuestUserToken::class)
+        $userToken = $em->getRepository(GuestToken::class)
             ->findOneBy(['user' => $userId]);
         $this->assertNull($userToken);
     }
@@ -117,11 +117,11 @@ class UserControllerTest extends GuestUserControllerTestCase
         session_write_close();
         session_start();
 
-        $user = $this->createGuestUser();
+        $user = $this->createGuest();
         $this->logout();
 
         $csrf = new Csrf('loginform_csrf');
-        $this->postDispatch('/s/test/guest-user/login', [
+        $this->postDispatch('/s/test/guest/login', [
             'email' => 'guest@test.fr',
             'password' => 'test',
             'loginform_csrf' => $csrf->getValue(),
@@ -142,7 +142,7 @@ class UserControllerTest extends GuestUserControllerTestCase
         session_start();
 
         $this->logout();
-        $this->postDispatch('/s/test/guest-user/login', [
+        $this->postDispatch('/s/test/guest/login', [
             'email' => 'test@test.fr',
             'password' => 'test2',
             'csrf' => (new Csrf('csrf'))->getValue(),
@@ -157,9 +157,9 @@ class UserControllerTest extends GuestUserControllerTestCase
      */
     public function logoutShouldLogoutUser()
     {
-        $this->createGuestUser();
+        $this->createGuest();
         $this->login('guest@test.fr', 'test');
-        $this->dispatch('/s/test/guest-user/logout');
+        $this->dispatch('/s/test/guest/logout');
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         $this->assertFalse($auth->hasIdentity());
     }
@@ -169,7 +169,7 @@ class UserControllerTest extends GuestUserControllerTestCase
      */
     public function loginOkShouldRedirect()
     {
-        $this->postDispatch('/s/test/guest-user/login', [
+        $this->postDispatch('/s/test/guest/login', [
             'email' => 'test@test.fr',
             'password' => 'test',
             'csrf' => (new Csrf('csrf'))->getValue(),
@@ -179,14 +179,14 @@ class UserControllerTest extends GuestUserControllerTestCase
         $this->assertRedirect('/s/test');
     }
 
-    protected function createGuestUser()
+    protected function createGuest()
     {
         $em = $this->getEntityManager();
 
         $email = 'guest@test.fr';
         $response = $this->api()->create('users', [
             'o:email' => $email,
-            'o:name' => 'guest-user',
+            'o:name' => 'guest',
             'o:role' => 'guest',
             'o:is_active' => true,
         ]);
@@ -194,7 +194,7 @@ class UserControllerTest extends GuestUserControllerTestCase
         $userEntity = $user->getEntity();
         $userEntity->setPassword('test');
 
-        $guest = new GuestUserToken;
+        $guest = new GuestToken;
         $guest->setEmail($email);
         $guest->setUser($userEntity);
         $guest->setToken(sha1('tOkenS@1t' . microtime()));
@@ -204,23 +204,23 @@ class UserControllerTest extends GuestUserControllerTestCase
         $em->persist($guest);
         $em->flush();
 
-        $this->guestUser = $user;
+        $this->guest = $user;
 
         return $user;
     }
 
-    protected function deleteGuestUser()
+    protected function deleteGuest()
     {
-        if (isset($this->guestUser)) {
-            $this->api()->delete('users', $this->guestUser->id());
-            $this->guestUser = null;
+        if (isset($this->guest)) {
+            $this->api()->delete('users', $this->guest->id());
+            $this->guest = null;
         }
     }
 
     protected function getUserToken($email)
     {
         $em = $this->getEntityManager();
-        $repository = $em->getRepository(GuestUserToken::class);
+        $repository = $em->getRepository(GuestToken::class);
         if ($users = $repository->findBy(['email' => $email])) {
             return array_shift($users);
         }

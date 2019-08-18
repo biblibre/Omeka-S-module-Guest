@@ -1,15 +1,15 @@
 <?php
-namespace GuestUser\Service\Controller\Site;
+namespace Guest\Service\Controller\Site;
 
-use GuestUser\Controller\Site\GuestUserController;
+use Guest\Controller\Site\GuestController;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
-class GuestUserControllerFactory implements FactoryInterface
+class GuestControllerFactory implements FactoryInterface
 {
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
-        return new GuestUserController(
+        return new GuestController(
             $services->get('Omeka\AuthenticationService'),
             $services->get('Omeka\EntityManager'),
             $services->get('Config')

@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\Form;
+namespace Guest\Form;
 
 use Zend\Form\Element;
 use Zend\Form\Form;

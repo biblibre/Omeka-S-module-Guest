@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\View\Helper;
+namespace Guest\View\Helper;
 
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Entity\User;
@@ -46,7 +46,7 @@ class UserBar extends AbstractHelper
             return '';
         }
 
-        $isGuest = $user && $user->getRole() === \GuestUser\Permissions\Acl::ROLE_GUEST;
+        $isGuest = $user && $user->getRole() === \Guest\Permissions\Acl::ROLE_GUEST;
         if ($isGuest) {
             $links = [];
             $partialName = $partialName ?: self::PARTIAL_NAME_GUEST;

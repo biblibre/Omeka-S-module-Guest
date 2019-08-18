@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\Site\Navigation\Link;
+namespace Guest\Site\Navigation\Link;
 
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Site\Navigation\Link\LinkInterface;
@@ -37,11 +37,11 @@ class Login implements LinkInterface
     {
         return [
             'label' => $data['label'],
-            'route' => 'site/guest-user/anonymous',
+            'route' => 'site/guest/anonymous',
             'class' => 'login-link',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => \GuestUser\Controller\Site\AnonymousController::class,
+                'controller' => \Guest\Controller\Site\AnonymousController::class,
                 'action' => 'login',
             ],
         ];

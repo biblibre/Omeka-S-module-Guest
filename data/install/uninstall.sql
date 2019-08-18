@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS guest_user_token;
+DROP TABLE IF EXISTS guest_token;

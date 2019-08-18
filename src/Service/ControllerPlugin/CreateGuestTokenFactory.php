@@ -1,15 +1,15 @@
 <?php
-namespace GuestUser\Service\ControllerPlugin;
+namespace Guest\Service\ControllerPlugin;
 
-use GuestUser\Mvc\Controller\Plugin\CreateGuestUserToken;
+use Guest\Mvc\Controller\Plugin\CreateGuestToken;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
-class CreateGuestUserTokenFactory implements FactoryInterface
+class CreateGuestTokenFactory implements FactoryInterface
 {
     public function __invoke(ContainerInterface $services, $requestedNamed, array $options = null)
     {
-        return new CreateGuestUserToken(
+        return new CreateGuestToken(
             $services->get('Omeka\EntityManager')
         );
     }

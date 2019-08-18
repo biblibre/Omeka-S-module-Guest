@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\Mvc\Controller\Plugin;
+namespace Guest\Mvc\Controller\Plugin;
 
 use Doctrine\ORM\EntityManager;
 use Omeka\Entity\Site;

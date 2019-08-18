@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser\Permissions;
+namespace Guest\Permissions;
 
 class Acl extends \Omeka\Permissions\Acl
 {

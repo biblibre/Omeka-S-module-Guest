@@ -1,6 +1,6 @@
 <?php
 
-namespace GuestUserTest\Service;
+namespace GuestTest\Service;
 
 use Interop\Container\ContainerInterface;
 use Zend\Mail\Transport\Factory as TransportFactory;

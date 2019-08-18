@@ -1,7 +1,7 @@
 <?php
-namespace GuestUser\Mvc\Controller\Plugin;
+namespace Guest\Mvc\Controller\Plugin;
 
-use GuestUser\Stdlib\PsrMessage;
+use Guest\Stdlib\PsrMessage;
 use Omeka\Stdlib\Mailer as MailerService;
 use Zend\Log\Logger;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;

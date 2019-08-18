@@ -1,8 +1,8 @@
 <?php
-namespace GuestUser\Controller\Site;
+namespace Guest\Controller\Site;
 
-use GuestUser\Entity\GuestUserToken;
-use GuestUser\Stdlib\PsrMessage;
+use Guest\Entity\GuestToken;
+use Guest\Stdlib\PsrMessage;
 use Omeka\Entity\User;
 use Omeka\Form\ForgotPasswordForm;
 use Omeka\Form\LoginForm;
@@ -11,9 +11,9 @@ use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
 /**
- * Manage guest users pages.
+ * Manage guests pages.
  */
-class AnonymousController extends AbstractGuestUserController
+class AnonymousController extends AbstractGuestController
 {
     protected $defaultRoles = [
         \Omeka\Permissions\Acl::ROLE_RESEARCHER,
@@ -53,7 +53,7 @@ class AnonymousController extends AbstractGuestUserController
                     'message' => 'Unable to authenticate. Contact the administrator.', // @translate
                 ]);
             }
-            return $this->redirect()->toRoute('site/guest-user/anonymous', ['action' => 'auth-error', 'site-slug' => $siteSlug]);
+            return $this->redirect()->toRoute('site/guest/anonymous', ['action' => 'auth-error', 'site-slug' => $siteSlug]);
         }
 
         $view = new ViewModel;
@@ -96,7 +96,7 @@ class AnonymousController extends AbstractGuestUserController
             $userSettings->setTargetId($user->getId());
             $result = [];
             $result['user_id'] = $user->getId();
-            $result['agreed'] = $userSettings->get('guestuser_agreed_terms');
+            $result['agreed'] = $userSettings->get('guest_agreed_terms');
             return new JsonModel($result);
         }
 
@@ -118,14 +118,14 @@ class AnonymousController extends AbstractGuestUserController
         }
 
         $user = new User();
-        $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
+        $user->setRole(\Guest\Permissions\Acl::ROLE_GUEST);
 
         $form = $this->_getForm($user);
 
         $view = new ViewModel;
         $view->setVariable('form', $form);
-        $registerLabel = $this->getOption('guestuser_capabilities')
-            ? $this->getOption('guestuser_capabilities')
+        $registerLabel = $this->getOption('guest_capabilities')
+            ? $this->getOption('guest_capabilities')
             : $this->translate('Register'); // @translate
 
         $view->setVariable('registerLabel', $registerLabel);
@@ -154,7 +154,7 @@ class AnonymousController extends AbstractGuestUserController
 
         $userInfo = $values['user-information'];
         // TODO Avoid to set the right to change role (fix core).
-        $userInfo['o:role'] = \GuestUser\Permissions\Acl::ROLE_GUEST;
+        $userInfo['o:role'] = \Guest\Permissions\Acl::ROLE_GUEST;
         $userInfo['o:is_active'] = false;
         $response = $this->api()->create('users', $userInfo);
         if (!$response) {
@@ -163,14 +163,14 @@ class AnonymousController extends AbstractGuestUserController
                 'email' => $userInfo['o:email'],
             ]);
             if ($user) {
-                $guestUserToken = $entityManager->getRepository(GuestUserToken::class)
+                $guestToken = $entityManager->getRepository(GuestToken::class)
                     ->findOneBy(['email' => $userInfo['o:email']], ['id' => 'DESC']);
-                if (empty($guestUserToken) || $guestUserToken->isConfirmed()) {
+                if (empty($guestToken) || $guestToken->isConfirmed()) {
                     $this->messenger()->addError('Already registered.'); // @translate
                 } else {
                     $this->messenger()->addError('Check your email to confirm your registration.'); // @translate
                 }
-                return $this->redirect()->toRoute('site/guest-user/anonymous', ['action' => 'login'], true);
+                return $this->redirect()->toRoute('site/guest/anonymous', ['action' => 'login'], true);
             }
 
             $this->messenger()->addError('Unknown error.'); // @translate
@@ -179,9 +179,9 @@ class AnonymousController extends AbstractGuestUserController
 
         $user = $response->getContent()->getEntity();
         $user->setPassword($password);
-        $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
+        $user->setRole(\Guest\Permissions\Acl::ROLE_GUEST);
         // The account is active, but not confirmed, so login is not possible.
-        // Guest user has no right to set active his account.
+        // Guest has no right to set active his account.
         $user->setIsActive(true);
 
         $id = $user->getId();
@@ -192,38 +192,38 @@ class AnonymousController extends AbstractGuestUserController
             }
         }
 
-        $guestUserToken = $this->createGuestUserToken($user);
+        $guestToken = $this->createGuestToken($user);
         $message = $this->prepareMessage('confirm-email', [
             'user_email' => $user->getEmail(),
             'user_name' => $user->getName(),
-            'token' => $guestUserToken,
+            'token' => $guestToken,
         ]);
         $result = $this->sendEmail($user->getEmail(), $message['subject'], $message['body'], $user->getName());
         if (!$result) {
             $message = new PsrMessage('An error occurred when the email was sent.'); // @translate
             $this->messenger()->addError($message);
-            $this->logger()->err('[GuestUser] ' . $message);
+            $this->logger()->err('[Guest] ' . $message);
             return $view;
         }
 
         $message = $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         $this->messenger()->addSuccess($message);
-        return $this->redirect()->toRoute('site/guest-user/anonymous', ['action' => 'login'], [], true);
+        return $this->redirect()->toRoute('site/guest/anonymous', ['action' => 'login'], [], true);
     }
 
     public function confirmAction()
     {
         $token = $this->params()->fromQuery('token');
         $entityManager = $this->getEntityManager();
-        $guestUserToken = $entityManager->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
-        if (empty($guestUserToken)) {
+        $guestToken = $entityManager->getRepository(GuestToken::class)->findOneBy(['token' => $token]);
+        if (empty($guestToken)) {
             $this->messenger()->addError($this->translate('Invalid token stop')); // @translate
             return $this->redirect()->toUrl($this->currentSite()->url());
         }
 
-        $guestUserToken->setConfirmed(true);
-        $entityManager->persist($guestUserToken);
-        $user = $entityManager->find(User::class, $guestUserToken->getUser()->getId());
+        $guestToken->setConfirmed(true);
+        $entityManager->persist($guestToken);
+        $user = $entityManager->find(User::class, $guestToken->getUser()->getId());
         // Bypass api, so no check of acl 'activate-user' for the user himself.
         $user->setIsActive(true);
         $entityManager->persist($user);
@@ -234,7 +234,7 @@ class AnonymousController extends AbstractGuestUserController
             ['site_title' => $siteTitle]);
 
         $this->messenger()->addSuccess($body);
-        $redirectUrl = $this->url()->fromRoute('site/guest-user/anonymous', [
+        $redirectUrl = $this->url()->fromRoute('site/guest/anonymous', [
             'site-slug' => $this->currentSite()->slug(),
             'action' => 'login',
         ]);
@@ -249,8 +249,8 @@ class AnonymousController extends AbstractGuestUserController
         $isExternalApp = $this->isExternalApp();
         $siteTitle = $this->currentSite()->title();
 
-        $guestUserToken = $entityManager->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
-        if (empty($guestUserToken)) {
+        $guestToken = $entityManager->getRepository(GuestToken::class)->findOneBy(['token' => $token]);
+        if (empty($guestToken)) {
             $message = new PsrMessage('Invalid token: your email was not confirmed for {site_title}.', // @translate
                 ['site_title' => $siteTitle]);
             if ($isExternalApp) {
@@ -262,12 +262,12 @@ class AnonymousController extends AbstractGuestUserController
 
             $this->messenger()->addError($message); // @translate
             if ($this->isUserLogged()) {
-                $redirectUrl = $this->url()->fromRoute('site/guest-user/guest', [
+                $redirectUrl = $this->url()->fromRoute('site/guest/guest', [
                     'site-slug' => $this->currentSite()->slug(),
                     'action' => 'update-email',
                 ]);
             } else {
-                $redirectUrl = $this->url()->fromRoute('site/guest-user/anonymous', [
+                $redirectUrl = $this->url()->fromRoute('site/guest/anonymous', [
                     'site-slug' => $this->currentSite()->slug(),
                     'action' => 'login',
                 ]);
@@ -275,10 +275,10 @@ class AnonymousController extends AbstractGuestUserController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $guestUserToken->setConfirmed(true);
-        $entityManager->persist($guestUserToken);
-        $email = $guestUserToken->getEmail();
-        $user = $entityManager->find(User::class, $guestUserToken->getUser()->getId());
+        $guestToken->setConfirmed(true);
+        $entityManager->persist($guestToken);
+        $email = $guestToken->getEmail();
+        $user = $entityManager->find(User::class, $guestToken->getUser()->getId());
         // Bypass api, so no check of acl 'activate-user' for the user himself.
         $user->setEmail($email);
         $entityManager->persist($user);
@@ -295,12 +295,12 @@ class AnonymousController extends AbstractGuestUserController
 
         $this->messenger()->addSuccess($message);
         if ($this->isUserLogged()) {
-            $redirectUrl = $this->url()->fromRoute('site/guest-user/guest', [
+            $redirectUrl = $this->url()->fromRoute('site/guest', [
                 'site-slug' => $this->currentSite()->slug(),
                 'action' => 'me',
             ]);
         } else {
-            $redirectUrl = $this->url()->fromRoute('site/guest-user/anonymous', [
+            $redirectUrl = $this->url()->fromRoute('site/guest/anonymous', [
                 'site-slug' => $this->currentSite()->slug(),
                 'action' => 'login',
             ]);

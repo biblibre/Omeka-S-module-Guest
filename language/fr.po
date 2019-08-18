@@ -8,7 +8,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Omeka\n"
-"Report-Msgid-Bugs-To: http://github.com/omeka/plugin-GuestUser/issues\n"
+"Report-Msgid-Bugs-To: http://github.com/omeka/plugin-Guest/issues\n"
 "POT-Creation-Date: 2012-01-09 21:49-0500\n"
 "PO-Revision-Date: 2014-07-27 21:28+0000\n"
 "Last-Translator: rcheno <remi.cheno@ideo-cairo.org>\n"
@@ -22,29 +22,29 @@ msgstr ""
 msgid "Guest"
 msgstr "Invité"
 
-#: GuestUserPlugin.php:75 GuestUserPlugin.php:184
+#: GuestPlugin.php:75 GuestPlugin.php:184
 msgid "Login"
 msgstr "Identifiez-vous"
 
-#: GuestUserPlugin.php:76 GuestUserPlugin.php:185
+#: GuestPlugin.php:76 GuestPlugin.php:185
 #: controllers/UserController.php:225 views/public/user/register.php:6
 msgid "Register"
 msgstr "Enregistrez-vous"
 
-#: GuestUserPlugin.php:208
+#: GuestPlugin.php:208
 msgid "My Account"
 msgstr "Mon compte"
 
-#: GuestUserPlugin.php:212
+#: GuestPlugin.php:212
 msgid "Update account info and password"
 msgstr "Actualiser les infos et le mot de passe du compte"
 
-#: GuestUserPlugin.php:225
+#: GuestPlugin.php:225
 #, php-format
 msgid "Your %s account"
 msgstr "Votre compte %s"
 
-#: GuestUserPlugin.php:226
+#: GuestPlugin.php:226
 msgid ""
 "An admin has made your account active. You can now log in with your password"
 msgstr "Un administrateur a activé votre compte. Vous pouvez maintenant vous connecter avec votre mot de passe."
@@ -56,7 +56,7 @@ msgstr "Informations d'enregistrement"
 #: config_form.php:8
 msgid ""
 "Add some text to the registration screen so people will know what they get for registering.\n"
-"        As you enable and configure plugins that make use of the guest user, please give them guidance\n"
+"        As you enable and configure plugins that make use of the guest, please give them guidance\n"
 "        about what they can and cannot do."
 msgstr "Texte à ajouter à la page d'enregistrement pour faire connaitre les conséquences de l'enregistrement. Comme vous activez des extensions qui peuvent faire usage de celle-ci, merci de donner des explications sur ce qu'elles font ou qu'elles ne font pas des données des usagers."
 
@@ -99,7 +99,7 @@ msgid "Allow open registration?"
 msgstr "Permettre l'enregistrement libre ?"
 
 #: config_form.php:74
-msgid "Allow guest user registration without administrator approval?"
+msgid "Allow guest registration without administrator approval?"
 msgstr "Les usagers invités peuvent s'inscrire sans l'approbation d'un administrateur ?"
 
 #: config_form.php:92

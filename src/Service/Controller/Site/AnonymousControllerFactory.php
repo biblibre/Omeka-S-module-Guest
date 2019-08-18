@@ -1,7 +1,7 @@
 <?php
-namespace GuestUser\Service\Controller\Site;
+namespace Guest\Service\Controller\Site;
 
-use GuestUser\Controller\Site\AnonymousController;
+use Guest\Controller\Site\AnonymousController;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 

@@ -1,5 +1,5 @@
 <?php
-namespace GuestUser;
+namespace Guest;
 
 return [
     'entity_manager' => [
@@ -20,7 +20,7 @@ return [
     ],
     'view_helpers' => [
         'invokables' => [
-            'guestUserWidget' => View\Helper\GuestUserWidget::class,
+            'guestWidget' => View\Helper\GuestWidget::class,
             'userBar' => View\Helper\UserBar::class,
             // Required to manage PsrMessage.
             'messages' => View\Helper\Messages::class,
@@ -36,12 +36,12 @@ return [
     'controllers' => [
         'factories' => [
             Controller\Site\AnonymousController::class => Service\Controller\Site\AnonymousControllerFactory::class,
-            Controller\Site\GuestUserController::class => Service\Controller\Site\GuestUserControllerFactory::class,
+            Controller\Site\GuestController::class => Service\Controller\Site\GuestControllerFactory::class,
         ],
     ],
     'controller_plugins' => [
         'factories' => [
-            'createGuestUserToken' => Service\ControllerPlugin\CreateGuestUserTokenFactory::class,
+            'createGuestToken' => Service\ControllerPlugin\CreateGuestTokenFactory::class,
             'sendEmail' => Service\ControllerPlugin\SendEmailFactory::class,
             'userSites' => Service\ControllerPlugin\UserSitesFactory::class,
         ],
@@ -63,8 +63,8 @@ return [
         'site' => [
             [
                 'label' => 'User information', // @translate
-                'route' => 'site/guest-user',
-                'controller' => Controller\Site\GuestUserController::class,
+                'route' => 'site/guest',
+                'controller' => Controller\Site\GuestController::class,
                 'action' => 'me',
                 'useRouteMatch' => true,
                 'visible' => false,
@@ -75,13 +75,13 @@ return [
         'routes' => [
             'site' => [
                 'child_routes' => [
-                    'guest-user' => [
+                    'guest' => [
                         'type' => \Zend\Router\Http\Literal::class,
                         'options' => [
-                            'route' => '/guest-user',
+                            'route' => '/guest',
                             'defaults' => [
-                                '__NAMESPACE__' => 'GuestUser\Controller\Site',
-                                'controller' => Controller\Site\GuestUserController::class,
+                                '__NAMESPACE__' => 'Guest\Controller\Site',
+                                'controller' => Controller\Site\GuestController::class,
                                 'action' => 'me',
                             ],
                         ],
@@ -96,7 +96,7 @@ return [
                                         'action' => 'login|confirm-email|confirm|forgot-password|stale-token|auth-error|register',
                                     ],
                                     'defaults' => [
-                                        '__NAMESPACE__' => 'GuestUser\Controller\Site',
+                                        '__NAMESPACE__' => 'Guest\Controller\Site',
                                         'controller' => Controller\Site\AnonymousController::class,
                                         'controller' => 'AnonymousController',
                                         'action' => 'login',
@@ -111,8 +111,8 @@ return [
                                         'action' => 'me|logout|update-account|update-email|accept-terms',
                                     ],
                                     'defaults' => [
-                                        '__NAMESPACE__' => 'GuestUser\Controller\Site',
-                                        'controller' => Controller\Site\GuestUserController::class,
+                                        '__NAMESPACE__' => 'Guest\Controller\Site',
+                                        'controller' => Controller\Site\GuestController::class,
                                         'action' => 'me',
                                     ],
                                 ],
@@ -133,32 +133,32 @@ return [
             ],
         ],
     ],
-    'guestuser' => [
+    'guest' => [
         'config' => [
-            'guestuser_open' => false,
-            'guestuser_recaptcha' => false,
-            'guestuser_login_text' => 'Login', // @translate
-            'guestuser_register_text' => 'Register', // @translate
-            'guestuser_dashboard_label' => 'My dashboard', // @translate
-            'guestuser_capabilities' => '',
-            'guestuser_short_capabilities' => '',
-            'guestuser_message_confirm_email' => '<p>Hi {user_name},</p>
+            'guest_open' => false,
+            'guest_recaptcha' => false,
+            'guest_login_text' => 'Login', // @translate
+            'guest_register_text' => 'Register', // @translate
+            'guest_dashboard_label' => 'My dashboard', // @translate
+            'guest_capabilities' => '',
+            'guest_short_capabilities' => '',
+            'guest_message_confirm_email' => '<p>Hi {user_name},</p>
 <p>You have registered for an account on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your registration by following this link: {token_url}.</p>
 <p>If you did not request to join {main_title} please disregard this email.</p>', // @translate
-            'guestuser_message_update_email' => '<p>Hi {user_name},</p>
+            'guest_message_update_email' => '<p>Hi {user_name},</p>
 <p>You have requested to update email on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your email by following this link: {token_url}.</p>
 <p>If you did not request to update your email on {main_title}, please disregard this email.</p>', // @translate
-            'guestuser_terms_text' => 'I agree the terms and conditions.', // @translate
-            'guestuser_terms_page' => 'terms-and-conditions',
-            'guestuser_terms_redirect' => 'site',
-            'guestuser_terms_request_regex' => '',
-            'guestuser_terms_force_agree' => true,
-            'guestuser_check_requested_with' => '',
+            'guest_terms_text' => 'I agree the terms and conditions.', // @translate
+            'guest_terms_page' => 'terms-and-conditions',
+            'guest_terms_redirect' => 'site',
+            'guest_terms_request_regex' => '',
+            'guest_terms_force_agree' => true,
+            'guest_check_requested_with' => '',
         ],
         'user_settings' => [
-            'guestuser_agreed_terms' => false,
+            'guest_agreed_terms' => false,
         ],
     ],
 ];

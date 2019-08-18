@@ -1,17 +1,17 @@
 <?php
-namespace GuestUser\Controller\Site;
+namespace Guest\Controller\Site;
 
 use Doctrine\ORM\EntityManager;
-use GuestUser\Stdlib\PsrMessage;
+use Guest\Stdlib\PsrMessage;
 use Omeka\Entity\User;
 use Omeka\Form\UserForm;
 use Zend\Authentication\AuthenticationService;
 use Zend\Mvc\Controller\AbstractActionController;
 
 /**
- * Manage guest users pages.
+ * Manage guests pages.
  */
-abstract class AbstractGuestUserController extends AbstractActionController
+abstract class AbstractGuestController extends AbstractActionController
 {
     /**
      * @var AuthenticationService
@@ -27,15 +27,6 @@ abstract class AbstractGuestUserController extends AbstractActionController
      * @var array
      */
     protected $config;
-
-    protected $defaultRoles = [
-        \Omeka\Permissions\Acl::ROLE_RESEARCHER,
-        \Omeka\Permissions\Acl::ROLE_AUTHOR,
-        \Omeka\Permissions\Acl::ROLE_REVIEWER,
-        \Omeka\Permissions\Acl::ROLE_EDITOR,
-        \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
-        \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
-    ];
 
     /**
      * @param AuthenticationService $authenticationService
@@ -121,7 +112,7 @@ abstract class AbstractGuestUserController extends AbstractActionController
             $urlOptions = ['force_canonical' => true];
             $urlOptions['query']['token'] = $data['token'];
             $data['token_url'] = $this->url()->fromRoute(
-                $template === 'update-email' ? 'site/guest-user/guest' : 'site/guest-user/anonymous',
+                $template === 'update-email' ? 'site/guest/guest' : 'site/guest/anonymous',
                 ['site-slug' => $currentSite->slug(), 'action' => $template],
                 $urlOptions
             );
@@ -131,16 +122,16 @@ abstract class AbstractGuestUserController extends AbstractActionController
             case 'confirm-email':
                 $subject = 'Your request to join {main_title} / {site_title}'; // @translate
                 $body = $settings->get(
-                    'guestuser_message_confirm_email',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_email']
+                    'guest_message_confirm_email',
+                    $this->getConfig()['guest']['config']['guest_message_confirm_email']
                 );
                 break;
 
             case 'update-email':
                 $subject = 'Update email on {main_title} / {site_title}'; // @translate
                 $body = $settings->get(
-                    'guestuser_message_update_email',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_update_email']
+                    'guest_message_update_email',
+                    $this->getConfig()['guest']['config']['guest_message_update_email']
                 );
                 break;
 
@@ -175,7 +166,7 @@ abstract class AbstractGuestUserController extends AbstractActionController
             return false;
         }
 
-        $checkRequestedWith = $this->settings()->get('guestuser_check_requested_with');
+        $checkRequestedWith = $this->settings()->get('guest_check_requested_with');
         if (empty($checkRequestedWith)) {
             return false;
         }

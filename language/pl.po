@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Omeka\n"
-"Report-Msgid-Bugs-To: http://github.com/omeka/plugin-GuestUser/issues\n"
+"Report-Msgid-Bugs-To: http://github.com/omeka/plugin-Guest/issues\n"
 "POT-Creation-Date: 2012-01-09 21:49-0500\n"
 "PO-Revision-Date: 2014-07-10 14:12+0000\n"
 "Last-Translator: vortage <vortage@o2.pl>\n"
@@ -21,29 +21,29 @@ msgstr ""
 msgid "Guest"
 msgstr "Gość"
 
-#: GuestUserPlugin.php:75 GuestUserPlugin.php:184
+#: GuestPlugin.php:75 GuestPlugin.php:184
 msgid "Login"
 msgstr "Login"
 
-#: GuestUserPlugin.php:76 GuestUserPlugin.php:185
+#: GuestPlugin.php:76 GuestPlugin.php:185
 #: controllers/UserController.php:225 views/public/user/register.php:6
 msgid "Register"
 msgstr "Zarejestrowany"
 
-#: GuestUserPlugin.php:208
+#: GuestPlugin.php:208
 msgid "My Account"
 msgstr "Moje konto"
 
-#: GuestUserPlugin.php:212
+#: GuestPlugin.php:212
 msgid "Update account info and password"
 msgstr ""
 
-#: GuestUserPlugin.php:225
+#: GuestPlugin.php:225
 #, php-format
 msgid "Your %s account"
 msgstr ""
 
-#: GuestUserPlugin.php:226
+#: GuestPlugin.php:226
 msgid ""
 "An admin has made your account active. You can now log in with your password"
 msgstr ""
@@ -55,7 +55,7 @@ msgstr ""
 #: config_form.php:8
 msgid ""
 "Add some text to the registration screen so people will know what they get for registering.\n"
-"        As you enable and configure plugins that make use of the guest user, please give them guidance\n"
+"        As you enable and configure plugins that make use of the guest, please give them guidance\n"
 "        about what they can and cannot do."
 msgstr ""
 
@@ -98,7 +98,7 @@ msgid "Allow open registration?"
 msgstr ""
 
 #: config_form.php:74
-msgid "Allow guest user registration without administrator approval?"
+msgid "Allow guest registration without administrator approval?"
 msgstr ""
 
 #: config_form.php:92

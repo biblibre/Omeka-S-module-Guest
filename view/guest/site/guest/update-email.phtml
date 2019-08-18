@@ -1,12 +1,12 @@
 <?php
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
- * @var \GuestUser\Form\EmailForm $form
+ * @var \Guest\Form\EmailForm $form
  */
 
 $translate = $this->plugin('translate');
 
-$this->htmlElement('body')->appendAttribute('class', 'guest-user account');
+$this->htmlElement('body')->appendAttribute('class', 'guest account');
 $form->prepare();
 ?>
 

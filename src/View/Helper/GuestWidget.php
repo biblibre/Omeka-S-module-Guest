@@ -1,10 +1,10 @@
 <?php
 
-namespace GuestUser\View\Helper;
+namespace Guest\View\Helper;
 
 use Zend\View\Helper\AbstractHtmlElement;
 
-class GuestUserWidget extends AbstractHtmlElement
+class GuestWidget extends AbstractHtmlElement
 {
     public function __invoke($widget)
     {
@@ -12,7 +12,7 @@ class GuestUserWidget extends AbstractHtmlElement
 
         if (is_array($widget)) {
             $attribs = [
-                'class' => 'guest-user-widget-label',
+                'class' => 'guest-widget-label',
             ];
 
             $html = '<h2' . $this->htmlAttribs($attribs) . '>';

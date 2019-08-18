@@ -1,9 +1,9 @@
 <?php
-namespace GuestUser\Controller\Site;
+namespace Guest\Controller\Site;
 
-use GuestUser\Form\AcceptTermsForm;
-use GuestUser\Form\EmailForm;
-use GuestUser\Stdlib\PsrMessage;
+use Guest\Form\AcceptTermsForm;
+use Guest\Form\EmailForm;
+use Guest\Stdlib\PsrMessage;
 use Omeka\Entity\User;
 use Zend\Mvc\MvcEvent;
 use Zend\Session\Container;
@@ -11,9 +11,9 @@ use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
 /**
- * Manage guest users pages.
+ * Manage guests pages.
  */
-class GuestUserController extends AbstractGuestUserController
+class GuestController extends AbstractGuestController
 {
     public function logoutAction()
     {
@@ -44,12 +44,12 @@ class GuestUserController extends AbstractGuestUserController
 
         $widget = [];
         $widget['label'] = $this->translate('My Account'); // @translate
-        $widget['content'] = $partial('guest-user/site/guest-user/widget/account');
+        $widget['content'] = $partial('guest/site/guest/widget/account');
 
         $args = $eventManager->prepareArgs(['widgets' => []]);
         $args['widgets']['account'] = $widget;
 
-        $eventManager->triggerEvent(new MvcEvent('guestuser.widgets', $this, $args));
+        $eventManager->triggerEvent(new MvcEvent('guest.widgets', $this, $args));
 
         $view = new ViewModel;
         $view->setVariable('widgets', $args['widgets']);
@@ -62,8 +62,8 @@ class GuestUserController extends AbstractGuestUserController
         $user = $this->getAuthenticationService()->getIdentity();
         $id = $user->getId();
 
-        $label = $this->getOption('guestuser_dashboard_label')
-            ? $this->getOption('guestuser_dashboard_label')
+        $label = $this->getOption('guest_dashboard_label')
+            ? $this->getOption('guest_dashboard_label')
             : $this->translate('My account'); // @translate
 
         $userRepr = $this->api()->read('users', $id)->getContent();
@@ -206,16 +206,16 @@ class GuestUserController extends AbstractGuestUserController
                 ]);
             }
 
-            $guestUserToken = $this->createGuestUserToken($user);
+            $guestToken = $this->createGuestToken($user);
             $message = $this->prepareMessage('update-email', [
                 'user_email' => $email,
                 'user_name' => $user->getName(),
-                'token' => $guestUserToken,
+                'token' => $guestToken,
             ]);
             $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
             if (!$result) {
                 $message = new PsrMessage('An error occurred when the email was sent.'); // @translate
-                $this->logger()->err('[GuestUser] ' . $message);
+                $this->logger()->err('[Guest] ' . $message);
                 return new JsonModel([
                     'result' => 'error',
                     'message' => $message,
@@ -251,45 +251,45 @@ class GuestUserController extends AbstractGuestUserController
             return $view;
         }
 
-        $guestUserToken = $this->createGuestUserToken($user);
+        $guestToken = $this->createGuestToken($user);
         $message = $this->prepareMessage('update-email', [
             'user_email' => $email,
             'user_name' => $user->getName(),
-            'token' => $guestUserToken,
+            'token' => $guestToken,
         ]);
         $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
         if (!$result) {
             $message = new PsrMessage('An error occurred when the email was sent.'); // @translate
             $this->messenger()->addError($message);
-            $this->logger()->err('[GuestUser] ' . $message);
+            $this->logger()->err('[Guest] ' . $message);
             return $view;
         }
 
         $message = new PsrMessage('Check your email "{email}" to confirm the change.', ['email' => $email]); // @translate
         $this->messenger()->addSuccess($message);
-        return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
+        return $this->redirect()->toRoute('site/guest', ['action' => 'me'], [], true);
     }
 
     public function acceptTermsAction()
     {
         $userSettings = $this->userSettings();
-        $agreed = $userSettings->get('guestuser_agreed_terms');
+        $agreed = $userSettings->get('guest_agreed_terms');
         if ($agreed) {
             $message = new PsrMessage('You already agreed the terms and conditions.'); // @translate
             $this->messenger()->addSuccess($message);
-            return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
+            return $this->redirect()->toRoute('site/guest', ['action' => 'me'], [], true);
         }
 
-        $forced = $this->settings()->get('guestuser_terms_force_agree');
+        $forced = $this->settings()->get('guest_terms_force_agree');
 
-        /** @var \GuestUser\Form\AcceptTermsForm $form */
+        /** @var \Guest\Form\AcceptTermsForm $form */
         // $form = $this->getForm(AcceptTermsForm::class, null, ['forced' => $forced]);
         $form = new AcceptTermsForm();
         $form->setOption('forced', $forced);
         $form->init();
 
-        $text = $this->settings()->get('guestuser_terms_text');
-        $page = $this->settings()->get('guestuser_terms_page');
+        $text = $this->settings()->get('guest_terms_text');
+        $page = $this->settings()->get('guest_terms_page');
 
         $view = new ViewModel;
         $view->setVariable('form', $form);
@@ -310,8 +310,8 @@ class GuestUserController extends AbstractGuestUserController
         }
 
         $data = $form->getData();
-        $accept = (bool) $data['guestuser_agreed_terms'];
-        $userSettings->set('guestuser_agreed_terms', $accept);
+        $accept = (bool) $data['guest_agreed_terms'];
+        $userSettings->set('guest_agreed_terms', $accept);
 
         if (!$accept) {
             if ($forced) {
@@ -319,19 +319,19 @@ class GuestUserController extends AbstractGuestUserController
                 $this->messenger()->addError($message);
                 return $view;
             }
-            return $this->redirect()->toRoute('site/guest-user/guest', ['action' => 'logout'], [], true);
+            return $this->redirect()->toRoute('site/guest/guest', ['action' => 'logout'], [], true);
         }
 
         $message = new PsrMessage('Thanks for accepting the terms and condtions.'); // @translate
         $this->messenger()->addSuccess($message);
-        switch ($this->settings()->get('guestuser_terms_redirect')) {
+        switch ($this->settings()->get('guest_terms_redirect')) {
             case 'home':
                 return $this->redirect()->toRoute('top');
             case 'site':
                 return $this->redirect()->toRoute('site', [], [], true);
             case 'me':
             default:
-                return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
+                return $this->redirect()->toRoute('site/guest', ['action' => 'me'], [], true);
         }
     }
 }

@@ -1,12 +1,12 @@
 <?php
-namespace GuestUser\Mvc\Controller\Plugin;
+namespace Guest\Mvc\Controller\Plugin;
 
 use Doctrine\ORM\EntityManager;
-use GuestUser\Entity\GuestUserToken;
+use Guest\Entity\GuestToken;
 use Omeka\Entity\User;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
-class CreateGuestUserToken extends AbstractPlugin
+class CreateGuestToken extends AbstractPlugin
 {
     /**
      * @var EntityManager
@@ -29,12 +29,12 @@ class CreateGuestUserToken extends AbstractPlugin
      * @param bool $short If set, the token will be an integer of 6 numbers (for
      * example for phone confirmation). Else, it will be an alphanumeric code
      * (for email confirmation, default).
-     * @return \GuestUser\Entity\GuestUserToken
+     * @return \Guest\Entity\GuestToken
      */
     public function __invoke(User $user, $identifier = null, $short = false)
     {
         $entityManager = $this->getEntityManager();
-        $repository = $entityManager->getRepository(GuestUserToken::class);
+        $repository = $entityManager->getRepository(GuestToken::class);
 
         if (PHP_VERSION_ID < 70000) {
             $tokenString = $short
@@ -60,18 +60,18 @@ class CreateGuestUserToken extends AbstractPlugin
 
         $identifier = $identifier ?: $user->getEmail();
 
-        $guestUserToken = new GuestUserToken;
-        $guestUserToken->setEmail($identifier);
-        $guestUserToken->setUser($user);
-        $guestUserToken->setToken($token);
+        $guestToken = new GuestToken;
+        $guestToken->setEmail($identifier);
+        $guestToken->setUser($user);
+        $guestToken->setToken($token);
 
         if (!$user->getId()) {
             $entityManager->persist($user);
         }
-        $entityManager->persist($guestUserToken);
+        $entityManager->persist($guestToken);
         $entityManager->flush();
 
-        return $guestUserToken;
+        return $guestToken;
     }
 
     protected function getEntityManager()

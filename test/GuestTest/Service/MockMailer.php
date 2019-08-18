@@ -1,6 +1,6 @@
 <?php
 
-namespace GuestUserTest\Service;
+namespace GuestTest\Service;
 
 use Omeka\Stdlib\Mailer;
 use Zend\Mail\Message;

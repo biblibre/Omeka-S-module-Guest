@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Omeka\n"
-"Report-Msgid-Bugs-To: http://github.com/omeka/plugin-GuestUser/issues\n"
+"Report-Msgid-Bugs-To: http://github.com/omeka/plugin-Guest/issues\n"
 "POT-Creation-Date: 2012-01-09 21:49-0500\n"
 "PO-Revision-Date: 2014-01-12 06:18+0000\n"
 "Last-Translator: yennylin <yennylin1234@gmail.com>\n"
@@ -21,29 +21,29 @@ msgstr ""
 msgid "Guest"
 msgstr "訪客"
 
-#: GuestUserPlugin.php:75 GuestUserPlugin.php:184
+#: GuestPlugin.php:75 GuestPlugin.php:184
 msgid "Login"
 msgstr "登錄"
 
-#: GuestUserPlugin.php:76 GuestUserPlugin.php:185
+#: GuestPlugin.php:76 GuestPlugin.php:185
 #: controllers/UserController.php:225 views/public/user/register.php:6
 msgid "Register"
 msgstr "註冊"
 
-#: GuestUserPlugin.php:208
+#: GuestPlugin.php:208
 msgid "My Account"
 msgstr "我的帳戶"
 
-#: GuestUserPlugin.php:212
+#: GuestPlugin.php:212
 msgid "Update account info and password"
 msgstr "更新帳戶資訊和密碼"
 
-#: GuestUserPlugin.php:225
+#: GuestPlugin.php:225
 #, php-format
 msgid "Your %s account"
 msgstr "你的 %s 帳戶"
 
-#: GuestUserPlugin.php:226
+#: GuestPlugin.php:226
 msgid ""
 "An admin has made your account active. You can now log in with your password"
 msgstr "管理者已經啟動你的帳戶。你現在可以以你的密碼登錄。"
@@ -55,7 +55,7 @@ msgstr "註冊特徵"
 #: config_form.php:8
 msgid ""
 "Add some text to the registration screen so people will know what they get for registering.\n"
-"        As you enable and configure plugins that make use of the guest user, please give them guidance\n"
+"        As you enable and configure plugins that make use of the guest, please give them guidance\n"
 "        about what they can and cannot do."
 msgstr "增加一些文本到註冊介面上，這樣使用者將會知道註冊時的狀態。\n當你啟動和設置外掛並使用訪客功能，請提供使用者可以做哪些事的指引。"
 
@@ -98,7 +98,7 @@ msgid "Allow open registration?"
 msgstr "允許公開註冊？"
 
 #: config_form.php:74
-msgid "Allow guest user registration without administrator approval?"
+msgid "Allow guest registration without administrator approval?"
 msgstr "允許訪客註冊可以不經管理者核准。"
 
 #: config_form.php:92

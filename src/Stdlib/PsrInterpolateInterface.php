@@ -1,6 +1,6 @@
 <?php
 
-namespace GuestUser\Stdlib;
+namespace Guest\Stdlib;
 
 /**
  * Interpolate a PSR-3 message with a context into a string.

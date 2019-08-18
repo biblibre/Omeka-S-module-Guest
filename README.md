@@ -1,29 +1,29 @@
-Guest User (module for Omeka S)
-===============================
+Guest (module for Omeka S)
+==========================
 
-[![Build Status](https://travis-ci.org/biblibre/omeka-s-module-GuestUser.svg?branch=master)](https://travis-ci.org/biblibre/omeka-s-module-GuestUser)
+[![Build Status](https://travis-ci.org/Daniel-KM/Omeka-S-module-Guest.svg?branch=master)](https://travis-ci.org/Daniel-KM/Omeka-S-module-Guest)
 
-[Guest User] is a module for [Omeka S] that creates a role called `guest`, and
-provides configuration options for a login and registration screen. Guest users
+[Guest] is a module for [Omeka S] that creates a role called `guest`, and
+provides configuration options for a login and registration screen. Guests
 become registered users in Omeka S, but have no other privileges to the admin
 side of your Omeka S installation. This module is thus intended to be a common
 module that other modules needing a guest user use as a dependency.
 
-This module is a full rewrite of the [plugin Guest User] for [Omeka Classic].
+This module is a full rewrite of the plugin [Guest User] for [Omeka Classic].
 
 
 Installation
 ------------
 
-Uncompress files in the module directory and rename module folder `GuestUser`.
+Uncompress files in the module directory and rename module folder `Guest`.
 
 
 Usage
 -----
 
-### Guest user login form
+### Guest login form
 
-A guest user login form is provided in `/s/my_site/guest-user/login`.
+A guest user login form is provided in `/s/my_site/guest/login`.
 
 ### Main login form
 
@@ -33,9 +33,9 @@ have to adapt it.
 ```
     <?php
     if ($this->identity()):
-        echo $this->hyperlink($this->translate('Logout'), $this->url()->fromRoute('site/guest-user/logged', ['site-slug' => $site->slug(), 'action' => 'logout']), ['class' => 'logout']);
+        echo $this->hyperlink($this->translate('Logout'), $this->url()->fromRoute('site/guest/logged', ['site-slug' => $site->slug(), 'action' => 'logout']), ['class' => 'logout']);
     else:
-        echo $this->hyperlink($this->translate('Login'), $this->url()->fromRoute('site/guest-user/anonymous', ['site-slug' => $site->slug(), 'action' => 'login']), ['class' => 'login']);
+        echo $this->hyperlink($this->translate('Login'), $this->url()->fromRoute('site/guest/anonymous', ['site-slug' => $site->slug(), 'action' => 'login']), ['class' => 'login']);
     endif;
     ?>
 ```
@@ -106,11 +106,11 @@ Copyright
 * Copyright Daniel Berthereau, 2017-2018
 
 
-[Guest User]: https://github.com/biblibre/Omeka-S-module-GuestUser
-[plugin Guest User]: https://github.com/omeka/plugin-GuestUser
+[Guest]: https://github.com/biblibre/Omeka-S-module-Guest
+[Guest User]: https://github.com/omeka/plugin-GuestUser
 [Omeka S]: https://www.omeka.org/s
 [Omeka Classic]: https://omeka.org
-[module issues]: https://github.com/biblibre/Omeka-S-module-GuestUser/issues
+[module issues]: https://github.com/biblibre/Omeka-S-module-Guest/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
