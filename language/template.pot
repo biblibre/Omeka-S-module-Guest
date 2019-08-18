@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-17 00:00+0200\n"
+"POT-Creation-Date: 2019-08-19 00:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,39 +17,48 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Controller/Site/GuestController.php:238
-#: view/guest/site/guest/register.phtml:13
-#: view/guest/site/guest/register.phtml:16
+#: Module.php:491
+msgid ""
+"This module cannot be used at the same time as module GuestUser for versions "
+"lower than 3.3.5. So it should be upgraded first, or disabled. When ready, "
+"the users and settings will be upgraded for all versions."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:129
+#: view/guest/site/anonymous/register.phtml:16
+#: view/guest/site/anonymous/register.phtml:23
 msgid "Register"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:307
+#: src/Controller/Site/AnonymousController.php:209
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
 "message. Once you have confirmed your request, you will be able to log in."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:324
-msgid "My account"
-msgstr ""
-
-#: src/Controller/Site/GuestController.php:539
-msgid "My Account"
-msgstr ""
-
-#: src/Controller/Site/GuestController.php:633
+#: src/Controller/Site/AnonymousController.php:220
 msgid "Invalid token stop"
 msgstr ""
 
-#: src/Module/AbstractGenericModule.php:396
-msgid "This module requires the module \"{dependency}\"."
+#: src/Controller/Site/GuestController.php:46
+msgid "My Account"
 msgstr ""
 
-#: src/Module/AbstractGenericModule.php:416
-msgid "This module requires modules \"{dependencies}\"."
+#: src/Controller/Site/GuestController.php:67
+msgid "My account"
 msgstr ""
 
-#: src/Module/AbstractGenericModule.php:484
+#: src/Generic/AbstractModule.php:486
+#, php-format
+msgid "This module requires the module \"%s\"."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:506
+#, php-format
+msgid "This module requires modules \"%s\"."
+msgstr ""
+
+#: src/Generic/AbstractModule.php:574
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
@@ -60,11 +69,45 @@ msgstr ""
 msgid "default"
 msgstr ""
 
-#: view/guest/site/guest/accept-terms.phtml:16
+#: view/common/navigation-link-form/login-board.phtml:19
+msgid "Label Login"
+msgstr ""
+
+#: view/common/navigation-link-form/login-board.phtml:20
+msgid "Label My board"
+msgstr ""
+
+#: view/guest/site/anonymous/auth-error.phtml:9
+msgid "Authentication error"
+msgstr ""
+
+#: view/guest/site/anonymous/auth-error.phtml:12
+msgid ""
+"An error occurred during the authentication via a third party authenticator."
+msgstr ""
+
+#: view/guest/site/anonymous/auth-error.phtml:15
+msgid "Contact your administrator for more information."
+msgstr ""
+
+#: view/guest/site/anonymous/forgot-password.phtml:13
+msgid "Forgot Password"
+msgstr ""
+
+#: view/guest/site/anonymous/forgot-password.phtml:17
+msgid "Send an email to reset the password"
+msgstr ""
+
+#: view/guest/site/anonymous/login.phtml:18
+msgid ""
+"Your account seems to have an error. Contact your administrator to login."
+msgstr ""
+
+#: view/guest/site/guest/accept-terms.phtml:17
 msgid "Accept terms and conditions"
 msgstr ""
 
-#: view/guest/site/guest/accept-terms.phtml:22
+#: view/guest/site/guest/accept-terms.phtml:25
 msgid "Accept"
 msgstr ""
 
@@ -73,58 +116,43 @@ msgstr ""
 msgid "The terms and conditions can be read %shere%s."
 msgstr ""
 
-#: view/guest/site/guest/auth-error.phtml:8
-msgid "Authentication error"
-msgstr ""
-
-#: view/guest/site/guest/auth-error.phtml:10
-msgid ""
-"An error occurred during the authentication via a third party authenticator."
-msgstr ""
-
-#: view/guest/site/guest/auth-error.phtml:11
-msgid "Contact your administrator for more information."
-msgstr ""
-
-#: view/guest/site/guest/forgot-password.phtml:11
-msgid "Forgot Password"
-msgstr ""
-
-#: view/guest/site/guest/forgot-password.phtml:17
-msgid "Send an email to reset the password"
-msgstr ""
-
-#: view/guest/site/guest/login.phtml:13
-msgid ""
-"Your account seems to have an error. Contact your administrator to login."
-msgstr ""
-
-#: view/guest/site/guest/update-email.phtml:14
+#: view/guest/site/guest/update-email.phtml:15
 msgid "My email"
 msgstr ""
 
-#: view/guest/site/guest/widget/account.phtml:12
+#: view/guest/site/guest/widget/account.phtml:14
 msgid "Update account info and password"
 msgstr ""
 
-#: view/guest/site/guest/widget/account.phtml:16
+#: view/guest/site/guest/widget/account.phtml:18
 msgid "Update email"
 msgstr ""
 
-#: Module.php:100
+#: Module.php:117
 msgid "Guest"
 msgstr ""
 
-#: Module.php:286
+#: Module.php:250
 msgid "All guests must agreed the terms one more time."
 msgstr ""
 
-#: Module.php:291
+#: Module.php:255
 msgid "All guests agreed the terms."
 msgstr ""
 
-#: Module.php:330 Module.php:346
+#: Module.php:294 Module.php:310
 msgid "Agreed terms"
+msgstr ""
+
+#: Module.php:496
+msgid ""
+"The module GuestUser is installed. Users and settings from this module are "
+"upgraded."
+msgstr ""
+
+#: Module.php:502
+#, php-format
+msgid "To upgrade customized templates from module GuestUser, see %sreadme%s."
 msgstr ""
 
 #: src/Form/ConfigForm.php:16
@@ -133,8 +161,8 @@ msgstr ""
 
 #: src/Form/ConfigForm.php:17
 msgid ""
-"Allow guest registration without administrator approval. The link to "
-"use is \"/s/my-site/guest/register\"."
+"Allow guest registration without administrator approval. The link to use is "
+"\"/s/my-site/guest/register\"."
 msgstr ""
 
 #: src/Form/ConfigForm.php:28
@@ -283,9 +311,9 @@ msgstr ""
 
 #: src/Form/ConfigForm.php:198
 msgid ""
-"When terms and conditions are updated, you may want guests agree them "
-"one more time. Warning: to set false will impact all guests. So warn "
-"them some time before."
+"When terms and conditions are updated, you may want guests agree them one "
+"more time. Warning: to set false will impact all guests. So warn them some "
+"time before."
 msgstr ""
 
 #: src/Form/ConfigForm.php:200
@@ -315,123 +343,124 @@ msgstr ""
 msgid "I agree with terms and conditions."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:83
-#, php-format
-msgid "A user failed to log on the site \"%s\"; params: %s."
-msgstr ""
-
-#: src/Controller/Site/GuestController.php:90
-msgid "Unable to authenticate. Contact the administrator."
-msgstr ""
-
-#: src/Controller/Site/GuestController.php:249
-msgid "A password must be set."
-msgstr ""
-
-#: src/Controller/Site/GuestController.php:267
-msgid "Already registered."
-msgstr ""
-
-#: src/Controller/Site/GuestController.php:269
-msgid "Check your email to confirm your registration."
-msgstr ""
-
-#: src/Controller/Site/GuestController.php:274
-msgid "Unknown error."
-msgstr ""
-
-#: src/Controller/Site/GuestController.php:301
-#: src/Controller/Site/GuestController.php:473
-#: src/Controller/Site/GuestController.php:518
-msgid "An error occurred when the email was sent."
-msgstr ""
-
-#: src/Controller/Site/GuestController.php:362
+#: src/Controller/Site/GuestController.php:105
 msgid "Password invalid"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:375
+#: src/Controller/Site/GuestController.php:118
 msgid "Your modifications have been saved."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:386
+#: src/Controller/Site/GuestController.php:134
 msgid "password"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:426
+#: src/Controller/Site/GuestController.php:170
 msgid "The request should be a POST."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:443
-#: src/Controller/Site/GuestController.php:461
-#: src/Controller/Site/GuestController.php:481
-#: src/Controller/Site/GuestController.php:506
-#: src/Controller/Site/GuestController.php:524
+#: src/Controller/Site/GuestController.php:187
+#: src/Controller/Site/GuestController.php:205
+#: src/Controller/Site/GuestController.php:225
+#: src/Controller/Site/GuestController.php:250
+#: src/Controller/Site/GuestController.php:268
 msgid "email"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:450
-#: src/Controller/Site/GuestController.php:497
+#: src/Controller/Site/GuestController.php:194
+#: src/Controller/Site/GuestController.php:241
 msgid "The new email is the same than the current one."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:489
+#: src/Controller/Site/GuestController.php:217
+#: src/Controller/Site/GuestController.php:262
+#: src/Controller/Site/AnonymousController.php:203
+msgid "An error occurred when the email was sent."
+msgstr ""
+
+#: src/Controller/Site/GuestController.php:233
 msgid "Email invalid"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:561
+#: src/Controller/Site/GuestController.php:278
 msgid "You already agreed the terms and conditions."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:591
+#: src/Controller/Site/GuestController.php:308
 msgid "Form invalid"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:601
+#: src/Controller/Site/GuestController.php:318
 msgid ""
 "The access to this website requires you accept the current terms and "
 "conditions."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:608
+#: src/Controller/Site/GuestController.php:325
 msgid "Thanks for accepting the terms and condtions."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:646
+#: src/Controller/Site/AnonymousController.php:46
+#, php-format
+msgid "A user failed to log on the site \"%s\"; params: %s."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:53
+msgid "Unable to authenticate. Contact the administrator."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:143
+#: src/Controller/Site/AnonymousController.php:149
+msgid "A password must be set."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:169
+msgid "Already registered."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:171
+msgid "Check your email to confirm your registration."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:176
+msgid "Unknown error."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:233
 msgid ""
 "Thanks for joining {site_title}! You can now log in using the password you "
 "chose."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:667
+#: src/Controller/Site/AnonymousController.php:254
 msgid "Invalid token: your email was not confirmed for {site_title}."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:672
+#: src/Controller/Site/AnonymousController.php:259
 msgid "message"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:693
+#: src/Controller/Site/AnonymousController.php:287
 msgid "Your new email \"{email}\" is confirmed for {site_title}."
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:744
+#: src/Controller/Site/AnonymousController.php:401
 msgid "Email or password invalid"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:827
+#: src/Controller/Site/AbstractGuestController.php:123
 msgid "Your request to join {main_title} / {site_title}"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:835
+#: src/Controller/Site/AbstractGuestController.php:131
 msgid "Update email on {main_title} / {site_title}"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:844
+#: src/Controller/Site/AbstractGuestController.php:140
 msgid "[No subject]"
 msgstr ""
 
-#: src/Controller/Site/GuestController.php:845
+#: src/Controller/Site/AbstractGuestController.php:141
 msgid "[No message]"
 msgstr ""
 
@@ -439,8 +468,27 @@ msgstr ""
 msgid "Guest Register"
 msgstr ""
 
+#: src/Site/Navigation/Link/Register.php:23
+#: src/Site/Navigation/Link/Logout.php:23 src/Site/Navigation/Link/Login.php:23
+#, php-format
+msgid "Invalid navigation: link without label (%s)"
+msgstr ""
+
 #: src/Site/Navigation/Link/Logout.php:12
 msgid "Guest Logout"
+msgstr ""
+
+#: src/Site/Navigation/Link/LoginBoard.php:12
+msgid "Guest Login / My board"
+msgstr ""
+
+#: src/Site/Navigation/Link/LoginBoard.php:23
+#: src/Site/Navigation/Link/LoginBoard.php:27
+msgid "Invalid navigation: login link missing label"
+msgstr ""
+
+#: src/Site/Navigation/Link/LoginBoard.php:38
+msgid "My board"
 msgstr ""
 
 #: src/Site/Navigation/Link/Login.php:12
@@ -471,7 +519,11 @@ msgstr ""
 msgid "Your account has not been confirmed: check your email."
 msgstr ""
 
-#: config/module.config.php:113
+#: config/module.config.php:142
+msgid "My dashboard"
+msgstr ""
+
+#: config/module.config.php:145
 msgid ""
 "<p>Hi {user_name},</p>\n"
 "<p>You have registered for an account on {main_title} / {site_title} "
@@ -482,7 +534,7 @@ msgid ""
 "p>"
 msgstr ""
 
-#: config/module.config.php:117
+#: config/module.config.php:149
 msgid ""
 "<p>Hi {user_name},</p>\n"
 "<p>You have requested to update email on {main_title} / {site_title} "
@@ -492,6 +544,6 @@ msgid ""
 "disregard this email.</p>"
 msgstr ""
 
-#: config/module.config.php:121
+#: config/module.config.php:153
 msgid "I agree the terms and conditions."
 msgstr ""
