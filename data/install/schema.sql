@@ -1,14 +1,14 @@
-CREATE TABLE `guest_token` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created` datetime NOT NULL,
-  `confirmed` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `IDX_80ED0AF2A76ED395` (`user_id`),
-  CONSTRAINT `FK_80ED0AF2A76ED395` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE guest_token (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    created DATETIME NOT NULL,
+    confirmed TINYINT(1) NOT NULL,
+    INDEX IDX_4AC9362FA76ED395 (user_id),
+    INDEX guest_token_idx (token),
+    PRIMARY KEY(id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
 # If module was uninstalled/reinstalled, reactivate the guests.
 UPDATE user SET is_active = 1 WHERE role = "guest";

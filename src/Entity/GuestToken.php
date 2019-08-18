@@ -2,6 +2,7 @@
 
 /*
  * Copyright BibLibre, 2016
+ * Copyright Daniel Berthereau 2018-2019
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -36,6 +37,14 @@ use Omeka\Entity\User;
 
 /**
  * @Entity
+ * @Table(
+ *     indexes={
+ *         @Index(
+ *             name="guest_token_idx",
+ *             columns={"token"}
+ *         )
+ *     }
+ * )
  * @HasLifecycleCallbacks
  */
 class GuestToken extends AbstractEntity
@@ -48,11 +57,13 @@ class GuestToken extends AbstractEntity
     protected $id;
 
     /**
+     * @var string
      * @Column(type="string", length=255)
      */
     protected $token;
 
     /**
+     * @var string
      * @Column(type="string", length=255)
      */
     protected $email;
@@ -70,11 +81,13 @@ class GuestToken extends AbstractEntity
     protected $user;
 
     /**
+     * @var \DateTime
      * @Column(type="datetime")
      */
     protected $created;
 
     /**
+     * @var bool
      * @Column(type="boolean")
      */
     protected $confirmed = false;
@@ -84,45 +97,73 @@ class GuestToken extends AbstractEntity
         return $this->id;
     }
 
+    /**
+     * @param string $email
+     * @return self
+     */
     public function setEmail($email)
     {
         $this->email = $email;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getEmail()
     {
         return $this->email;
     }
 
+    /**
+     * @param User $user
+     * @return self
+     */
     public function setUser(User $user)
     {
         $this->user = $user;
         return $this;
     }
 
+    /**
+     * @return \Omeka\Entity\User
+     */
     public function getUser()
     {
         return $this->user;
     }
 
+    /**
+     * @param string $token
+     * @return self
+     */
     public function setToken($token)
     {
         $this->token = $token;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getToken()
     {
         return $this->token;
     }
 
+    /**
+     * @param bool $confirmed
+     * @return self
+     */
     public function setConfirmed($confirmed)
     {
-        $this->confirmed = $confirmed;
+        $this->confirmed = (bool) $confirmed;
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function isConfirmed()
     {
         return $this->confirmed;
@@ -130,6 +171,8 @@ class GuestToken extends AbstractEntity
 
     /**
      * @PrePersist
+     * @param LifecycleEventArgs $eventArgs
+     * @return self
      */
     public function prePersist(LifecycleEventArgs $eventArgs)
     {
