@@ -65,3 +65,20 @@ if (version_compare($oldVersion, '3.3.5', '<')) {
     $messenger = new Messenger();
     $messenger->addSuccess($message);
 }
+
+if (version_compare($oldVersion, '3.4.0', '<')) {
+    $modules = [
+        'Basket' => '3.2.1',
+        'DiscoveryLogin' => '3.0.2',
+    ];
+    foreach ($modules as $moduleClass => $moduleVersion) {
+        if ($this->isModuleActive($moduleClass)) {
+            /** @var \Omeka\Module\Manager $moduleManager */
+            $moduleManager = $services->get('Omeka\ModuleManager');
+            $module = $moduleManager->getModule($moduleClass);
+            if (version_compare($module->getIni('version'), $moduleVersion, '<=')) {
+                $this->disableModule($moduleClass);
+            }
+        }
+    }
+}

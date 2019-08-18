@@ -37,8 +37,8 @@ class Logout implements LinkInterface
     {
         return [
             'label' => $data['label'],
-            'route' => 'site/guest-user',
-            'class' => 'logoutlink',
+            'route' => 'site/guest-user/guest',
+            'class' => 'logout-link',
             'params' => [
                 'site-slug' => $site->slug(),
                 'controller' => \GuestUser\Controller\Site\GuestUserController::class,

@@ -48,7 +48,7 @@ class LoginBoard implements LinkInterface
         if ($site->getServiceLocator()->get('Omeka\AuthenticationService')->hasIdentity()) {
             return [
                 'label' => $data['label-board'],
-                'route' => 'site/guest-user',
+                'route' => 'site/guest-user/guest',
                 'class' => 'guest-board-link',
                 'params' => [
                     'site-slug' => $site->slug(),
@@ -60,11 +60,11 @@ class LoginBoard implements LinkInterface
 
         return [
             'label' => $data['label-login'],
-            'route' => 'site/guest-user',
+            'route' => 'site/guest-user/anonymous',
             'class' => 'login-link',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => \GuestUser\Controller\Site\GuestUserController::class,
+                'controller' => \GuestUser\Controller\Site\AnonymousController::class,
                 'action' => 'login',
             ],
         ];

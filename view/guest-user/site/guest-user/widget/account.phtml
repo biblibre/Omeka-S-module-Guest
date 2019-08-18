@@ -10,15 +10,15 @@ $urlHelper = $this->plugin('url');
 
 <ul>
     <li>
-        <?php $url = $urlHelper('site/guest-user', ['action' => 'update-account'], [], true); ?>
+        <?php $url = $urlHelper('site/guest-user/guest', ['action' => 'update-account'], [], true); ?>
         <?= $hyperlink($translate('Update account info and password'), $url) ?>
     </li>
     <li>
-        <?php $url = $urlHelper('site/guest-user', ['action' => 'update-email'], [], true); ?>
+        <?php $url = $urlHelper('site/guest-user/guest', ['action' => 'update-email'], [], true); ?>
         <?= $hyperlink($translate('Update email'), $url) ?>
     </li>
     <li>
-        <?php $url = $urlHelper('site/guest-user', ['action' => 'logout'], [], true); ?>
+        <?php $url = $urlHelper('site/guest-user/guest', ['action' => 'logout'], [], true); ?>
         <?= $hyperlink($translate('Logout'), $url) ?>
     </li>
 </ul>

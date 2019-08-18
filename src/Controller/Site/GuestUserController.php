@@ -1,17 +1,10 @@
 <?php
 namespace GuestUser\Controller\Site;
 
-use Doctrine\ORM\EntityManager;
-use GuestUser\Entity\GuestUserToken;
 use GuestUser\Form\AcceptTermsForm;
 use GuestUser\Form\EmailForm;
 use GuestUser\Stdlib\PsrMessage;
 use Omeka\Entity\User;
-use Omeka\Form\ForgotPasswordForm;
-use Omeka\Form\LoginForm;
-use Omeka\Form\UserForm;
-use Zend\Authentication\AuthenticationService;
-use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Mvc\MvcEvent;
 use Zend\Session\Container;
 use Zend\View\Model\JsonModel;
@@ -20,139 +13,8 @@ use Zend\View\Model\ViewModel;
 /**
  * Manage guest users pages.
  */
-class GuestUserController extends AbstractActionController
+class GuestUserController extends AbstractGuestUserController
 {
-    /**
-     * @var AuthenticationService
-     */
-    protected $authenticationService;
-
-    /**
-     * @var EntityManager
-     */
-    protected $entityManager;
-
-    /**
-     * @var array
-     */
-    protected $config;
-
-    protected $defaultRoles = [
-        \Omeka\Permissions\Acl::ROLE_RESEARCHER,
-        \Omeka\Permissions\Acl::ROLE_AUTHOR,
-        \Omeka\Permissions\Acl::ROLE_REVIEWER,
-        \Omeka\Permissions\Acl::ROLE_EDITOR,
-        \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
-        \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
-    ];
-
-    /**
-     * @param AuthenticationService $authenticationService
-     * @param EntityManager $entityManager
-     * @param array $config
-     */
-    public function __construct(
-        AuthenticationService $authenticationService,
-        EntityManager $entityManager,
-        array $config
-    ) {
-        $this->authenticationService = $authenticationService;
-        $this->entityManager = $entityManager;
-        $this->config = $config;
-    }
-
-    public function loginAction()
-    {
-        if ($this->isUserLogged()) {
-            return $this->redirectToAdminOrSite();
-        }
-
-        $auth = $this->getAuthenticationService();
-
-        $isExternalApp = $this->isExternalApp();
-
-        // Check if there is a fail from a third party authenticator.
-        $externalAuth = $this->params()->fromQuery('auth');
-        if ($externalAuth === 'error') {
-            $siteSlug = $this->params()->fromRoute('site-slug');
-            $params = $this->params()->fromPost();
-            $params += $this->params()->fromQuery();
-            if (array_key_exists('password', $params)) {
-                $params['password'] = '***';
-            }
-            $this->logger()->err(sprintf('A user failed to log on the site "%s"; params: %s.', // @translate
-                $siteSlug, json_encode($params, 320)));
-            $response = $this->getResponse();
-            $response->setStatusCode(400);
-            if ($isExternalApp) {
-                return new JsonModel([
-                    'result' => 'error',
-                    'message' => 'Unable to authenticate. Contact the administrator.', // @translate
-                ]);
-            }
-            return $this->redirect()->toRoute('site/guest-user', ['action' => 'auth-error', 'site-slug' => $siteSlug]);
-        }
-
-        $view = new ViewModel;
-
-        /** @var LoginForm $form */
-        $form = $this->getForm(LoginForm::class);
-        $view->setVariable('form', $form);
-
-        if ($externalAuth === 'local') {
-            return $view;
-        }
-
-        $view->setVariable('form', $form);
-
-        if (!$this->checkPostAndValidForm($form)) {
-            $email = $this->params()->fromPost('email') ?: $this->params()->fromQuery('email');
-            if ($email) {
-                $form->get('email')->setValue($email);
-            }
-            return $view;
-        }
-
-        $validatedData = $form->getData();
-        $sessionManager = Container::getDefaultManager();
-        $sessionManager->regenerateId();
-
-        $adapter = $auth->getAdapter();
-        $adapter->setIdentity($validatedData['email']);
-        $adapter->setCredential($validatedData['password']);
-        $result = $auth->authenticate();
-        if (!$result->isValid()) {
-            $this->messenger()->addError(implode(';', $result->getMessages()));
-            return $view;
-        }
-
-        $user = $auth->getIdentity();
-
-        if ($isExternalApp) {
-            $userSettings = $this->userSettings();
-            $userSettings->setTargetId($user->getId());
-            $result = [];
-            $result['user_id'] = $user->getId();
-            $result['agreed'] = $userSettings->get('guestuser_agreed_terms');
-            return new JsonModel($result);
-        }
-
-        $this->messenger()->addSuccess('Successfully logged in'); // @translate
-        $eventManager = $this->getEventManager();
-        $eventManager->trigger('user.login', $auth->getIdentity());
-
-        $redirectUrl = $this->params()->fromQuery('redirect');
-        if ($redirectUrl) {
-            return $this->redirect()->toUrl($redirectUrl);
-        }
-        return $this->redirect()->toUrl($this->currentSite()->url());
-    }
-
-    public function authErrorAction()
-    {
-        return new ViewModel;
-    }
-
     public function logoutAction()
     {
         $auth = $this->getAuthenticationService();
@@ -175,157 +37,27 @@ class GuestUserController extends AbstractActionController
         return $this->redirect()->toUrl($this->currentSite()->url());
     }
 
-    public function forgotPasswordAction()
+    public function meAction()
     {
-        if ($this->isUserLogged()) {
-            return $this->redirectToAdminOrSite();
-        }
+        $eventManager = $this->getEventManager();
+        $partial = $this->viewHelpers()->get('partial');
 
-        $form = $this->getForm(ForgotPasswordForm::class);
+        $widget = [];
+        $widget['label'] = $this->translate('My Account'); // @translate
+        $widget['content'] = $partial('guest-user/site/guest-user/widget/account');
+
+        $args = $eventManager->prepareArgs(['widgets' => []]);
+        $args['widgets']['account'] = $widget;
+
+        $eventManager->triggerEvent(new MvcEvent('guestuser.widgets', $this, $args));
 
         $view = new ViewModel;
-        $view->setVariable('form', $form);
-
-        if (!$this->getRequest()->isPost()) {
-            return $view;
-        }
-
-        $data = $this->getRequest()->getPost();
-        $form->setData($data);
-        if (!$form->isValid()) {
-            $this->messenger()->addError('Activation unsuccessful'); // @translate
-            return $view;
-        }
-
-        $entityManager = $this->getEntityManager();
-        $user = $entityManager->getRepository(User::class)
-            ->findOneBy([
-                'email' => $data['email'],
-                'isActive' => true,
-            ]);
-        if ($user) {
-            $entityManager->persist($user);
-            $passwordCreation = $entityManager
-                ->getRepository('Omeka\Entity\PasswordCreation')
-                ->findOneBy(['user' => $user]);
-            if ($passwordCreation) {
-                $entityManager->remove($passwordCreation);
-                $entityManager->flush();
-            }
-            $this->mailer()->sendResetPassword($user);
-        }
-
-        $this->messenger()->addSuccess('Check your email for instructions on how to reset your password'); // @translate
-
+        $view->setVariable('widgets', $args['widgets']);
         return $view;
-    }
-
-    public function registerAction()
-    {
-        if ($this->isUserLogged()) {
-            return $this->redirectToAdminOrSite();
-        }
-
-        $user = new User();
-        $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
-
-        $form = $this->_getForm($user);
-
-        $view = new ViewModel;
-        $view->setVariable('form', $form);
-        $registerLabel = $this->getOption('guestuser_capabilities')
-            ? $this->getOption('guestuser_capabilities')
-            : $this->translate('Register'); // @translate
-
-        $view->setVariable('registerLabel', $registerLabel);
-
-        if (!$this->checkPostAndValidForm($form)) {
-            return $view;
-        }
-
-        // TODO Add password required only for login.
-        $values = $form->getData();
-
-        // Manage old and new user forms (Omeka 1.4).
-        if (array_key_exists('password', $values['change-password'])) {
-            if (empty($values['change-password']['password'])) {
-                $this->messenger()->addError('A password must be set.'); // @translate
-                return $view;
-            }
-            $password = $values['change-password']['password'];
-        } else {
-            if (empty($values['change-password']['password-confirm']['password'])) {
-                $this->messenger()->addError('A password must be set.'); // @translate
-                return $view;
-            }
-            $password = $values['change-password']['password-confirm']['password'];
-        }
-
-        $userInfo = $values['user-information'];
-        // TODO Avoid to set the right to change role (fix core).
-        $userInfo['o:role'] = \GuestUser\Permissions\Acl::ROLE_GUEST;
-        $userInfo['o:is_active'] = false;
-        $response = $this->api()->create('users', $userInfo);
-        if (!$response) {
-            $entityManager = $this->getEntityManager();
-            $user = $entityManager->getRepository(User::class)->findOneBy([
-                'email' => $userInfo['o:email'],
-            ]);
-            if ($user) {
-                $guestUserToken = $entityManager->getRepository(GuestUserToken::class)
-                    ->findOneBy(['email' => $userInfo['o:email']], ['id' => 'DESC']);
-                if (empty($guestUserToken) || $guestUserToken->isConfirmed()) {
-                    $this->messenger()->addError('Already registered.'); // @translate
-                } else {
-                    $this->messenger()->addError('Check your email to confirm your registration.'); // @translate
-                }
-                return $this->redirect()->toRoute('site/guest-user', ['action' => 'login'], true);
-            }
-
-            $this->messenger()->addError('Unknown error.'); // @translate
-            return $view;
-        }
-
-        $user = $response->getContent()->getEntity();
-        $user->setPassword($password);
-        $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
-        // The account is active, but not confirmed, so login is not possible.
-        // Guest user has no right to set active his account.
-        $user->setIsActive(true);
-
-        $id = $user->getId();
-        if (!empty($values['user-settings'])) {
-            $userSettings = $this->userSettings();
-            foreach ($values['user-settings'] as $settingId => $settingValue) {
-                $userSettings->set($settingId, $settingValue, $id);
-            }
-        }
-
-        $guestUserToken = $this->createGuestUserToken($user);
-        $message = $this->prepareMessage('confirm-email', [
-            'user_email' => $user->getEmail(),
-            'user_name' => $user->getName(),
-            'token' => $guestUserToken,
-        ]);
-        $result = $this->sendEmail($user->getEmail(), $message['subject'], $message['body'], $user->getName());
-        if (!$result) {
-            $message = new PsrMessage('An error occurred when the email was sent.'); // @translate
-            $this->messenger()->addError($message);
-            $this->logger()->err('[GuestUser] ' . $message);
-            return $view;
-        }
-
-        $message = $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
-        $this->messenger()->addSuccess($message);
-        return $this->redirect()->toRoute('site/guest-user', ['action' => 'login'], [], true);
     }
 
     public function updateAccountAction()
     {
-        if (!$this->isUserLogged()) {
-            return $this->redirect()->toUrl($this->currentSite()->url());
-        }
-
         /** @var \Omeka\Entity\User $user */
         $user = $this->getAuthenticationService()->getIdentity();
         $id = $user->getId();
@@ -419,10 +151,6 @@ class GuestUserController extends AbstractActionController
 
     public function updateEmailAction()
     {
-        if (!$this->isUserLogged()) {
-            return $this->redirect()->toUrl($this->currentSite()->url());
-        }
-
         /** @var \Omeka\Entity\User $user */
         $user = $this->getAuthenticationService()->getIdentity();
 
@@ -542,35 +270,8 @@ class GuestUserController extends AbstractActionController
         return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
     }
 
-    public function meAction()
-    {
-        if (!$this->isUserLogged()) {
-            return $this->redirect()->toUrl($this->currentSite()->url());
-        }
-
-        $eventManager = $this->getEventManager();
-        $partial = $this->viewHelpers()->get('partial');
-
-        $widget = [];
-        $widget['label'] = $this->translate('My Account'); // @translate
-        $widget['content'] = $partial('guest-user/site/guest-user/widget/account');
-
-        $args = $eventManager->prepareArgs(['widgets' => []]);
-        $args['widgets']['account'] = $widget;
-
-        $eventManager->triggerEvent(new MvcEvent('guestuser.widgets', $this, $args));
-
-        $view = new ViewModel;
-        $view->setVariable('widgets', $args['widgets']);
-        return $view;
-    }
-
     public function acceptTermsAction()
     {
-        if (!$this->isUserLogged()) {
-            return $this->redirect()->toUrl($this->currentSite()->url());
-        }
-
         $userSettings = $this->userSettings();
         $agreed = $userSettings->get('guestuser_agreed_terms');
         if ($agreed) {
@@ -618,7 +319,7 @@ class GuestUserController extends AbstractActionController
                 $this->messenger()->addError($message);
                 return $view;
             }
-            return $this->redirect()->toRoute('site/guest-user', ['action' => 'logout'], [], true);
+            return $this->redirect()->toRoute('site/guest-user/guest', ['action' => 'logout'], [], true);
         }
 
         $message = new PsrMessage('Thanks for accepting the terms and condtions.'); // @translate
@@ -632,290 +333,5 @@ class GuestUserController extends AbstractActionController
             default:
                 return $this->redirect()->toRoute('site/guest-user', ['action' => 'me'], [], true);
         }
-    }
-
-    public function staleTokenAction()
-    {
-        $auth = $this->getInvokeArg('bootstrap')->getResource('Auth');
-        $auth->clearIdentity();
-    }
-
-    public function confirmAction()
-    {
-        $token = $this->params()->fromQuery('token');
-        $entityManager = $this->getEntityManager();
-        $guestUserToken = $entityManager->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
-        if (empty($guestUserToken)) {
-            $this->messenger()->addError($this->translate('Invalid token stop')); // @translate
-            return $this->redirect()->toUrl($this->currentSite()->url());
-        }
-
-        $guestUserToken->setConfirmed(true);
-        $entityManager->persist($guestUserToken);
-        $user = $entityManager->find(User::class, $guestUserToken->getUser()->getId());
-        // Bypass api, so no check of acl 'activate-user' for the user himself.
-        $user->setIsActive(true);
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        $siteTitle = $this->currentSite()->title();
-        $body = new PsrMessage('Thanks for joining {site_title}! You can now log in using the password you chose.', // @translate
-            ['site_title' => $siteTitle]);
-
-        $this->messenger()->addSuccess($body);
-        $redirectUrl = $this->url()->fromRoute('site/guest-user', [
-            'site-slug' => $this->currentSite()->slug(),
-            'action' => 'login',
-        ]);
-        return $this->redirect()->toUrl($redirectUrl);
-    }
-
-    public function confirmEmailAction()
-    {
-        $token = $this->params()->fromQuery('token');
-        $entityManager = $this->getEntityManager();
-
-        $isExternalApp = $this->isExternalApp();
-        $siteTitle = $this->currentSite()->title();
-
-        $guestUserToken = $entityManager->getRepository(GuestUserToken::class)->findOneBy(['token' => $token]);
-        if (empty($guestUserToken)) {
-            $message = new PsrMessage('Invalid token: your email was not confirmed for {site_title}.', // @translate
-                ['site_title' => $siteTitle]);
-            if ($isExternalApp) {
-                return new JsonModel([
-                    'result' => 'error',
-                    'message' => $message, // @translate
-                ]);
-            }
-
-            $this->messenger()->addError($message); // @translate
-            $redirectUrl = $this->url()->fromRoute('site/guest-user', [
-                'site-slug' => $this->currentSite()->slug(),
-                'action' => $this->isUserLogged() ? 'update-email' : 'login',
-            ]);
-            return $this->redirect()->toUrl($redirectUrl);
-        }
-
-        $guestUserToken->setConfirmed(true);
-        $entityManager->persist($guestUserToken);
-        $email = $guestUserToken->getEmail();
-        $user = $entityManager->find(User::class, $guestUserToken->getUser()->getId());
-        // Bypass api, so no check of acl 'activate-user' for the user himself.
-        $user->setEmail($email);
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        $message = new PsrMessage('Your new email "{email}" is confirmed for {site_title}.', // @translate
-            ['email' => $email, 'site_title' => $siteTitle]);
-        if ($isExternalApp) {
-            return new JsonModel([
-                'result' => 'success',
-                'message' => $message,
-            ]);
-        }
-
-        $this->messenger()->addSuccess($message);
-        $redirectUrl = $this->url()->fromRoute('site/guest-user', [
-            'site-slug' => $this->currentSite()->slug(),
-            'action' => $this->isUserLogged() ? 'me' : 'login',
-        ]);
-        return $this->redirect()->toUrl($redirectUrl);
-    }
-
-    /**
-     * Check if a user is logged.
-     *
-     * This method simplifies derivative modules that use the same code.
-     *
-     * @return bool
-     */
-    protected function isUserLogged()
-    {
-        return $this->getAuthenticationService()->hasIdentity();
-    }
-
-    /**
-     * Redirect to admin or site according to the role of the user.
-     *
-     * @return \Zend\Http\Response
-     */
-    protected function redirectToAdminOrSite()
-    {
-        $user = $this->getAuthenticationService()->getIdentity();
-        return $user && in_array($user->getRole(), $this->defaultRoles)
-            ? $this->redirect()->toRoute('admin', [], true)
-            : $this->redirect()->toRoute('site', [], true);
-    }
-
-    protected function checkPostAndValidForm(\Zend\Form\Form $form)
-    {
-        if (!$this->getRequest()->isPost()) {
-            return false;
-        }
-
-        $postData = $this->params()->fromPost();
-        $form->setData($postData);
-        if (!$form->isValid()) {
-            $this->messenger()->addError('Email or password invalid'); // @translate
-            return false;
-        }
-        return true;
-    }
-
-    protected function getOption($key)
-    {
-        return $this->settings()->get($key);
-    }
-
-    /**
-     * Prepare the user form for public view.
-     *
-     * @param User $user
-     * @param array $options
-     * @return UserForm
-     */
-    protected function _getForm(User $user = null, array $options = [])
-    {
-        $defaultOptions = [
-            'is_public' => true,
-            'user_id' => $user ? $user->getId() : 0,
-            'include_password' => true,
-            'include_role' => false,
-            'include_key' => false,
-        ];
-        $options += $defaultOptions;
-
-        $form = $this->getForm(UserForm::class, $options);
-
-        // Remove elements from the admin user form, that shouldn’t be available
-        // in public guest form.
-        $elements = [
-            'default_resource_template' => 'user-settings',
-        ];
-        foreach ($elements as $element => $fieldset) {
-            if ($fieldset) {
-                $fieldset = $form->get($fieldset);
-                $fieldset ? $fieldset->remove($element) : null;
-            } else {
-                $form->remove($element);
-            }
-        }
-        return $form;
-    }
-
-    /**
-     * Prepare the template.
-     *
-     * @param string $template In case of a token message, this is the action.
-     * @param array $data
-     * @return array Filled subject and body as PsrMessage, from templates
-     * formatted with moustache style.
-     */
-    protected function prepareMessage($template, array $data)
-    {
-        $settings = $this->settings();
-        $currentSite = $this->currentSite();
-        $default = [
-            'main_title' => $settings->get('installation_title', 'Omeka S'),
-            'site_title' => $currentSite->title(),
-            'site_url' => $currentSite->siteUrl(null, true),
-            'user_email' => '',
-            'user_name' => '',
-            'token' => null,
-        ];
-
-        $data += $default;
-
-        if (isset($data['token'])) {
-            $data['token'] = $data['token']->getToken();
-            $urlOptions = ['force_canonical' => true];
-            $urlOptions['query']['token'] = $data['token'];
-            $data['token_url'] = $this->url()->fromRoute(
-                'site/guest-user',
-                ['site-slug' => $currentSite->slug(), 'action' => $template],
-                $urlOptions
-            );
-        }
-
-        switch ($template) {
-            case 'confirm-email':
-                $subject = 'Your request to join {main_title} / {site_title}'; // @translate
-                $body = $settings->get(
-                    'guestuser_message_confirm_email',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_email']
-                );
-                break;
-
-            case 'update-email':
-                $subject = 'Update email on {main_title} / {site_title}'; // @translate
-                $body = $settings->get(
-                    'guestuser_message_update_email',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_update_email']
-                );
-                break;
-
-            // Allows to manage derivative modules.
-            default:
-                $subject = !empty($data['subject']) ? $data['subject'] : '[No subject]'; // @translate
-                $body = !empty($data['body']) ? $data['body'] : '[No message]'; // @translate
-                break;
-        }
-
-        unset($data['subject']);
-        unset($data['body']);
-        $subject = new PsrMessage($subject, $data);
-        $body = new PsrMessage($body, $data);
-
-        return [
-            'subject' => $subject,
-            'body'=> $body,
-        ];
-    }
-
-    /**
-     * Check if a request is done via an external application, specified in the
-     * config.
-     *
-     * @return boolean
-     */
-    protected function isExternalApp()
-    {
-        $requestedWith = $this->params()->fromHeader('X-Requested-With');
-        if (empty($requestedWith)) {
-            return false;
-        }
-
-        $checkRequestedWith = $this->settings()->get('guestuser_check_requested_with');
-        if (empty($checkRequestedWith)) {
-            return false;
-        }
-
-        $requestedWith = $requestedWith->getFieldValue();
-        return strpos($requestedWith, $checkRequestedWith) === 0;
-    }
-
-    /**
-     * @return \Zend\Authentication\AuthenticationService
-     */
-    protected function getAuthenticationService()
-    {
-        return $this->authenticationService;
-    }
-
-    /**
-     * @return \Doctrine\ORM\EntityManager
-     */
-    protected function getEntityManager()
-    {
-        return $this->entityManager;
-    }
-
-    /**
-     * @return array
-     */
-    protected function getConfig()
-    {
-        return $this->config;
     }
 }

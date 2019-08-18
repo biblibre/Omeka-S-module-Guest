@@ -35,6 +35,7 @@ return [
     ],
     'controllers' => [
         'factories' => [
+            Controller\Site\AnonymousController::class => Service\Controller\Site\AnonymousControllerFactory::class,
             Controller\Site\GuestUserController::class => Service\Controller\Site\GuestUserControllerFactory::class,
         ],
     ],
@@ -52,10 +53,10 @@ return [
     ],
     'navigation_links' => [
         'invokables' => [
-            'register' => Site\Navigation\Link\Register::class,
             'login' => Site\Navigation\Link\Login::class,
             'loginBoard' => Site\Navigation\Link\LoginBoard::class,
             'logout' => Site\Navigation\Link\Logout::class,
+            'register' => Site\Navigation\Link\Register::class,
         ],
     ],
     'navigation' => [
@@ -75,16 +76,46 @@ return [
             'site' => [
                 'child_routes' => [
                     'guest-user' => [
-                        'type' => \Zend\Router\Http\Segment::class,
+                        'type' => \Zend\Router\Http\Literal::class,
                         'options' => [
-                            'route' => '/guest-user[/:action]',
-                            'constraints' => [
-                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                            ],
+                            'route' => '/guest-user',
                             'defaults' => [
                                 '__NAMESPACE__' => 'GuestUser\Controller\Site',
                                 'controller' => Controller\Site\GuestUserController::class,
                                 'action' => 'me',
+                            ],
+                        ],
+                        'may_terminate' => true,
+                        'child_routes' => [
+                            'anonymous' => [
+                                'type' => \Zend\Router\Http\Segment::class,
+                                'options' => [
+                                    'route' => '/:action',
+                                    'constraints' => [
+                                        // "confirm" must be after "confirm-email" because regex is ungreedy.
+                                        'action' => 'login|confirm-email|confirm|forgot-password|stale-token|auth-error|register',
+                                    ],
+                                    'defaults' => [
+                                        '__NAMESPACE__' => 'GuestUser\Controller\Site',
+                                        'controller' => Controller\Site\AnonymousController::class,
+                                        'controller' => 'AnonymousController',
+                                        'action' => 'login',
+                                    ],
+                                ],
+                            ],
+                            'guest' => [
+                                'type' => \Zend\Router\Http\Segment::class,
+                                'options' => [
+                                    'route' => '/:action',
+                                    'constraints' => [
+                                        'action' => 'me|logout|update-account|update-email|accept-terms',
+                                    ],
+                                    'defaults' => [
+                                        '__NAMESPACE__' => 'GuestUser\Controller\Site',
+                                        'controller' => Controller\Site\GuestUserController::class,
+                                        'action' => 'me',
+                                    ],
+                                ],
                             ],
                         ],
                     ],

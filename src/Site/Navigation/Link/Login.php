@@ -37,11 +37,11 @@ class Login implements LinkInterface
     {
         return [
             'label' => $data['label'],
-            'route' => 'site/guest-user',
-            'class' => 'loginlink',
+            'route' => 'site/guest-user/anonymous',
+            'class' => 'login-link',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => \GuestUser\Controller\Site\GuestUserController::class,
+                'controller' => \GuestUser\Controller\Site\AnonymousController::class,
                 'action' => 'login',
             ],
         ];

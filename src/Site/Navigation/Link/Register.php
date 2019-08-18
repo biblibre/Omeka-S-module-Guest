@@ -37,11 +37,11 @@ class Register implements LinkInterface
     {
         return [
             'label' => $data['label'],
-            'route' => 'site/guest-user',
-            'class' => 'registerlink',
+            'route' => 'site/guest-user/anonymous',
+            'class' => 'register-link',
             'params' => [
                 'site-slug' => $site->slug(),
-                'controller' => \GuestUser\Controller\Site\GuestUserController::class,
+                'controller' => \GuestUser\Controller\Site\AnonymousController::class,
                 'action' => 'register',
             ],
         ];

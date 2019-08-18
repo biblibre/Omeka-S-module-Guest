@@ -109,61 +109,47 @@ class Module extends AbstractModule
         }
         $acl->addRoleLabel(Acl::ROLE_GUEST, 'Guest'); // @translate
 
-        $this->addRulesForSites($acl);
-
         $settings = $services->get('Omeka\Settings');
         $isOpenRegister = $settings->get('guestuser_open', false);
-        if ($isOpenRegister) {
-            $this->addRulesForVisitors($acl);
-        }
-
+        $this->addRulesForAnonymous($acl, $isOpenRegister);
         $this->addRulesForGuest($acl);
-        $this->addRulesForBasket($acl);
     }
 
     /**
      * Add ACL rules for sites.
      *
      * @param ZendAcl $acl
+     * @param bool $isOpenRegister
      */
-    protected function addRulesForSites(ZendAcl $acl)
-    {
-        $acl->allow(
-            null,
-            [\GuestUser\Controller\Site\GuestUserController::class],
-            [
-                // No logout.
-                'login', 'forgot-password', 'stale-token', 'auth-error',
-                'confirm', 'confirm-email',
-            ]
-        );
-    }
-
-    /**
-     * Add ACL rules for visitors.
-     *
-     * @param ZendAcl $acl
-     */
-    protected function addRulesForVisitors(ZendAcl $acl)
+    protected function addRulesForAnonymous(ZendAcl $acl, $isOpenRegister = false)
     {
         $acl
             ->allow(
                 null,
-                [\GuestUser\Controller\Site\GuestUserController::class],
-                ['register']
-            )
-            ->allow(
-                null,
-                [\Omeka\Entity\User::class],
-                // Change role and Activate user should be set to allow external
-                // logging (ldap, saml, etc.), not only guest registration here.
-                ['create', 'change-role', 'activate-user']
-            )
-            ->allow(
-                null,
-                [\Omeka\Api\Adapter\UserAdapter::class],
-                'create'
+                [\GuestUser\Controller\Site\AnonymousController::class]
             );
+        if ($isOpenRegister) {
+            $acl
+                ->allow(
+                    null,
+                    [\Omeka\Entity\User::class],
+                    // Change role and Activate user should be set to allow external
+                    // logging (ldap, saml, etc.), not only guest registration here.
+                    ['create', 'change-role', 'activate-user']
+                )
+                ->allow(
+                    null,
+                    [\Omeka\Api\Adapter\UserAdapter::class],
+                    ['create']
+                );
+        } else {
+            $acl
+                ->deny(
+                    null,
+                    [\GuestUser\Controller\Site\AnonymousController::class],
+                    ['register']
+                );
+        }
     }
 
     /**
@@ -176,11 +162,7 @@ class Module extends AbstractModule
         $acl
             ->allow(
                 [Acl::ROLE_GUEST],
-                [\GuestUser\Controller\Site\GuestUserController::class],
-                [
-                    'logout', 'update-account', 'update-email',
-                    'me', 'accept-terms',
-                ]
+                [\GuestUser\Controller\Site\GuestUserController::class]
             )
             ->allow(
                 [Acl::ROLE_GUEST],
@@ -215,47 +197,6 @@ class Module extends AbstractModule
                     'Omeka\Controller\SiteAdmin\Page',
                 ]
             );
-    }
-
-    /**
-     * Add ACL rules for "guest" role for Basket.
-     *
-     * @todo Remove this hack and replace to manage some modules that use roles in public front-end.
-     *
-     * This method is used or not, depending on the order of the load of the modules (until 1.4).
-     *
-     * @param ZendAcl $acl
-     */
-    protected function addRulesForBasket(ZendAcl $acl)
-    {
-        if (!$this->isModuleActive('Basket')) {
-            return;
-        }
-
-        // Compatibility with old vesion of Basket.
-        if ($acl->hasResource('Basket\Controller\Index')) {
-            $acl
-                ->allow(
-                    [\GuestUser\Permissions\Acl::ROLE_GUEST],
-                    [
-                        \Basket\Entity\BasketItem::class,
-                        \Basket\Api\Adapter\BasketItemAdapter::class,
-                        'Basket\Controller\Site\Basket',
-                        'Basket\Controller\Site\GuestBoard',
-                    ]
-            );
-        } else {
-            $acl
-                ->allow(
-                    [\GuestUser\Permissions\Acl::ROLE_GUEST],
-                    [
-                        \Basket\Entity\BasketItem::class,
-                        \Basket\Api\Adapter\BasketItemAdapter::class,
-                        'Basket\Controller\Site\Basket',
-                        'Basket\Controller\Site\GuestBoard',
-                    ]
-            );
-        }
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
