@@ -46,12 +46,17 @@ class UserBar extends AbstractHelper
             return '';
         }
 
-        $isGuest = $user && $user->getRole() === \Guest\Permissions\Acl::ROLE_GUEST;
-        if ($isGuest) {
-            $links = [];
-            $partialName = $partialName ?: self::PARTIAL_NAME_GUEST;
+        if ($user) {
+            $isGuest = $user->getRole() === \Guest\Permissions\Acl::ROLE_GUEST;
+            if ($isGuest) {
+                $links = [];
+                $partialName = $partialName ?: self::PARTIAL_NAME_GUEST;
+            } else {
+                $links = $this->links($view, $site, $user);
+                $partialName = $partialName ?: self::PARTIAL_NAME;
+            }
         } else {
-            $links = $this->links($view, $site, $user);
+            $links = [];
             $partialName = $partialName ?: self::PARTIAL_NAME;
         }
 
