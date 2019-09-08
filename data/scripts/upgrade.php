@@ -56,12 +56,12 @@ if (version_compare($oldVersion, '3.2.0', '<')) {
 }
 
 if (version_compare($oldVersion, '3.3.5', '<')) {
-    $message = new Message(
+    $message = new \Omeka\Stdlib\Message(
         'This module is compatible with the module %sGuest%s and can be replaced by it or be used in parallel.', // @translate
         '<a href="https://github.com/Daniel-KM/Omeka-S-module-Guest">',
         '</a>'
     );
     $message->setEscapeHtml(false);
-    $messenger = new Messenger();
+    $messenger = new \Omeka\Mvc\Controller\Plugin\Messenger();
     $messenger->addSuccess($message);
 }
