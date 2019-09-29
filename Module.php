@@ -216,7 +216,7 @@ class Module extends AbstractModule
         );
 
         $sharedEventManager->attach(
-            'Omeka\Api\Adapter\UserAdapter',
+            \Omeka\Api\Adapter\UserAdapter::class,
             'api.delete.post',
             [$this, 'deleteGuestToken']
         );
@@ -278,38 +278,50 @@ class Module extends AbstractModule
         $form = $event->getTarget();
         $services = $this->getServiceLocator();
 
+        $auth = $services->get('Omeka\AuthenticationService');
+        $user = $auth->getIdentity();
+
         // Public form.
         if ($form->getOption('is_public')) {
-            $auth = $services->get('Omeka\AuthenticationService');
             // Don't add the agreement checkbox in public when registered.
-            if ($auth->hasIdentity()) {
+            if ($user) {
                 return;
             }
 
             $fieldset = $form->get('user-settings');
-            $fieldset->add([
+            $fieldset
+                ->add([
+                    'name' => 'guest_agreed_terms',
+                    'type' => Element\Checkbox::class,
+                    'options' => [
+                        'label' => 'Agreed terms', // @translate
+                    ],
+                    'attributes' => [
+                        'id' => 'guest_agreed_terms',
+                        'value' => false,
+                        'required' => true,
+                    ],
+                ]);
+            return;
+        }
+
+        $services->get('Omeka\Settings\User')->setTargetId($user->getId());
+        $agreedTerms = $services->get('Omeka\Settings\User')->get('guest_agreed_terms');
+
+        // Admin board.
+        $fieldset = $form->get('user-settings');
+        $fieldset
+            ->add([
                 'name' => 'guest_agreed_terms',
                 'type' => Element\Checkbox::class,
                 'options' => [
                     'label' => 'Agreed terms', // @translate
                 ],
                 'attributes' => [
-                    'value' => false,
-                    'required' => true,
+                    'id' => 'guest_agreed_terms',
+                    'value' => $agreedTerms,
                 ],
             ]);
-            return;
-        }
-
-        // Admin board.
-        $fieldset = $form->get('user-settings');
-        $fieldset->add([
-            'name' => 'guest_agreed_terms',
-            'type' => Element\Checkbox::class,
-            'options' => [
-                'label' => 'Agreed terms', // @translate
-            ],
-        ]);
     }
 
     public function addUserFormValue(Event $event)
