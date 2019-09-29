@@ -135,7 +135,7 @@ return [
     ],
     'guest' => [
         'config' => [
-            'guest_open' => false,
+            'guest_open' => 'moderate',
             'guest_recaptcha' => false,
             'guest_login_text' => 'Login', // @translate
             'guest_register_text' => 'Register', // @translate

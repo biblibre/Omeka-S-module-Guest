@@ -182,7 +182,8 @@ class AnonymousController extends AbstractGuestController
         $user->setRole(\Guest\Permissions\Acl::ROLE_GUEST);
         // The account is active, but not confirmed, so login is not possible.
         // Guest has no right to set active his account.
-        $user->setIsActive(true);
+        $isOpenRegister = $this->isOpenRegister();
+        $user->setIsActive($isOpenRegister);
 
         $id = $user->getId();
         if (!empty($values['user-settings'])) {
@@ -206,7 +207,9 @@ class AnonymousController extends AbstractGuestController
             return $view;
         }
 
-        $message = $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
+        $message = $this->isOpenRegister()
+            ? $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.') // @translate
+            : $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and we have checket it, you will be able to log in.'); // @translate
         $this->messenger()->addSuccess($message);
         return $this->redirect()->toRoute('site/guest/anonymous', ['action' => 'login'], [], true);
     }
@@ -224,20 +227,31 @@ class AnonymousController extends AbstractGuestController
         $guestToken->setConfirmed(true);
         $entityManager->persist($guestToken);
         $user = $entityManager->find(User::class, $guestToken->getUser()->getId());
+
+        $isOpenRegister = $this->isOpenRegister();
+
         // Bypass api, so no check of acl 'activate-user' for the user himself.
-        $user->setIsActive(true);
+        $user->setIsActive($isOpenRegister);
         $entityManager->persist($user);
         $entityManager->flush();
 
-        $siteTitle = $this->currentSite()->title();
-        $body = new PsrMessage('Thanks for joining {site_title}! You can now log in using the password you chose.', // @translate
-            ['site_title' => $siteTitle]);
+        $currentSite = $this->currentSite();
+        $siteTitle = $currentSite->title();
+        if ($isOpenRegister) {
+            $body = new PsrMessage('Thanks for joining {site_title}! You can now log in using the password you chose.', // @translate
+                ['site_title' => $siteTitle]);
+            $this->messenger()->addSuccess($body);
+            $redirectUrl = $this->url()->fromRoute('site/guest/anonymous', [
+                'site-slug' => $currentSite->slug(),
+                'action' => 'login',
+            ]);
+            return $this->redirect()->toUrl($redirectUrl);
+        }
 
+        $body = new PsrMessage('Thanks for joining {site_title}! Your registration is under moderation. See you soon!', // @translate
+            ['site_title' => $siteTitle]);
         $this->messenger()->addSuccess($body);
-        $redirectUrl = $this->url()->fromRoute('site/guest/anonymous', [
-            'site-slug' => $this->currentSite()->slug(),
-            'action' => 'login',
-        ]);
+        $redirectUrl = $currentSite->url();
         return $this->redirect()->toUrl($redirectUrl);
     }
 
@@ -284,7 +298,7 @@ class AnonymousController extends AbstractGuestController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        $message = new PsrMessage('Your new email "{email}" is confirmed for {site_title}.', // @translate
+        $message = new PsrMessage('Your email "{email}" is confirmed for {site_title}.', // @translate
             ['email' => $email, 'site_title' => $siteTitle]);
         if ($isExternalApp) {
             return new JsonModel([
@@ -374,6 +388,16 @@ class AnonymousController extends AbstractGuestController
     protected function isUserLogged()
     {
         return $this->getAuthenticationService()->hasIdentity();
+    }
+
+    /**
+     * Check if the registering is open or moderated.
+     *
+     *  @return bool True if open, false if moderated (or closed).
+     */
+    protected function isOpenRegister()
+    {
+        return $this->settings()->get('guest_open') === 'open';
     }
 
     /**

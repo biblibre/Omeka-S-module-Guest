@@ -11,10 +11,15 @@ class ConfigForm extends Form
     {
         $this->add([
             'name' => 'guest_open',
-            'type' => Element\Checkbox::class,
+            'type' => Element\Radio::class,
             'options' => [
-                'label' => 'Allow open registration', // @translate
+                'label' => 'Registration', // @translate
                 'info' => 'Allow guest registration without administrator approval. The link to use is "/s/my-site/guest/register".', // @translate
+                'value_options' => [
+                    'open' => 'Open to everyone', // @translate
+                    'moderate' => 'Open with moderation', // @translate
+                    'closed' => 'Closed to visitors', // @translate
+                ],
             ],
             'attributes' => [
                 'id' => 'guest-open',

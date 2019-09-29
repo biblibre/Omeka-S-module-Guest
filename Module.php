@@ -117,7 +117,7 @@ class Module extends AbstractModule
         $acl->addRoleLabel(Acl::ROLE_GUEST, 'Guest'); // @translate
 
         $settings = $services->get('Omeka\Settings');
-        $isOpenRegister = $settings->get('guest_open', false);
+        $isOpenRegister = $settings->get('guest_open', 'moderate');
         $this->addRulesForAnonymous($acl, $isOpenRegister);
         $this->addRulesForGuest($acl);
     }
@@ -128,14 +128,14 @@ class Module extends AbstractModule
      * @param ZendAcl $acl
      * @param bool $isOpenRegister
      */
-    protected function addRulesForAnonymous(ZendAcl $acl, $isOpenRegister = false)
+    protected function addRulesForAnonymous(ZendAcl $acl, $isOpenRegister = 'moderate')
     {
         $acl
             ->allow(
                 null,
                 [\Guest\Controller\Site\AnonymousController::class]
             );
-        if ($isOpenRegister) {
+        if ($isOpenRegister !== 'closed') {
             $acl
                 ->allow(
                     null,
