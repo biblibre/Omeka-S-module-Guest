@@ -32,18 +32,22 @@ class SendEmail extends AbstractPlugin
     }
 
     /**
-     * Send an email to a recipient (no check is done), and get response.
+     * Send an email to a list of recipients (no check done), and get response.
      *
-     * @param string $recipient
+     * @param array|string $recipients
      * @param string $subject
      * @param string $body
      * @param string $name
      * @return bool|string True, or a message in case of error.
      */
-    public function __invoke($recipient, $subject, $body, $name = null)
+    public function __invoke($recipients, $subject, $body, $name = null)
     {
-        $recipient = trim($recipient);
-        if (empty($recipient)) {
+        if (!is_array($recipients)) {
+            $recipients = [$recipients];
+        }
+
+        $recipients = array_filter(array_unique(array_map('trim', $recipients)));
+        if (empty($recipients)) {
             return new PsrMessage('The message has no recipient.'); // @translate
         }
         $subject = trim($subject);
@@ -94,7 +98,7 @@ BODY;
         }
 
         $message
-            ->addTo($recipient, $name)
+            ->addTo($recipients, $name)
             ->setSubject($subject)
             ->setBody($body);
 
@@ -102,8 +106,8 @@ BODY;
             $mailer->send($message);
             // Log email sent for security purpose.
             $msg = new PsrMessage(
-                'A mail was sent to {email} with subject {subject}', // @translate
-                ['email' => $recipient, 'subject' => $subject]
+                'A mail was sent to {email} with subject: {subject}', // @translate
+                ['email' => implode(', ', $recipients), 'subject' => $subject]
             );
             $this->logger->info($msg->getMessage(), $msg->getContext());
             return true;

@@ -177,6 +177,7 @@ class AnonymousController extends AbstractGuestController
             return $view;
         }
 
+        /** @var \Omeka\Entity\User $user */
         $user = $response->getContent()->getEntity();
         $user->setPassword($password);
         $user->setRole(\Guest\Permissions\Acl::ROLE_GUEST);
@@ -191,6 +192,18 @@ class AnonymousController extends AbstractGuestController
             foreach ($values['user-settings'] as $settingId => $settingValue) {
                 $userSettings->set($settingId, $settingValue, $id);
             }
+        }
+
+        $emails = $this->settings()->get('guest_notify_register');
+        if ($emails) {
+            $message = new PsrMessage(
+                'A new user is registering: {email} ({url}).', // @translate
+                [
+                    'email' => $user->getEmail(),
+                    'url' => $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId(), ['force_canonical' => true]]),
+                ]
+            );
+            $this->sendEmail($emails, $this->translate('[Omeka Guest] New registration'), $message); // @translate
         }
 
         $guestToken = $this->createGuestToken($user);
@@ -209,7 +222,7 @@ class AnonymousController extends AbstractGuestController
 
         $message = $this->isOpenRegister()
             ? $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.') // @translate
-            : $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and we have checket it, you will be able to log in.'); // @translate
+            : $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and we have confirmed it, you will be able to log in.'); // @translate
         $this->messenger()->addSuccess($message);
         return $this->redirect()->toRoute('site/guest/anonymous', ['action' => 'login'], [], true);
     }

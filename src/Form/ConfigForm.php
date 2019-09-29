@@ -28,6 +28,20 @@ class ConfigForm extends Form
             ])
 
             ->add([
+                'name' => 'guest_notify_register',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Notify registrations by email', // @translate
+                    'info' => 'The list of emails to notify when a user registers, one by row.', // @translate
+                ],
+                'attributes' => [
+                    'required' => false,
+                    'placeholder' => 'contact@example.org
+info@example2.org',
+                ],
+            ])
+
+            ->add([
                 'name' => 'guest_recaptcha',
                 'type' => Element\Checkbox::class,
                 'options' => [
@@ -227,5 +241,49 @@ If you did not request to update your email on {main_title}, please disregard th
                 ],
             ])
         ;
+
+        $this->getInputFilter()
+            ->add([
+                'name' => 'guest_notify_register',
+                'required' => false,
+                'filters' => [
+                    [
+                        'name' => \Zend\Filter\Callback::class,
+                        'options' => [
+                            'callback' => [$this, 'stringToList'],
+                        ],
+                    ],
+                ],
+            ])
+        ;
+    }
+
+    public function populateValues($data, $onlyBase = false)
+    {
+        if (isset($data['guest_notify_register']) && is_array($data['guest_notify_register'])) {
+            $data['guest_notify_register'] = implode("\n", $data['guest_notify_register']);
+        }
+        parent::populateValues($data, $onlyBase);
+    }
+
+    public function stringToList($string)
+    {
+        if (is_array($string)) {
+            return $string;
+        }
+        return array_filter(array_map('trim', explode("\n", $this->fixEndOfLine($string))));
+    }
+
+    /**
+     * Clean the text area from end of lines.
+     *
+     * This method fixes Windows and Apple copy/paste from a textarea input.
+     *
+     * @param string $string
+     * @return string
+     */
+    protected function fixEndOfLine($string)
+    {
+        return str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $string);
     }
 }

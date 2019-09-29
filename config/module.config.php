@@ -136,6 +136,7 @@ return [
     'guest' => [
         'config' => [
             'guest_open' => 'moderate',
+            'guest_notify_register' => [],
             'guest_recaptcha' => false,
             'guest_login_text' => 'Login', // @translate
             'guest_register_text' => 'Register', // @translate
