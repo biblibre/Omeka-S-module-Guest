@@ -17,7 +17,7 @@ Installation
 ------------
 
 If the module [GuestUser] is installed, it is recommended to upgrade it first to
-version 3.3.5 or higher, or to disable it. See [more information to upgrade templates]
+version 3.3.5.1 or higher, or to disable it. See [more information to upgrade templates]
 from module [GuestUser].
 
 Uncompress files in the module directory and rename module folder `Guest`.
@@ -37,7 +37,7 @@ A guest login form is provided in `/s/my_site/guest/login`.
 ### Main login form
 
 In some cases, you may want to use the same login form for all users, so you may
-have to adapt it.
+have to adapt it. You may use the navigation link too (in admin > sites > my-site > navigation).
 
 ```php
 <?php
