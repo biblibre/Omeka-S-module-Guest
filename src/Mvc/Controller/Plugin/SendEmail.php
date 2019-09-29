@@ -70,7 +70,7 @@ class SendEmail extends AbstractPlugin
                 $body = <<<BODY
 --$boundary
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/html; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8
 MIME-Version: 1.0
 
 $raw
