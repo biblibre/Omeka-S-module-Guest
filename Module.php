@@ -227,6 +227,12 @@ class Module extends AbstractModule
             'form.add_elements',
             [$this, 'addUserFormElement']
         );
+        // Add the guest element form to the user form.
+        $sharedEventManager->attach(
+            \Omeka\Form\UserForm::class,
+            'form.add_input_filters',
+            [$this, 'addUserFormElementFilter']
+        );
         // FIXME Use the autoset of the values (in a fieldset) and remove this.
         $sharedEventManager->attach(
             'Omeka\Controller\Admin\User',
@@ -279,12 +285,11 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
 
         $auth = $services->get('Omeka\AuthenticationService');
-        $user = $auth->getIdentity();
 
         // Public form.
         if ($form->getOption('is_public')) {
             // Don't add the agreement checkbox in public when registered.
-            if ($user) {
+            if ($auth->hasIdentity()) {
                 return;
             }
 
@@ -305,7 +310,17 @@ class Module extends AbstractModule
             return;
         }
 
-        $services->get('Omeka\Settings\User')->setTargetId($user->getId());
+        // The user is not the current user, but the user in the form.
+        $userId = $services->get('Application')->getMvcEvent()->getRouteMatch()->getParam('id');
+        if (!$userId) {
+            return;
+        }
+
+        $entityManager = $services->get('Omeka\EntityManager');
+        /** @var \Omeka\Entity\User $user */
+        $user = $entityManager->getRepository(\Omeka\Entity\User::class)->find($userId);
+
+        $services->get('Omeka\Settings\User')->setTargetId($userId);
         $agreedTerms = $services->get('Omeka\Settings\User')->get('guest_agreed_terms');
 
         // Admin board.
@@ -322,6 +337,95 @@ class Module extends AbstractModule
                     'value' => $agreedTerms,
                 ],
             ]);
+
+        /** @var \Guest\Entity\GuestToken $guestToken */
+        $guestToken = $entityManager->getRepository(GuestToken::class)
+            ->findOneBy(['email' => $user->getEmail()], ['id' => 'DESC']);
+        if (!$guestToken || $guestToken->isConfirmed()) {
+            return;
+        }
+
+        $fieldset
+            ->add([
+                'name' => 'guest_clear_token',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Clear registration token', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guest_clear_token',
+                    'value' => false,
+                ],
+            ]);
+    }
+
+    public function addUserFormElementFilter(Event $event)
+    {
+        /** @var \Omeka\Form\UserForm $form */
+        $form = $event->getTarget();
+        if ($form->getOption('is_public')) {
+            return;
+        }
+
+        $services = $this->getServiceLocator();
+        // The user is not the current user, but the user in the form.
+        $userId = $services->get('Application')->getMvcEvent()->getRouteMatch()->getParam('id');
+        if (!$userId) {
+            return;
+        }
+
+        $entityManager = $services->get('Omeka\EntityManager');
+        /** @var \Omeka\Entity\User $user */
+        $user = $entityManager->getRepository(\Omeka\Entity\User::class)->find($userId);
+
+        /** @var \Guest\Entity\GuestToken $guestToken */
+        $guestToken = $entityManager->getRepository(GuestToken::class)
+            ->findOneBy(['email' => $user->getEmail()], ['id' => 'DESC']);
+        if (!$guestToken || $guestToken->isConfirmed()) {
+            return;
+        }
+
+        $inputFilter = $event->getParam('inputFilter');
+        $inputFilter->get('user-settings')
+            ->add([
+                'name' => 'guest_clear_token',
+                'required' => false,
+                'filters' => [
+                    [
+                        'name' => \Zend\Filter\Callback::class,
+                        'options' => [
+                            'callback' => [$this, 'clearToken'],
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    public function clearToken($value)
+    {
+        if (!$value) {
+            return;
+        }
+
+        $services = $this->getServiceLocator();
+        // The user is not the current user, but the user in the form.
+        $userId = $services->get('Application')->getMvcEvent()->getRouteMatch()->getParam('id');
+        if (!$userId) {
+            return;
+        }
+
+        $entityManager = $services->get('Omeka\EntityManager');
+        /** @var \Omeka\Entity\User $user */
+        $user = $entityManager->getRepository(\Omeka\Entity\User::class)->find($userId);
+
+        /** @var \Guest\Entity\GuestToken $guestToken */
+        $token = $entityManager->getRepository(GuestToken::class)
+            ->findOneBy(['email' => $user->getEmail()], ['id' => 'DESC']);
+        if (!$token || $token->isConfirmed()) {
+            return;
+        }
+        $entityManager->remove($token);
+        $entityManager->flush();
     }
 
     public function addUserFormValue(Event $event)
@@ -351,11 +455,11 @@ class Module extends AbstractModule
 
         $em = $this->getServiceLocator()->get('Omeka\EntityManager');
         $id = $request->getId();
-        $user = $em->getRepository(GuestToken::class)->findOneBy(['user' => $id]);
-        if (empty($user)) {
+        $token = $em->getRepository(GuestToken::class)->findOneBy(['user' => $id]);
+        if (empty($token)) {
             return;
         }
-        $em->remove($user);
+        $em->remove($token);
         $em->flush();
     }
 
