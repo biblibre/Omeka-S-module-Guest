@@ -101,6 +101,7 @@ info@example2.org',
                 ],
             ])
 
+            /* // From Omeka classic, but not used.
             ->add([
                 'name' => 'guest_short_capabilities',
                 'type' => CkeditorInline::class,
@@ -112,6 +113,7 @@ info@example2.org',
                     'id' => 'guest-short-capabilities',
                 ],
             ])
+            */
 
             ->add([
                 'name' => 'guest_message_confirm_email',
