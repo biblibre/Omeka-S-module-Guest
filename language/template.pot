@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-19 00:00+0200\n"
+"POT-Creation-Date: 2019-09-30 00:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,13 +30,24 @@ msgstr ""
 msgid "Register"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:209
+#: src/Controller/Site/AnonymousController.php:206
+msgid "[Omeka Guest] New registration"
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:224
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
 "message. Once you have confirmed your request, you will be able to log in."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:220
+#: src/Controller/Site/AnonymousController.php:225
+msgid ""
+"Thank you for registering. Please check your email for a confirmation "
+"message. Once you have confirmed your request and we have confirmed it, you "
+"will be able to log in."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:236
 msgid "Invalid token stop"
 msgstr ""
 
@@ -48,17 +59,17 @@ msgstr ""
 msgid "My account"
 msgstr ""
 
-#: src/Generic/AbstractModule.php:486
+#: src/Generic/AbstractModule.php:494
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:506
+#: src/Generic/AbstractModule.php:514
 #, php-format
 msgid "This module requires modules \"%s\"."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:574
+#: src/Generic/AbstractModule.php:582
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
@@ -155,79 +166,93 @@ msgstr ""
 msgid "To upgrade customized templates from module GuestUser, see %sreadme%s."
 msgstr ""
 
-#: src/Form/ConfigForm.php:16
-msgid "Allow open registration"
+#: src/Form/ConfigForm.php:17
+msgid "Registration"
 msgstr ""
 
-#: src/Form/ConfigForm.php:17
+#: src/Form/ConfigForm.php:18
 msgid ""
 "Allow guest registration without administrator approval. The link to use is "
 "\"/s/my-site/guest/register\"."
 msgstr ""
 
-#: src/Form/ConfigForm.php:28
+#: src/Form/ConfigForm.php:20
+msgid "Open to everyone"
+msgstr ""
+
+#: src/Form/ConfigForm.php:21
+msgid "Open with moderation"
+msgstr ""
+
+#: src/Form/ConfigForm.php:22
+msgid "Closed to visitors"
+msgstr ""
+
+#: src/Form/ConfigForm.php:34
+msgid "Notify registrations by email"
+msgstr ""
+
+#: src/Form/ConfigForm.php:35
+msgid "The list of emails to notify when a user registers, one by row."
+msgstr ""
+
+#: src/Form/ConfigForm.php:48
 msgid "Require ReCaptcha"
 msgstr ""
 
-#: src/Form/ConfigForm.php:29
+#: src/Form/ConfigForm.php:49
 msgid "Check this to require passing a ReCaptcha test when registering"
 msgstr ""
 
-#: src/Form/ConfigForm.php:40
+#: src/Form/ConfigForm.php:60
 msgid "Login Text"
 msgstr ""
 
-#: src/Form/ConfigForm.php:41
+#: src/Form/ConfigForm.php:61
 msgid "The text to use for the \"Login\" link in the user bar"
 msgstr ""
 
-#: src/Form/ConfigForm.php:52
+#: src/Form/ConfigForm.php:72
 msgid "Register Text"
 msgstr ""
 
-#: src/Form/ConfigForm.php:53
+#: src/Form/ConfigForm.php:73
 msgid "The text to use for the \"Register\" link in the user bar"
 msgstr ""
 
-#: src/Form/ConfigForm.php:64
+#: src/Form/ConfigForm.php:84
 msgid "Dashboard Label"
 msgstr ""
 
-#: src/Form/ConfigForm.php:65
+#: src/Form/ConfigForm.php:85
 msgid "The text to use for the label on the user’s dashboard"
 msgstr ""
 
-#: src/Form/ConfigForm.php:76
+#: src/Form/ConfigForm.php:96
 msgid "Registration Features"
 msgstr ""
 
-#: src/Form/ConfigForm.php:77
+#: src/Form/ConfigForm.php:97
 msgid ""
 "Add some text to the registration screen so people will know what they get "
 "for registering. As you enable and configure plugins that make use of the "
 "guest, please give them guidance about what they can and cannot do."
 msgstr ""
 
-#: src/Form/ConfigForm.php:88
-msgid "Short Registration Features"
-msgstr ""
-
-#: src/Form/ConfigForm.php:89
-msgid ""
-"Add a shorter version to use as a dropdown from the user bar. If empty, no "
-"dropdown will appear."
-msgstr ""
-
 #: src/Form/ConfigForm.php:100
+msgid "guest-capabilities"
+msgstr ""
+
+#: src/Form/ConfigForm.php:122
 msgid "Email sent to confirm registration"
 msgstr ""
 
-#: src/Form/ConfigForm.php:101
+#: src/Form/ConfigForm.php:123
 msgid ""
 "The text of the email to confirm the registration and to send the token."
 msgstr ""
 
-#: src/Form/ConfigForm.php:105
+#: src/Form/ConfigForm.php:127
 msgid ""
 "Hi {user_name},\n"
 "You have registered for an account on {main_title} / {site_title} "
@@ -236,15 +261,15 @@ msgid ""
 "If you did not request to join {main_title} please disregard this email."
 msgstr ""
 
-#: src/Form/ConfigForm.php:116
+#: src/Form/ConfigForm.php:138
 msgid "Email sent to update email"
 msgstr ""
 
-#: src/Form/ConfigForm.php:117
+#: src/Form/ConfigForm.php:139
 msgid "The text of the email sent when the user wants to update it."
 msgstr ""
 
-#: src/Form/ConfigForm.php:121
+#: src/Form/ConfigForm.php:143
 msgid ""
 "Hi {user_name},\n"
 "You have requested to update email on {main_title} / {site_title} "
@@ -254,92 +279,92 @@ msgid ""
 "disregard this email."
 msgstr ""
 
-#: src/Form/ConfigForm.php:132
+#: src/Form/ConfigForm.php:154
 msgid "Text for terms and conditions"
 msgstr ""
 
-#: src/Form/ConfigForm.php:133
+#: src/Form/ConfigForm.php:155
 msgid "The text to display to accept condtions."
 msgstr ""
 
-#: src/Form/ConfigForm.php:144
+#: src/Form/ConfigForm.php:166
 msgid "Page slug of the terms and conditions"
 msgstr ""
 
-#: src/Form/ConfigForm.php:145
+#: src/Form/ConfigForm.php:167
 msgid "If the text is on a specific page, or for other usage."
 msgstr ""
 
-#: src/Form/ConfigForm.php:156
+#: src/Form/ConfigForm.php:178
 msgid "Redirect page after acceptance"
 msgstr ""
 
-#: src/Form/ConfigForm.php:158
+#: src/Form/ConfigForm.php:180
 msgid "Main home page"
 msgstr ""
 
-#: src/Form/ConfigForm.php:159
+#: src/Form/ConfigForm.php:181
 msgid "Home site"
 msgstr ""
 
-#: src/Form/ConfigForm.php:160
+#: src/Form/ConfigForm.php:182
 msgid "User account"
 msgstr ""
 
-#: src/Form/ConfigForm.php:173
+#: src/Form/ConfigForm.php:195
 msgid "Pages not to redirect"
 msgstr ""
 
-#: src/Form/ConfigForm.php:174
+#: src/Form/ConfigForm.php:196
 msgid ""
 "Allows to keep some pages available when terms are not yet agreed. Default "
 "pages are included (logout, terms page…). This is a regex, with \"~\" "
 "delimiter, checked against the end of the url."
 msgstr ""
 
-#: src/Form/ConfigForm.php:185
+#: src/Form/ConfigForm.php:207
 msgid "Force terms agreement"
 msgstr ""
 
-#: src/Form/ConfigForm.php:186
+#: src/Form/ConfigForm.php:208
 msgid "If unchecked, the user will be logged out if terms are not accepted."
 msgstr ""
 
-#: src/Form/ConfigForm.php:197
+#: src/Form/ConfigForm.php:219
 msgid "Reset terms agreement for all guests"
 msgstr ""
 
-#: src/Form/ConfigForm.php:198
+#: src/Form/ConfigForm.php:220
 msgid ""
 "When terms and conditions are updated, you may want guests agree them one "
 "more time. Warning: to set false will impact all guests. So warn them some "
 "time before."
 msgstr ""
 
-#: src/Form/ConfigForm.php:200
+#: src/Form/ConfigForm.php:222
 msgid "No change"
 msgstr ""
 
-#: src/Form/ConfigForm.php:201
+#: src/Form/ConfigForm.php:223
 msgid "Set false"
 msgstr ""
 
-#: src/Form/ConfigForm.php:202
+#: src/Form/ConfigForm.php:224
 msgid "Set true"
 msgstr ""
 
-#: src/Form/ConfigForm.php:216
+#: src/Form/ConfigForm.php:238
 msgid "Check webview"
 msgstr ""
 
-#: src/Form/ConfigForm.php:217
+#: src/Form/ConfigForm.php:239
 msgid ""
 "In complex authentication flows where the view may be used by an external "
 "application, the view should return a json after login. The value of the "
 "header \"X-Requested-With\" is used to identify such a flow."
 msgstr ""
 
-#: src/Form/AcceptTermsForm.php:15
+#: src/Form/AcceptTermsForm.php:16
 msgid "I agree with terms and conditions."
 msgstr ""
 
@@ -374,7 +399,7 @@ msgstr ""
 
 #: src/Controller/Site/GuestController.php:217
 #: src/Controller/Site/GuestController.php:262
-#: src/Controller/Site/AnonymousController.php:203
+#: src/Controller/Site/AnonymousController.php:217
 msgid "An error occurred when the email was sent."
 msgstr ""
 
@@ -426,25 +451,35 @@ msgstr ""
 msgid "Unknown error."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:233
+#: src/Controller/Site/AnonymousController.php:200
+msgid "A new user is registering: {email} ({url})."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:254
 msgid ""
 "Thanks for joining {site_title}! You can now log in using the password you "
 "chose."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:254
+#: src/Controller/Site/AnonymousController.php:264
+msgid ""
+"Thanks for joining {site_title}! Your registration is under moderation. See "
+"you soon!"
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:281
 msgid "Invalid token: your email was not confirmed for {site_title}."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:259
+#: src/Controller/Site/AnonymousController.php:286
 msgid "message"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:287
-msgid "Your new email \"{email}\" is confirmed for {site_title}."
+#: src/Controller/Site/AnonymousController.php:314
+msgid "Your email \"{email}\" is confirmed for {site_title}."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:401
+#: src/Controller/Site/AnonymousController.php:438
 msgid "Email or password invalid"
 msgstr ""
 
@@ -495,20 +530,20 @@ msgstr ""
 msgid "Guest Login"
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendEmail.php:47
+#: src/Mvc/Controller/Plugin/SendEmail.php:51
 msgid "The message has no recipient."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendEmail.php:51
+#: src/Mvc/Controller/Plugin/SendEmail.php:55
 msgid "The message has no subject."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendEmail.php:55
+#: src/Mvc/Controller/Plugin/SendEmail.php:59
 msgid "The message has no content."
 msgstr ""
 
-#: src/Mvc/Controller/Plugin/SendEmail.php:105
-msgid "A mail was sent to {email} with subject {subject}"
+#: src/Mvc/Controller/Plugin/SendEmail.php:109
+msgid "A mail was sent to {email} with subject: {subject}"
 msgstr ""
 
 #: src/Authentication/Adapter/PasswordAdapter.php:22
@@ -519,11 +554,11 @@ msgstr ""
 msgid "Your account has not been confirmed: check your email."
 msgstr ""
 
-#: config/module.config.php:142
+#: config/module.config.php:143
 msgid "My dashboard"
 msgstr ""
 
-#: config/module.config.php:145
+#: config/module.config.php:148
 msgid ""
 "<p>Hi {user_name},</p>\n"
 "<p>You have registered for an account on {main_title} / {site_title} "
@@ -534,7 +569,7 @@ msgid ""
 "p>"
 msgstr ""
 
-#: config/module.config.php:149
+#: config/module.config.php:152
 msgid ""
 "<p>Hi {user_name},</p>\n"
 "<p>You have requested to update email on {main_title} / {site_title} "
@@ -544,6 +579,6 @@ msgid ""
 "disregard this email.</p>"
 msgstr ""
 
-#: config/module.config.php:153
+#: config/module.config.php:156
 msgid "I agree the terms and conditions."
 msgstr ""
