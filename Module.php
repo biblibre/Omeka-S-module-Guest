@@ -92,11 +92,9 @@ class Module extends AbstractModule
         }
     }
 
-    public function uninstall(ServiceLocatorInterface $serviceLocator)
+    protected function preUninstall()
     {
-        $this->deactivateGuests($serviceLocator);
-
-        parent::uninstall($serviceLocator);
+        $this->deactivateGuests();
     }
 
     /**
@@ -569,9 +567,10 @@ SQL;
         }
     }
 
-    protected function deactivateGuests($serviceLocator)
+    protected function deactivateGuests()
     {
-        $em = $serviceLocator->get('Omeka\EntityManager');
+        $services = $this->getServiceLocator();
+        $em = $services->get('Omeka\EntityManager');
         $guests = $em->getRepository(\Omeka\Entity\User::class)->findBy(['role' => 'guest']);
         foreach ($guests as $user) {
             $user->setIsActive(false);
