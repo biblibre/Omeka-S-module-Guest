@@ -144,7 +144,7 @@ return [
             'guest_capabilities' => '',
             // From Omeka classic, but not used.
             // TODO Remove option "guest_short_capabilities" or implement it.
-             'guest_short_capabilities' => '',
+            'guest_short_capabilities' => '',
             'guest_message_confirm_email' => '<p>Hi {user_name},</p>
 <p>You have registered for an account on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your registration by following this link: {token_url}.</p>
