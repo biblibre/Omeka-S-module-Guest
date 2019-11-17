@@ -19,11 +19,11 @@ class PasswordAdapter extends OmekaPasswordAdapter
             return new Result(
                 Result::FAILURE_IDENTITY_NOT_FOUND,
                 null,
-                ['User not found.']
-            ); // @translate
+                ['User not found.'] // @translate
+            );
         }
 
-        if ($user->getRole() == 'guest') {
+        if ($user->getRole() == \Guest\Permissions\Acl::ROLE_GUEST) {
             $guest = $this->token_repository->findOneBy(['email' => $this->identity]);
             // There is no token if the guest is created directly (the role is
             // set to a user).
@@ -36,7 +36,7 @@ class PasswordAdapter extends OmekaPasswordAdapter
             return new Result(
                 Result::FAILURE_CREDENTIAL_INVALID,
                 null,
-                ['Invalid password.']
+                ['Invalid password.'] // @translate
             );
         }
 

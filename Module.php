@@ -176,7 +176,7 @@ class Module extends AbstractModule
                 new IsSelfAssertion
             )
             ->allow(
-                null,
+                [Acl::ROLE_GUEST],
                 [\Omeka\Api\Adapter\UserAdapter::class],
                 ['read', 'update']
             )
@@ -195,7 +195,6 @@ class Module extends AbstractModule
                     'Omeka\Controller\Admin\ResourceTemplate',
                     'Omeka\Controller\Admin\Setting',
                     'Omeka\Controller\Admin\SystemInfo',
-                    'Omeka\Controller\Admin\Vocabulary',
                     'Omeka\Controller\Admin\User',
                     'Omeka\Controller\Admin\Vocabulary',
                     'Omeka\Controller\SiteAdmin\Index',
@@ -534,7 +533,7 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $userSettings = $services->get('Omeka\Settings\User');
         $entityManager = $services->get('Omeka\EntityManager');
-        $guests = $entityManager->getRepository('Omeka\Entity\User')
+        $guests = $entityManager->getRepository(\Omeka\Entity\User::class)
             ->findBy(['role' => Acl::ROLE_GUEST]);
         foreach ($guests as $user) {
             $userSettings->setTargetId($user->getId());

@@ -11,7 +11,7 @@ use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
 /**
- * Manage guests pages.
+ * Manage anonymous visitor pages.
  */
 class AnonymousController extends AbstractGuestController
 {
