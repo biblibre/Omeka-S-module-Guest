@@ -48,6 +48,38 @@ abstract class AbstractGuestController extends AbstractActionController
         return $this->settings()->get($key);
     }
 
+    protected function prepareSessionToken()
+    {
+        /** @var \Omeka\Entity\User $user */
+        $user = $this->getAuthenticationService()->getIdentity();
+
+        // Remove all existing session tokens.
+        $keys = $user->getKeys();
+        foreach ($keys as $keyId => $key) {
+            if ($key->getLabel() === 'guest_session') {
+                $keys->remove($keyId);
+            }
+        }
+
+        // Create a new session token.
+        $key = new \Omeka\Entity\ApiKey;
+        $key->setId();
+        $key->setLabel('guest_session');
+        $key->setOwner($user);
+        $keyId = $key->getId();
+        $keyCredential = $key->setCredential();
+        $this->entityManager->persist($key);
+
+        $this->entityManager->flush();
+
+        $user = $this->api()->read('users', ['id' => $user->getId()], [], ['responseContent' => 'reference'])->getContent();
+        return [
+            'o:user' => $user,
+            'key_identity' => $keyId,
+            'key_credential' => $keyCredential,
+        ];
+    }
+
     /**
      * Prepare the user form for public view.
      *

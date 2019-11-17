@@ -108,7 +108,7 @@ return [
                                 'options' => [
                                     'route' => '/:action',
                                     'constraints' => [
-                                        'action' => 'me|logout|update-account|update-email|accept-terms',
+                                        'action' => 'me|logout|update-account|update-email|accept-terms|api-session-token',
                                     ],
                                     'defaults' => [
                                         '__NAMESPACE__' => 'Guest\Controller\Site',
