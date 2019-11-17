@@ -5,7 +5,6 @@ use Guest\Form\AcceptTermsForm;
 use Guest\Form\EmailForm;
 use Guest\Stdlib\PsrMessage;
 use Omeka\Entity\User;
-use Omeka\View\Model\ApiJsonModel;
 use Zend\Mvc\MvcEvent;
 use Zend\Session\Container;
 use Zend\View\Model\JsonModel;
@@ -338,14 +337,6 @@ class GuestController extends AbstractGuestController
         }
     }
 
-    public function apiSessionTokenAction()
-    {
-        $sessionToken = $this->prepareSessionToken();
-        $response = new \Omeka\Api\Response;
-        $response->setContent($sessionToken);
-        return new ApiJsonModel($response, $this->getViewOptions());
-    }
-
     protected function removeSessionTokens()
     {
         /** @var \Omeka\Entity\User $user */
@@ -359,29 +350,5 @@ class GuestController extends AbstractGuestController
             }
         }
         $this->entityManager->flush();
-    }
-
-    protected function getViewOptions()
-    {
-        // In a json view (see Omeka\Controller\ApiController), these options
-        // are managed via onDispatch(). Here, they are only used with
-        // apiSessionTokenAction().
-        $viewOptions = [];
-
-        $request = $this->getRequest();
-
-        // Set pretty print.
-        $prettyPrint = $request->getQuery('pretty_print');
-        if (null !== $prettyPrint) {
-            $viewOptions('pretty_print', true);
-        }
-
-        // Set the JSONP callback.
-        $callback = $request->getQuery('callback');
-        if (null !== $callback) {
-            $viewOptions('callback', $callback);
-        }
-
-        return $viewOptions;
     }
 }

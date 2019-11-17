@@ -93,7 +93,7 @@ return [
                                     'route' => '/:action',
                                     'constraints' => [
                                         // "confirm" must be after "confirm-email" because regex is ungreedy.
-                                        'action' => 'login|confirm-email|confirm|forgot-password|stale-token|auth-error|register',
+                                        'action' => 'login|confirm-email|confirm|forgot-password|stale-token|auth-error|register|api-session-token',
                                     ],
                                     'defaults' => [
                                         '__NAMESPACE__' => 'Guest\Controller\Site',
@@ -108,7 +108,7 @@ return [
                                 'options' => [
                                     'route' => '/:action',
                                     'constraints' => [
-                                        'action' => 'me|logout|update-account|update-email|accept-terms|api-session-token',
+                                        'action' => 'me|logout|update-account|update-email|accept-terms',
                                     ],
                                     'defaults' => [
                                         '__NAMESPACE__' => 'Guest\Controller\Site',
