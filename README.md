@@ -56,6 +56,12 @@ A check box allows to force guests to accept terms agreement.
 A button in the config forms allows to set or unset all guests acceptation,
 in order to allow update of terms.
 
+### Api session token
+
+A session token can be created for api access through `/s/my-site/guest/api-session-token`.
+It is reset each time the user logs in and removed when logs out. The api keys
+has no limited life in Omeka.
+
 
 Warning
 -------
