@@ -156,8 +156,6 @@ class GuestController extends AbstractGuestController
         /** @var \Omeka\Entity\User $user */
         $user = $this->getAuthenticationService()->getIdentity();
 
-        $isExternalApp = $this->isExternalApp();
-
         $form = $this->getForm(EmailForm::class, []);
         $form->populateValues(['o:email' => $user->getEmail()]);
 
@@ -166,70 +164,12 @@ class GuestController extends AbstractGuestController
         $view->setVariable('form', $form);
 
         if (!$this->getRequest()->isPost()) {
-            if ($isExternalApp) {
-                return new JsonModel([
-                    'result' => 'error',
-                    'message' => new PsrMessage('The request should be a POST.'), // @translate
-                ]);
-            }
             return $view;
         }
 
         $postData = $this->params()->fromPost();
 
         $form->setData($postData);
-
-        // TODO Check if the csrf is managed to check validity of the form for external app.
-        if ($isExternalApp) {
-            $values = $postData;
-            $email = $values['o:email'];
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return new JsonModel([
-                    'result' => 'error',
-                    'message' => new PsrMessage('"{email}" is not an email.', ['email' => $email]), // @translate
-                ]);
-            }
-
-            if ($email === $user->getEmail()) {
-                return new JsonModel([
-                    'result' => 'error',
-                    'message' => new PsrMessage('The new email is the same than the current one.'), // @translate
-                ]);
-            }
-
-            $existUser = $this->getEntityManager()->getRepository(User::class)
-                ->findOneBy(['email' => $email]);
-            if ($existUser) {
-                // Avoid a hack of the database.
-                sleep(2);
-                return new JsonModel([
-                    'result' => 'error',
-                    'message' => new PsrMessage('The email "{email}" is not yours.', ['email' => $email]), // @translate
-                ]);
-            }
-
-            $guestToken = $this->createGuestToken($user);
-            $message = $this->prepareMessage('update-email', [
-                'user_email' => $email,
-                'user_name' => $user->getName(),
-                'token' => $guestToken,
-            ]);
-            $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
-            if (!$result) {
-                $message = new PsrMessage('An error occurred when the email was sent.'); // @translate
-                $this->logger()->err('[Guest] ' . $message);
-                return new JsonModel([
-                    'result' => 'error',
-                    'message' => $message,
-                ]);
-            }
-
-            $message = new PsrMessage('Check your email "{email}" to confirm the change.', ['email' => $email]); // @translate
-            return new JsonModel([
-                'result' => 'success',
-                'message' => $message,
-            ]);
-        }
 
         if (!$form->isValid()) {
             $this->messenger()->addError('Email invalid'); // @translate

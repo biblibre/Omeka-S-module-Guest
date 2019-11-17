@@ -158,7 +158,6 @@ return [
             'guest_terms_redirect' => 'site',
             'guest_terms_request_regex' => '',
             'guest_terms_force_agree' => true,
-            'guest_check_requested_with' => '',
         ],
         'user_settings' => [
             'guest_agreed_terms' => false,

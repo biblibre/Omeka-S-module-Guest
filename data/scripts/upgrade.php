@@ -23,3 +23,7 @@ $connection = $services->get('Omeka\Connection');
 if (version_compare($oldVersion, '3.4.1', '<')) {
     $settings->set('guest_open', $settings->get('guest_open') ? 'open' : 'closed');
 }
+
+if (version_compare($oldVersion, '3.4.3', '<')) {
+    $settings->delete('guest_check_requested_with');
+}

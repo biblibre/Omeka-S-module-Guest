@@ -32,39 +32,11 @@ class AnonymousController extends AbstractGuestController
 
         $auth = $this->getAuthenticationService();
 
-        $isExternalApp = $this->isExternalApp();
-
-        // Check if there is a fail from a third party authenticator.
-        $externalAuth = $this->params()->fromQuery('auth');
-        if ($externalAuth === 'error') {
-            $siteSlug = $this->params()->fromRoute('site-slug');
-            $params = $this->params()->fromPost();
-            $params += $this->params()->fromQuery();
-            if (array_key_exists('password', $params)) {
-                $params['password'] = '***';
-            }
-            $this->logger()->err(sprintf('A user failed to log on the site "%s"; params: %s.', // @translate
-                $siteSlug, json_encode($params, 320)));
-            $response = $this->getResponse();
-            $response->setStatusCode(400);
-            if ($isExternalApp) {
-                return new JsonModel([
-                    'result' => 'error',
-                    'message' => 'Unable to authenticate. Contact the administrator.', // @translate
-                ]);
-            }
-            return $this->redirect()->toRoute('site/guest/anonymous', ['action' => 'auth-error', 'site-slug' => $siteSlug]);
-        }
-
         $view = new ViewModel;
 
         /** @var LoginForm $form */
         $form = $this->getForm(LoginForm::class);
         $view->setVariable('form', $form);
-
-        if ($externalAuth === 'local') {
-            return $view;
-        }
 
         $view->setVariable('form', $form);
 
@@ -87,17 +59,6 @@ class AnonymousController extends AbstractGuestController
         if (!$result->isValid()) {
             $this->messenger()->addError(implode(';', $result->getMessages()));
             return $view;
-        }
-
-        $user = $auth->getIdentity();
-
-        if ($isExternalApp) {
-            $userSettings = $this->userSettings();
-            $userSettings->setTargetId($user->getId());
-            $result = [];
-            $result['user_id'] = $user->getId();
-            $result['agreed'] = $userSettings->get('guest_agreed_terms');
-            return new JsonModel($result);
         }
 
         $this->messenger()->addSuccess('Successfully logged in'); // @translate
@@ -273,19 +234,12 @@ class AnonymousController extends AbstractGuestController
         $token = $this->params()->fromQuery('token');
         $entityManager = $this->getEntityManager();
 
-        $isExternalApp = $this->isExternalApp();
         $siteTitle = $this->currentSite()->title();
 
         $guestToken = $entityManager->getRepository(GuestToken::class)->findOneBy(['token' => $token]);
         if (empty($guestToken)) {
             $message = new PsrMessage('Invalid token: your email was not confirmed for {site_title}.', // @translate
                 ['site_title' => $siteTitle]);
-            if ($isExternalApp) {
-                return new JsonModel([
-                    'result' => 'error',
-                    'message' => $message, // @translate
-                ]);
-            }
 
             $this->messenger()->addError($message); // @translate
             if ($this->isUserLogged()) {
@@ -313,12 +267,6 @@ class AnonymousController extends AbstractGuestController
 
         $message = new PsrMessage('Your email "{email}" is confirmed for {site_title}.', // @translate
             ['email' => $email, 'site_title' => $siteTitle]);
-        if ($isExternalApp) {
-            return new JsonModel([
-                'result' => 'success',
-                'message' => $message,
-            ]);
-        }
 
         $this->messenger()->addSuccess($message);
         if ($this->isUserLogged()) {

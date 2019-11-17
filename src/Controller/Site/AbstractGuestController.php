@@ -222,28 +222,6 @@ abstract class AbstractGuestController extends AbstractActionController
     }
 
     /**
-     * Check if a request is done via an external application, specified in the
-     * config.
-     *
-     * @return bool
-     */
-    protected function isExternalApp()
-    {
-        $requestedWith = $this->params()->fromHeader('X-Requested-With');
-        if (empty($requestedWith)) {
-            return false;
-        }
-
-        $checkRequestedWith = $this->settings()->get('guest_check_requested_with');
-        if (empty($checkRequestedWith)) {
-            return false;
-        }
-
-        $requestedWith = $requestedWith->getFieldValue();
-        return strpos($requestedWith, $checkRequestedWith) === 0;
-    }
-
-    /**
      * @return \Zend\Authentication\AuthenticationService
      */
     protected function getAuthenticationService()
