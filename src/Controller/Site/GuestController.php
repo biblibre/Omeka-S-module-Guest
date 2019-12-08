@@ -6,8 +6,7 @@ use Guest\Form\EmailForm;
 use Guest\Stdlib\PsrMessage;
 use Omeka\Entity\User;
 use Zend\Mvc\MvcEvent;
-use Zend\Session\Container;
-use Zend\View\Model\JsonModel;
+use Zend\Session\Container as SessionContainer;
 use Zend\View\Model\ViewModel;
 
 /**
@@ -17,12 +16,10 @@ class GuestController extends AbstractGuestController
 {
     public function logoutAction()
     {
-        $this->removeSessionTokens();
-
         $auth = $this->getAuthenticationService();
         $auth->clearIdentity();
 
-        $sessionManager = Container::getDefaultManager();
+        $sessionManager = SessionContainer::getDefaultManager();
 
         $eventManager = $this->getEventManager();
         $eventManager->trigger('user.logout');
@@ -275,20 +272,5 @@ class GuestController extends AbstractGuestController
             default:
                 return $this->redirect()->toRoute('site/guest', ['action' => 'me'], [], true);
         }
-    }
-
-    protected function removeSessionTokens()
-    {
-        /** @var \Omeka\Entity\User $user */
-        $user = $this->getAuthenticationService()->getIdentity();
-
-        // Remove all existing session tokens.
-        $keys = $user->getKeys();
-        foreach ($keys as $keyId => $key) {
-            if ($key->getLabel() === 'guest_session') {
-                $keys->remove($keyId);
-            }
-        }
-        $this->entityManager->flush();
     }
 }

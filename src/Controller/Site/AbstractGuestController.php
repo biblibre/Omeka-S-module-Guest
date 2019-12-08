@@ -5,7 +5,6 @@ use Doctrine\ORM\EntityManager;
 use Guest\Stdlib\PsrMessage;
 use Omeka\Entity\User;
 use Omeka\Form\UserForm;
-use Omeka\View\Model\ApiJsonModel;
 use Zend\Authentication\AuthenticationService;
 use Zend\Mvc\Controller\AbstractActionController;
 
@@ -44,76 +43,9 @@ abstract class AbstractGuestController extends AbstractActionController
         $this->config = $config;
     }
 
-    public function apiSessionTokenAction()
-    {
-        $sessionToken = $this->prepareSessionToken();
-        $response = new \Omeka\Api\Response;
-        $response->setContent($sessionToken ?: []);
-        return new ApiJsonModel($response, $this->getViewOptions());
-    }
-
     protected function getOption($key)
     {
         return $this->settings()->get($key);
-    }
-
-    protected function getViewOptions()
-    {
-        // In a json view (see Omeka\Controller\ApiController), these options
-        // are managed via onDispatch(). Here, they are only used with
-        // apiSessionTokenAction().
-        $viewOptions = [];
-
-        $request = $this->getRequest();
-
-        // Set pretty print.
-        $prettyPrint = $request->getQuery('pretty_print');
-        if (null !== $prettyPrint) {
-            $viewOptions('pretty_print', true);
-        }
-
-        // Set the JSONP callback.
-        $callback = $request->getQuery('callback');
-        if (null !== $callback) {
-            $viewOptions('callback', $callback);
-        }
-
-        return $viewOptions;
-    }
-
-    protected function prepareSessionToken()
-    {
-        /** @var \Omeka\Entity\User $user */
-        $user = $this->getAuthenticationService()->getIdentity();
-        if (!$user) {
-            return null;
-        }
-
-        // Remove all existing session tokens.
-        $keys = $user->getKeys();
-        foreach ($keys as $keyId => $key) {
-            if ($key->getLabel() === 'guest_session') {
-                $keys->remove($keyId);
-            }
-        }
-
-        // Create a new session token.
-        $key = new \Omeka\Entity\ApiKey;
-        $key->setId();
-        $key->setLabel('guest_session');
-        $key->setOwner($user);
-        $keyId = $key->getId();
-        $keyCredential = $key->setCredential();
-        $this->entityManager->persist($key);
-
-        $this->entityManager->flush();
-
-        $user = $this->api()->read('users', ['id' => $user->getId()], [], ['responseContent' => 'reference'])->getContent();
-        return [
-            'o:user' => $user,
-            'key_identity' => $keyId,
-            'key_credential' => $keyCredential,
-        ];
     }
 
     /**

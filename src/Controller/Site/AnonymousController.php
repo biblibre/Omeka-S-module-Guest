@@ -6,8 +6,7 @@ use Guest\Stdlib\PsrMessage;
 use Omeka\Entity\User;
 use Omeka\Form\ForgotPasswordForm;
 use Omeka\Form\LoginForm;
-use Zend\Session\Container;
-use Zend\View\Model\JsonModel;
+use Zend\Session\Container as SessionContainer;
 use Zend\View\Model\ViewModel;
 
 /**
@@ -49,7 +48,7 @@ class AnonymousController extends AbstractGuestController
         }
 
         $validatedData = $form->getData();
-        $sessionManager = Container::getDefaultManager();
+        $sessionManager = SessionContainer::getDefaultManager();
         $sessionManager->regenerateId();
 
         $adapter = $auth->getAdapter();
