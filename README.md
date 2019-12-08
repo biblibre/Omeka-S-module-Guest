@@ -12,6 +12,9 @@ module that other modules needing a guest user use as a dependency.
 This module is based on a full rewrite of the plugin [Guest User] for [Omeka Classic]
 by [BibLibre].
 
+Guest users can use Omeka via the api too (login, logout, register…) with the
+module [Guest Api].
+
 
 Installation
 ------------
@@ -55,12 +58,6 @@ A check box allows to force guests to accept terms agreement.
 
 A button in the config forms allows to set or unset all guests acceptation,
 in order to allow update of terms.
-
-### Api session token
-
-A session token can be created for api access through `/s/my-site/guest/api-session-token`.
-It is reset each time the user logs in and removed when logs out. The api keys
-has no limited life in Omeka.
 
 
 Warning
@@ -113,6 +110,7 @@ Copyright
 [GuestUser]: https://github.com/biblibre/omeka-s-module-GuestUser
 [Omeka S]: https://www.omeka.org/s
 [Omeka Classic]: https://omeka.org
+[Guest Api]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi
 [more information to upgrade templates]: https://github.com/Daniel-KM/Omeka-S-module-Guest/blob/master/Upgrade_from_GuestUser.md
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
 [modules/Guest/data/scripts/convert_guest_user_templates.sh]: https://github.com/Daniel-KM/Omeka-S-module-Guest/blob/master/data/scripts/convert_guest_user_templates.sh
