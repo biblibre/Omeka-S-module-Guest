@@ -164,9 +164,10 @@ class Module extends AbstractModule
      */
     protected function addRulesForGuest(ZendAcl $acl)
     {
+        $roles = $acl->getRoles();
         $acl
             ->allow(
-                [Acl::ROLE_GUEST],
+                $roles,
                 [\Guest\Controller\Site\GuestController::class]
             )
             ->allow(
