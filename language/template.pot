@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-09 00:00+0100\n"
+"POT-Creation-Date: 2020-01-20 00:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,37 +17,37 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: Module.php:605
+#: Module.php:606
 msgid ""
 "This module cannot be used at the same time as module GuestUser for versions "
 "lower than 3.3.5. So it should be upgraded first, or disabled. When ready, "
 "the users and settings will be upgraded for all versions."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:89
+#: src/Controller/Site/AnonymousController.php:76
 #: view/guest/site/anonymous/register.phtml:16
 #: view/guest/site/anonymous/register.phtml:23
 msgid "Register"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:166
+#: src/Controller/Site/AnonymousController.php:153
 msgid "[Omeka Guest] New registration"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:184
+#: src/Controller/Site/AnonymousController.php:171
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
 "message. Once you have confirmed your request, you will be able to log in."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:185
+#: src/Controller/Site/AnonymousController.php:172
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
 "message. Once you have confirmed your request and we have confirmed it, you "
 "will be able to log in."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:196
+#: src/Controller/Site/AnonymousController.php:183
 msgid "Invalid token stop"
 msgstr ""
 
@@ -147,29 +147,29 @@ msgstr ""
 msgid "Guest"
 msgstr ""
 
-#: Module.php:253
+#: Module.php:254
 msgid "All guests must agreed the terms one more time."
 msgstr ""
 
-#: Module.php:258
+#: Module.php:259
 msgid "All guests agreed the terms."
 msgstr ""
 
-#: Module.php:299 Module.php:330
+#: Module.php:300 Module.php:331
 msgid "Agreed terms"
 msgstr ""
 
-#: Module.php:350
+#: Module.php:351
 msgid "Clear registration token"
 msgstr ""
 
-#: Module.php:610
+#: Module.php:611
 msgid ""
 "The module GuestUser is installed. Users and settings from this module are "
 "upgraded."
 msgstr ""
 
-#: Module.php:616
+#: Module.php:617
 #, php-format
 msgid "To upgrade customized templates from module GuestUser, see %sreadme%s."
 msgstr ""
@@ -304,60 +304,48 @@ msgid "If the text is on a specific page, or for other usage."
 msgstr ""
 
 #: src/Form/ConfigForm.php:178
-msgid "Redirect page after acceptance"
+msgid "Redirect page after login"
 msgstr ""
 
-#: src/Form/ConfigForm.php:180
-msgid "Main home page"
-msgstr ""
-
-#: src/Form/ConfigForm.php:181
-msgid "Home site"
-msgstr ""
-
-#: src/Form/ConfigForm.php:182
-msgid "User account"
-msgstr ""
-
-#: src/Form/ConfigForm.php:195
+#: src/Form/ConfigForm.php:191
 msgid "Pages not to redirect"
 msgstr ""
 
-#: src/Form/ConfigForm.php:196
+#: src/Form/ConfigForm.php:192
 msgid ""
 "Allows to keep some pages available when terms are not yet agreed. Default "
 "pages are included (logout, terms page…). This is a regex, with \"~\" "
 "delimiter, checked against the end of the url."
 msgstr ""
 
-#: src/Form/ConfigForm.php:207
+#: src/Form/ConfigForm.php:203
 msgid "Force terms agreement"
 msgstr ""
 
-#: src/Form/ConfigForm.php:208
+#: src/Form/ConfigForm.php:204
 msgid "If unchecked, the user will be logged out if terms are not accepted."
 msgstr ""
 
-#: src/Form/ConfigForm.php:219
+#: src/Form/ConfigForm.php:215
 msgid "Reset terms agreement for all guests"
 msgstr ""
 
-#: src/Form/ConfigForm.php:220
+#: src/Form/ConfigForm.php:216
 msgid ""
 "When terms and conditions are updated, you may want guests agree them one "
 "more time. Warning: to set false will impact all guests. So warn them some "
 "time before."
 msgstr ""
 
-#: src/Form/ConfigForm.php:222
+#: src/Form/ConfigForm.php:218
 msgid "No change"
 msgstr ""
 
-#: src/Form/ConfigForm.php:223
+#: src/Form/ConfigForm.php:219
 msgid "Set false"
 msgstr ""
 
-#: src/Form/ConfigForm.php:224
+#: src/Form/ConfigForm.php:220
 msgid "Set true"
 msgstr ""
 
@@ -391,7 +379,7 @@ msgid "email"
 msgstr ""
 
 #: src/Controller/Site/GuestController.php:201
-#: src/Controller/Site/AnonymousController.php:177
+#: src/Controller/Site/AnonymousController.php:164
 msgid "An error occurred when the email was sent."
 msgstr ""
 
@@ -413,68 +401,68 @@ msgstr ""
 msgid "Thanks for accepting the terms and condtions."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:103
-#: src/Controller/Site/AnonymousController.php:109
+#: src/Controller/Site/AnonymousController.php:90
+#: src/Controller/Site/AnonymousController.php:96
 msgid "A password must be set."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:129
+#: src/Controller/Site/AnonymousController.php:116
 msgid "Already registered."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:131
+#: src/Controller/Site/AnonymousController.php:118
 msgid "Check your email to confirm your registration."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:136
+#: src/Controller/Site/AnonymousController.php:123
 msgid "Unknown error."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:160
+#: src/Controller/Site/AnonymousController.php:147
 msgid "A new user is registering: {email} ({url})."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:214
+#: src/Controller/Site/AnonymousController.php:201
 msgid ""
 "Thanks for joining {site_title}! You can now log in using the password you "
 "chose."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:224
+#: src/Controller/Site/AnonymousController.php:211
 msgid ""
 "Thanks for joining {site_title}! Your registration is under moderation. See "
 "you soon!"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:240
+#: src/Controller/Site/AnonymousController.php:227
 msgid "Invalid token: your email was not confirmed for {site_title}."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:241
+#: src/Controller/Site/AnonymousController.php:228
 msgid "site_title"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:267
+#: src/Controller/Site/AnonymousController.php:254
 msgid "Your email \"{email}\" is confirmed for {site_title}."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:385
+#: src/Controller/Site/AnonymousController.php:359
 msgid "Email or password invalid"
 msgstr ""
 
-#: src/Controller/Site/AbstractGuestController.php:123
+#: src/Controller/Site/AbstractGuestController.php:163
 msgid "Your request to join {main_title} / {site_title}"
 msgstr ""
 
-#: src/Controller/Site/AbstractGuestController.php:131
+#: src/Controller/Site/AbstractGuestController.php:171
 msgid "Update email on {main_title} / {site_title}"
 msgstr ""
 
-#: src/Controller/Site/AbstractGuestController.php:140
+#: src/Controller/Site/AbstractGuestController.php:180
 msgid "[No subject]"
 msgstr ""
 
-#: src/Controller/Site/AbstractGuestController.php:141
+#: src/Controller/Site/AbstractGuestController.php:181
 msgid "[No message]"
 msgstr ""
 
