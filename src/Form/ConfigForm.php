@@ -172,18 +172,14 @@ If you did not request to update your email on {main_title}, please disregard th
             ])
 
             ->add([
-                'name' => 'guest_terms_redirect',
-                'type' => Element\Radio::class,
+                'name' => 'guest_redirect',
+                'type' => Element\Text::class,
                 'options' => [
-                    'label' => 'Redirect page after acceptance', // @translate
-                    'value_options' => [
-                        'home' => 'Main home page', // @translate
-                        'site' => 'Home site', // @translate
-                        'me' => 'User account', // @translate
-                    ],
+                    'label' => 'Redirect page after login', // @translate
+                    'info' => 'Set "home" for main home page (admin or public), "site" for the current site home, "me" for guest account, or any path starting with "/", including "/" itself for main home page.',
                 ],
                 'attributes' => [
-                    'id' => 'guest-terms-redirect',
+                    'id' => 'guest-redirect',
                     'required' => false,
                 ],
             ])

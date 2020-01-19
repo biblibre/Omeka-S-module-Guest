@@ -13,6 +13,15 @@ use Zend\Mvc\Controller\AbstractActionController;
  */
 abstract class AbstractGuestController extends AbstractActionController
 {
+    protected $defaultRoles = [
+        \Omeka\Permissions\Acl::ROLE_RESEARCHER,
+        \Omeka\Permissions\Acl::ROLE_AUTHOR,
+        \Omeka\Permissions\Acl::ROLE_REVIEWER,
+        \Omeka\Permissions\Acl::ROLE_EDITOR,
+        \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
+        \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
+    ];
+
     /**
      * @var AuthenticationService
      */
@@ -41,6 +50,37 @@ abstract class AbstractGuestController extends AbstractActionController
         $this->authenticationService = $authenticationService;
         $this->entityManager = $entityManager;
         $this->config = $config;
+    }
+
+    /**
+     * Redirect to admin or site according to the role of the user and setting.
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function redirectToAdminOrSite()
+    {
+        // Bypass settings.
+        $redirectUrl = $this->params()->fromQuery('redirect');
+        if ($redirectUrl) {
+            return $this->redirect()->toUrl($redirectUrl);
+        }
+
+        $redirect = $this->settings()->get('guest_redirect', 'home');
+        switch ($redirect) {
+            case empty($redirect):
+            case 'home':
+                $user = $this->getAuthenticationService()->getIdentity();
+                if (in_array($user->getRole(), $this->defaultRoles)) {
+                    return $this->redirect()->toRoute('admin', [], true);
+                }
+                // no break.
+            case 'site':
+                return $this->redirect()->toRoute('site', [], true);
+            case 'me':
+                return $this->redirect()->toRoute('site/guest', ['action' => 'me'], [], true);
+            default:
+                return $this->redirect()->toUrl($redirect);
+        }
     }
 
     protected function getOption($key)

@@ -14,15 +14,6 @@ use Zend\View\Model\ViewModel;
  */
 class AnonymousController extends AbstractGuestController
 {
-    protected $defaultRoles = [
-        \Omeka\Permissions\Acl::ROLE_RESEARCHER,
-        \Omeka\Permissions\Acl::ROLE_AUTHOR,
-        \Omeka\Permissions\Acl::ROLE_REVIEWER,
-        \Omeka\Permissions\Acl::ROLE_EDITOR,
-        \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
-        \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
-    ];
-
     public function loginAction()
     {
         if ($this->isUserLogged()) {
@@ -64,11 +55,7 @@ class AnonymousController extends AbstractGuestController
         $eventManager = $this->getEventManager();
         $eventManager->trigger('user.login', $auth->getIdentity());
 
-        $redirectUrl = $this->params()->fromQuery('redirect');
-        if ($redirectUrl) {
-            return $this->redirect()->toUrl($redirectUrl);
-        }
-        return $this->redirect()->toUrl($this->currentSite()->url());
+        return $this->redirectToAdminOrSite();
     }
 
     public function registerAction()
@@ -358,19 +345,6 @@ class AnonymousController extends AbstractGuestController
     protected function isOpenRegister()
     {
         return $this->settings()->get('guest_open') === 'open';
-    }
-
-    /**
-     * Redirect to admin or site according to the role of the user.
-     *
-     * @return \Zend\Http\Response
-     */
-    protected function redirectToAdminOrSite()
-    {
-        $user = $this->getAuthenticationService()->getIdentity();
-        return $user && in_array($user->getRole(), $this->defaultRoles)
-            ? $this->redirect()->toRoute('admin', [], true)
-            : $this->redirect()->toRoute('site', [], true);
     }
 
     protected function checkPostAndValidForm(\Zend\Form\Form $form)

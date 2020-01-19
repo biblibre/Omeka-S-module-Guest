@@ -27,3 +27,9 @@ if (version_compare($oldVersion, '3.4.1', '<')) {
 if (version_compare($oldVersion, '3.4.3', '<')) {
     $settings->delete('guest_check_requested_with');
 }
+
+if (version_compare($oldVersion, '3.4.6', '<')) {
+    $guestRedirect = $settings->get('guest_terms_redirect');
+    $settings->set('guest_redirect', $guestRedirect === 'home' ? '/' : $guestRedirect);
+    $settings->delete('guest_terms_redirect');
+}

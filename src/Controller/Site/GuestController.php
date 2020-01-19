@@ -27,8 +27,8 @@ class GuestController extends AbstractGuestController
         $sessionManager->destroy();
 
         $this->messenger()->addSuccess('Successfully logged out'); // @translate
-        $redirectUrl = $this->params()->fromQuery('redirect');
 
+        $redirectUrl = $this->params()->fromQuery('redirect');
         if ($redirectUrl) {
             return $this->redirect()->toUrl($redirectUrl);
         }
@@ -263,14 +263,6 @@ class GuestController extends AbstractGuestController
 
         $message = new PsrMessage('Thanks for accepting the terms and condtions.'); // @translate
         $this->messenger()->addSuccess($message);
-        switch ($this->settings()->get('guest_terms_redirect')) {
-            case 'home':
-                return $this->redirect()->toRoute('top');
-            case 'site':
-                return $this->redirect()->toRoute('site', [], [], true);
-            case 'me':
-            default:
-                return $this->redirect()->toRoute('site/guest', ['action' => 'me'], [], true);
-        }
+        return $this->redirectToAdminOrSite();
     }
 }

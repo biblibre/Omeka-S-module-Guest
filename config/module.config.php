@@ -155,7 +155,7 @@ return [
 <p>If you did not request to update your email on {main_title}, please disregard this email.</p>', // @translate
             'guest_terms_text' => 'I agree the terms and conditions.', // @translate
             'guest_terms_page' => 'terms-and-conditions',
-            'guest_terms_redirect' => 'site',
+            'guest_redirect' => 'site',
             'guest_terms_request_regex' => '',
             'guest_terms_force_agree' => true,
         ],
