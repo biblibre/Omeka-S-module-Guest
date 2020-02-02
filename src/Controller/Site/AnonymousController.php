@@ -300,7 +300,7 @@ class AnonymousController extends AbstractGuestController
         if ($user) {
             $entityManager->persist($user);
             $passwordCreation = $entityManager
-                ->getRepository('Omeka\Entity\PasswordCreation')
+                ->getRepository(\Omeka\Entity\PasswordCreation::class)
                 ->findOneBy(['user' => $user]);
             if ($passwordCreation) {
                 $entityManager->remove($passwordCreation);
@@ -311,7 +311,13 @@ class AnonymousController extends AbstractGuestController
 
         $this->messenger()->addSuccess('Check your email for instructions on how to reset your password'); // @translate
 
-        return $view;
+        // Bypass settings.
+        $redirectUrl = $this->params()->fromQuery('redirect');
+        if ($redirectUrl) {
+            return $this->redirect()->toUrl($redirectUrl);
+        }
+
+        return $this->redirect()->toRoute('site', [], true);
     }
 
     public function staleTokenAction()
