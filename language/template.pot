@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-20 00:00+0100\n"
+"POT-Creation-Date: 2020-02-24 00:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,30 +24,30 @@ msgid ""
 "the users and settings will be upgraded for all versions."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:76
+#: src/Controller/Site/AnonymousController.php:97
 #: view/guest/site/anonymous/register.phtml:16
 #: view/guest/site/anonymous/register.phtml:23
 msgid "Register"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:153
+#: src/Controller/Site/AnonymousController.php:174
 msgid "[Omeka Guest] New registration"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:171
+#: src/Controller/Site/AnonymousController.php:192
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
 "message. Once you have confirmed your request, you will be able to log in."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:172
+#: src/Controller/Site/AnonymousController.php:193
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
 "message. Once you have confirmed your request and we have confirmed it, you "
 "will be able to log in."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:183
+#: src/Controller/Site/AnonymousController.php:204
 msgid "Invalid token stop"
 msgstr ""
 
@@ -59,17 +59,17 @@ msgstr ""
 msgid "My account"
 msgstr ""
 
-#: src/Generic/AbstractModule.php:518
+#: src/Generic/AbstractModule.php:542
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:538
+#: src/Generic/AbstractModule.php:562
 #, php-format
 msgid "This module requires modules \"%s\"."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:606
+#: src/Generic/AbstractModule.php:630
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
@@ -379,7 +379,7 @@ msgid "email"
 msgstr ""
 
 #: src/Controller/Site/GuestController.php:201
-#: src/Controller/Site/AnonymousController.php:164
+#: src/Controller/Site/AnonymousController.php:185
 msgid "An error occurred when the email was sent."
 msgstr ""
 
@@ -401,52 +401,61 @@ msgstr ""
 msgid "Thanks for accepting the terms and condtions."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:90
-#: src/Controller/Site/AnonymousController.php:96
-msgid "A password must be set."
+#: src/Controller/Site/AnonymousController.php:62
+msgid "Your account is under moderation for opening."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:116
-msgid "Already registered."
-msgstr ""
-
-#: src/Controller/Site/AnonymousController.php:118
+#: src/Controller/Site/AnonymousController.php:66
+#: src/Controller/Site/AnonymousController.php:139
 msgid "Check your email to confirm your registration."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:123
+#: src/Controller/Site/AnonymousController.php:111
+#: src/Controller/Site/AnonymousController.php:117
+msgid "A password must be set."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:137
+msgid "Already registered."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:144
 msgid "Unknown error."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:147
+#: src/Controller/Site/AnonymousController.php:168
 msgid "A new user is registering: {email} ({url})."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:201
+#: src/Controller/Site/AnonymousController.php:222
 msgid ""
 "Thanks for joining {site_title}! You can now log in using the password you "
 "chose."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:211
+#: src/Controller/Site/AnonymousController.php:232
 msgid ""
 "Thanks for joining {site_title}! Your registration is under moderation. See "
 "you soon!"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:227
+#: src/Controller/Site/AnonymousController.php:248
 msgid "Invalid token: your email was not confirmed for {site_title}."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:228
+#: src/Controller/Site/AnonymousController.php:249
 msgid "site_title"
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:254
+#: src/Controller/Site/AnonymousController.php:275
 msgid "Your email \"{email}\" is confirmed for {site_title}."
 msgstr ""
 
-#: src/Controller/Site/AnonymousController.php:359
+#: src/Controller/Site/AnonymousController.php:280
+msgid "Your account is now under moderation for opening."
+msgstr ""
+
+#: src/Controller/Site/AnonymousController.php:390
 msgid "Email or password invalid"
 msgstr ""
 

@@ -1,247 +1,747 @@
 # Translation for the Simple Pages plugin for Omeka.
 # Copyright (C) 2011 Roy Rosenzweig Center for History and New Media
 # This file is distributed under the same license as the Omeka package.
-# 
+#
 # Translators:
 # rcheno <remi.cheno@ideo-cairo.org>, 2014
 # Thierry Pasquier <thierry.pasquier@emf.ccsti.eu>, 2013-2014
 msgid ""
 msgstr ""
 "Project-Id-Version: Omeka\n"
-"Report-Msgid-Bugs-To: http://github.com/omeka/plugin-Guest/issues\n"
-"POT-Creation-Date: 2012-01-09 21:49-0500\n"
-"PO-Revision-Date: 2014-07-27 21:28+0000\n"
-"Last-Translator: rcheno <remi.cheno@ideo-cairo.org>\n"
-"Language-Team: French (http://www.transifex.com/projects/p/omeka/language/fr/)\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-02-24 00:00+0100\n"
+"PO-Revision-Date: 2020-02-24 00:00+0100\n"
+"Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
+"Language-Team: French (http://www.transifex.com/projects/p/omeka/language/"
+"fr/)\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 2.3\n"
 
-msgid "Guest"
-msgstr "Invité"
+#: Module.php:606
+msgid ""
+"This module cannot be used at the same time as module GuestUser for versions "
+"lower than 3.3.5. So it should be upgraded first, or disabled. When ready, "
+"the users and settings will be upgraded for all versions."
+msgstr ""
+"Ce module ne peut pas être utilisé en même temps que le module GuestUser "
+"pour une version inférieure à 3.3.5. Ce dernier doit donc être mis à jour "
+"d’abord, ou désactivé. Ensuite, les utilisateurs et les paramètres pourront "
+"être à mis à niveau pour toutes les versions."
 
-#: GuestPlugin.php:75 GuestPlugin.php:184
-msgid "Login"
-msgstr "Identifiez-vous"
-
-#: GuestPlugin.php:76 GuestPlugin.php:185
-#: controllers/UserController.php:225 views/public/user/register.php:6
+#: src/Controller/Site/AnonymousController.php:97
+#: view/guest/site/anonymous/register.phtml:16
+#: view/guest/site/anonymous/register.phtml:23
 msgid "Register"
 msgstr "Enregistrez-vous"
 
-#: GuestPlugin.php:208
-msgid "My Account"
-msgstr "Mon compte"
+#: src/Controller/Site/AnonymousController.php:174
+msgid "[Omeka Guest] New registration"
+msgstr "[Omeka Invité] Nouvel enregistrement"
 
-#: GuestPlugin.php:212
-msgid "Update account info and password"
-msgstr "Actualiser les infos et le mot de passe du compte"
-
-#: GuestPlugin.php:225
-#, php-format
-msgid "Your %s account"
-msgstr "Votre compte %s"
-
-#: GuestPlugin.php:226
-msgid ""
-"An admin has made your account active. You can now log in with your password"
-msgstr "Un administrateur a activé votre compte. Vous pouvez maintenant vous connecter avec votre mot de passe."
-
-#: config_form.php:5
-msgid "Registration Features"
-msgstr "Informations d'enregistrement"
-
-#: config_form.php:8
-msgid ""
-"Add some text to the registration screen so people will know what they get for registering.\n"
-"        As you enable and configure plugins that make use of the guest, please give them guidance\n"
-"        about what they can and cannot do."
-msgstr "Texte à ajouter à la page d'enregistrement pour faire connaitre les conséquences de l'enregistrement. Comme vous activez des extensions qui peuvent faire usage de celle-ci, merci de donner des explications sur ce qu'elles font ou qu'elles ne font pas des données des usagers."
-
-#: config_form.php:21
-msgid "Short Registration Features"
-msgstr "Infos sur l'enregistrement rapide"
-
-#: config_form.php:24
-msgid ""
-"Add a shorter version to use as a dropdown from the user bar. If empty, no "
-"dropdown will appear."
-msgstr "Proposer un version courte sous forme d'un menu déroulant dans le menu de l'usager. Si ce champ est vide, aucun menu déroulant n'apparait."
-
-#: config_form.php:34
-msgid "Dashboard Label"
-msgstr "Intitulé du tableau de bord"
-
-#: config_form.php:37
-msgid "The text to use for the label on the user's dashboard"
-msgstr "Le texte utilisé pour l'intitule du tableau de bord de l'usager"
-
-#: config_form.php:46
-msgid "Login Text"
-msgstr "Infos sur l'identifiant"
-
-#: config_form.php:49
-msgid "The text to use for the 'Login' link in the user bar"
-msgstr "Le texte à utiliser pour le lien d'identification dans le menu de l'usager "
-
-#: config_form.php:58
-msgid "Register Text"
-msgstr "Infos sur l'enregistrement"
-
-#: config_form.php:61
-msgid "The text to use for the 'Register' link in the user bar."
-msgstr "Le texte à utiliser pour le lien d'enregistrement dans le menu de l'usager"
-
-#: config_form.php:71
-msgid "Allow open registration?"
-msgstr "Permettre l'enregistrement libre ?"
-
-#: config_form.php:74
-msgid "Allow guest registration without administrator approval?"
-msgstr "Les usagers invités peuvent s'inscrire sans l'approbation d'un administrateur ?"
-
-#: config_form.php:92
-msgid "Allow instant access?"
-msgstr "Permettre un accès instantané ?"
-
-#: config_form.php:95
-msgid "Allow instant access for 20 minutes for new users"
-msgstr "Permettre un accès instantané pendant 20 minutes pour les nouveaux utilisateurs"
-
-#: config_form.php:113
-msgid "Require ReCaptcha?"
-msgstr "Exiger ReCaptcha ?"
-
-#: config_form.php:116
-msgid "Check this to require passing a ReCaptcha test when registering"
-msgstr "Case à cocher pour activer le test ReCaptcha lors de l'enregistrement"
-
-#: controllers/UserController.php:55
-#, php-format
-msgid "Failed login attempt from %s"
-msgstr "Échec de la tentative de connexion depuis %s"
-
-#: controllers/UserController.php:62
-msgid ""
-"You are logged in temporarily. Please check your email for a confirmation "
-"message. Once you have confirmed your request, you can log in without time "
-"limits."
-msgstr "Vous êtes connecté de façon provisoire. Merci de vérifier votre courrier électronique pour le message de confirmation. Une fois la confirmation faite, vous pourrez vous connecter sans limite de temps."
-
-#: controllers/UserController.php:70
+#: src/Controller/Site/AnonymousController.php:192
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
 "message. Once you have confirmed your request, you will be able to log in."
-msgstr "Merci de vous avoir enregistré. Veuillez vérifier votre courrier électronique pour le message de confirmation. Une fois la confirmation faite, vous pourrez vous connecter."
+msgstr ""
+"Merci de vous avoir enregistré. Veuillez vérifier votre courrier "
+"électronique pour le message de confirmation. Une fois la confirmation "
+"faite, vous pourrez vous connecter."
 
-#: controllers/UserController.php:76
+#: src/Controller/Site/AnonymousController.php:193
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
-"message. Once you have confirmed your request and an administrator activates"
-" your account, you will be able to log in."
-msgstr "Merci de vous avoir enregistré. Veuillez vérifier votre courrier électronique pour le message de confirmation. Une fois la confirmation faite et votre compte activé par un administrateur, vous pourrez vous connecter."
+"message. Once you have confirmed your request and we have confirmed it, you "
+"will be able to log in."
+msgstr ""
+"Merci de vous être enregistré. Veuillez vérifier vos mails pour le message "
+"de confirmation. Une fois l’adresse mail confirmée, vous pourrez vous "
+"connecter."
 
-#: controllers/UserController.php:115
-msgid "Incorrect password"
-msgstr "Mot de passe incorrect"
-
-#: controllers/UserController.php:161
-msgid ""
-"Please check the email we just sent you for the next steps! You're almost "
-"there!"
-msgstr "Merci de vérifier le message électronique que nous venons de vous envoyer. Vous êtes presque au bout de vos peines !"
-
-#: controllers/UserController.php:165
-msgid "Invalid token"
+#: src/Controller/Site/AnonymousController.php:204
+msgid "Invalid token stop"
 msgstr "Jeton invalide"
 
-#: controllers/UserController.php:210 views/public/user/update-account.php:4
-msgid "Password again for match"
-msgstr "Répétez le mot de passe pour vérification"
+#: src/Controller/Site/GuestController.php:45
+msgid "My Account"
+msgstr "Mon compte"
 
-#: controllers/UserController.php:220
-msgid "Please verify you're a human"
-msgstr "Merci de confirmer que vous êtes un humain"
+#: src/Controller/Site/GuestController.php:66
+msgid "My account"
+msgstr "Mon compte"
 
-#: controllers/UserController.php:232
+#: src/Generic/AbstractModule.php:542
 #, php-format
-msgid "Thanks for joining %s!"
-msgstr "Merci d'avoir rejoint %s !"
+msgid "This module requires the module \"%s\"."
+msgstr "Ce module requiert le module \"%s\"."
 
-#: controllers/UserController.php:234
-msgid "You can now log in using the password you chose."
-msgstr "Maintenant, vous pouvez  vous connecter avec le mot de passe que vous avez choisi"
-
-#: controllers/UserController.php:236
-msgid ""
-"When an administrator approves your account, you will receive another "
-"message that you can use to log in with the password you chose."
-msgstr "Lorsqu'un administrateur aura approuvé votre compte, vous recevrez un autre message qui vous invitera à vous connecter avec le mot de passe que vous avez choisi."
-
-#: controllers/UserController.php:238
+#: src/Generic/AbstractModule.php:562
 #, php-format
-msgid "Registration for %s"
-msgstr "Enregistrement de %s"
+msgid "This module requires modules \"%s\"."
+msgstr "Ce module requiert les modules \"%s\"."
 
-#: controllers/UserController.php:252
-#, php-format
-msgid "Your request to join %s"
-msgstr "Votre requête pour rejoindre %s"
-
-#: controllers/UserController.php:253
-msgid "this link"
-msgstr "ce lien"
-
-#: controllers/UserController.php:253
+#: src/Generic/AbstractModule.php:630
 #, php-format
 msgid ""
-"You have registered for an account on %s. Please confirm your registration "
-"by following %s.  If you did not request to join %s please disregard this "
-"email."
-msgstr "Vous vous être enregistré pour un compte sur %s. Merci de confirmer votre enregistrement en suivant %s. Si vous n'avez pas demandé de rejoindre %s, merci d'ignorer ce message."
+"The module \"%s\" was automatically deactivated because the dependencies are "
+"unavailable."
+msgstr ""
+"Le module \"%s\" a été automatiquement désactivé car ses dépendances ne sont "
+"plus disponibles."
 
-#: controllers/UserController.php:266
-#, php-format
-msgid "New request to join %s"
-msgstr "Nouvelle demande pour rejoindre %s"
+#: src/Stdlib/PsrMessage.php:149
+msgid "default"
+msgstr "défaut"
 
-#: controllers/UserController.php:267
-#, php-format
-msgid "A new user has confirmed that they want to join %s : %s"
-msgstr "Un nouvel usager à confirmé son souhait de rejoindre %s : %s"
+#: view/common/navigation-link-form/login-board.phtml:19
+msgid "Label Login"
+msgstr "Libellé de la connexion"
 
-#: views/public/user/confirm.php:2
-msgid "Confirmation Error"
-msgstr "Erreur à la confirmation"
+#: view/common/navigation-link-form/login-board.phtml:20
+msgid "Label My board"
+msgstr "Libellé Mon tableau de bord"
 
-#: views/public/user/me.php:10
-msgid "Browse and manage your work here."
-msgstr "Parcourez et gérez votre travail ici."
+#: view/guest/site/anonymous/auth-error.phtml:9
+msgid "Authentication error"
+msgstr "Erreur d’authentification"
 
-#: views/public/user/stale-token.php:2
-msgid "Stale Token"
-msgstr "Jeton périmé"
-
-#: views/public/user/stale-token.php:9
+#: view/guest/site/anonymous/auth-error.phtml:12
 msgid ""
-"Your temporary access to the site has expired. Please check your email for "
-"the link to follow to confirm your registration."
-msgstr "Votre accès temporaire au site a expiré. S'il vous plaît, vérifiez vos courriels, vous recevrez un lien à suivre pour valider votre inscription."
+"An error occurred during the authentication via a third party authenticator."
+msgstr ""
+"Une erreur est survenue durant l’authentification via une tierce partie."
 
-#: views/public/user/stale-token.php:11
-msgid "You have been logged out, but can continue browsing the site."
-msgstr "Vous avez été déconnecté, mais vous pouvez toujours parcourir ce site"
+#: view/guest/site/anonymous/auth-error.phtml:15
+msgid "Contact your administrator for more information."
+msgstr "Contactez votre administrateur pour plus d’information."
 
-#: views/public/user/update-account.php:5
-msgid "Passwords match!"
-msgstr "Les mots de passe correspondent !"
+#: view/guest/site/anonymous/forgot-password.phtml:13
+msgid "Forgot Password"
+msgstr "Mot de passe oublié"
 
-#: views/public/user/update-account.php:6
-msgid "Passwords do not match!"
-msgstr "Les mots de passe ne correspondent pas !"
+#: view/guest/site/anonymous/forgot-password.phtml:17
+msgid "Send an email to reset the password"
+msgstr "Envoyer un mail pour réinitialiser le mot de passe"
 
-#: views/public/user/update-account.php:13
-msgid "Update Account"
-msgstr "Actualiser le compte"
+#: view/guest/site/anonymous/login.phtml:12
+msgid "Login"
+msgstr "Identifiez-vous"
+
+#: view/guest/site/anonymous/login.phtml:18
+msgid ""
+"Your account seems to have an error. Contact your administrator to login."
+msgstr ""
+"Votre compte semble avoir une erreur. Contactez votre administrateur pour "
+"vous connecter."
+
+#: view/guest/site/guest/accept-terms.phtml:17
+msgid "Accept terms and conditions"
+msgstr "Accepter les termes et les conditions"
+
+#: view/guest/site/guest/accept-terms.phtml:25
+msgid "Accept"
+msgstr "Accepter"
+
+#: view/guest/site/guest/accept-terms.phtml:30
+#, php-format
+msgid "The terms and conditions can be read %shere%s."
+msgstr "Les termes et les conditions peuvent être consultés %sici%s."
+
+#: view/guest/site/guest/update-email.phtml:15
+msgid "My email"
+msgstr "Mon adresse mail"
+
+#: view/guest/site/guest/widget/account.phtml:14
+msgid "Update account info and password"
+msgstr "Actualiser les infos et le mot de passe du compte"
+
+#: view/guest/site/guest/widget/account.phtml:18
+msgid "Update email"
+msgstr "Mettre à jour le mail"
+
+#: Module.php:115
+msgid "Guest"
+msgstr "Invité"
+
+#: Module.php:254
+msgid "All guests must agreed the terms one more time."
+msgstr "Tous les invités doivent accepter les termes une nouvelle fois."
+
+#: Module.php:259
+msgid "All guests agreed the terms."
+msgstr "Tous les invités ont accepté les termes."
+
+#: Module.php:300 Module.php:331
+msgid "Agreed terms"
+msgstr "A accepté les termes"
+
+#: Module.php:351
+msgid "Clear registration token"
+msgstr "Supprimer le jeton d’enregistrement"
+
+#: Module.php:611
+msgid ""
+"The module GuestUser is installed. Users and settings from this module are "
+"upgraded."
+msgstr ""
+"Le module GuestUser est installé. Les utilisateurs et les paramètres de ce "
+"module sont mis à niveau."
+
+#: Module.php:617
+#, php-format
+msgid "To upgrade customized templates from module GuestUser, see %sreadme%s."
+msgstr ""
+"Pour mettre à niveau les gabarits du module GuestUser, consulter le %sreadme"
+"%s."
+
+#: src/Form/ConfigForm.php:17
+msgid "Registration"
+msgstr "Enregistrement"
+
+#: src/Form/ConfigForm.php:18
+msgid ""
+"Allow guest registration without administrator approval. The link to use is "
+"\"/s/my-site/guest/register\"."
+msgstr ""
+"Permet aux visiteurs de s’inscrire sans approbation d’un administrateur. Le "
+"lien à utiliser est \"/s/my-site/guest/register\"."
+
+#: src/Form/ConfigForm.php:20
+msgid "Open to everyone"
+msgstr "Ouvert à tous"
+
+#: src/Form/ConfigForm.php:21
+msgid "Open with moderation"
+msgstr "Ouvert avec modération"
+
+#: src/Form/ConfigForm.php:22
+msgid "Closed to visitors"
+msgstr "Fermé aux visiteurs"
+
+#: src/Form/ConfigForm.php:34
+msgid "Notify registrations by email"
+msgstr "Notifier les enregistrements par email"
+
+#: src/Form/ConfigForm.php:35
+msgid "The list of emails to notify when a user registers, one by row."
+msgstr ""
+"La liste d’adresses mail à notifier quand un visiteur s’enregistre, une par "
+"ligne."
+
+#: src/Form/ConfigForm.php:48
+msgid "Require ReCaptcha"
+msgstr "Exiger ReCaptcha"
+
+#: src/Form/ConfigForm.php:49
+msgid "Check this to require passing a ReCaptcha test when registering"
+msgstr "Case à cocher pour activer le test ReCaptcha lors de l'enregistrement"
+
+#: src/Form/ConfigForm.php:60
+msgid "Login Text"
+msgstr "Infos sur l'identifiant"
+
+#: src/Form/ConfigForm.php:61
+msgid "The text to use for the \"Login\" link in the user bar"
+msgstr ""
+"Le libellé à utiliser pour le lien d'identification dans la barre utilisateur"
+
+#: src/Form/ConfigForm.php:72
+msgid "Register Text"
+msgstr "Infos sur l'enregistrement"
+
+#: src/Form/ConfigForm.php:73
+msgid "The text to use for the \"Register\" link in the user bar"
+msgstr ""
+"Le libellé à utiliser pour le lien d’enregistrement dans la barre utilisateur"
+
+#: src/Form/ConfigForm.php:84
+msgid "Dashboard Label"
+msgstr "Intitulé du tableau de bord"
+
+#: src/Form/ConfigForm.php:85
+msgid "The text to use for the label on the user’s dashboard"
+msgstr "Le libellé à utiliser pour le titre du tableau de bord utilisateur"
+
+#: src/Form/ConfigForm.php:96
+msgid "Registration Features"
+msgstr "Informations d'enregistrement"
+
+#: src/Form/ConfigForm.php:97
+msgid ""
+"Add some text to the registration screen so people will know what they get "
+"for registering. As you enable and configure plugins that make use of the "
+"guest, please give them guidance about what they can and cannot do."
+msgstr ""
+"Texte à ajouter à la page d'enregistrement pour expliquer les suites de "
+"l’enregistrement. Comme les modules peuvent les étendre, il est conseillé "
+"d'indiquer ce que les utilisateurs peuvent faire et ne pas faire."
+
+#: src/Form/ConfigForm.php:100
+msgid "guest-capabilities"
+msgstr "guest-capabilities"
+
+#: src/Form/ConfigForm.php:122
+msgid "Email sent to confirm registration"
+msgstr "Mail envoyé pour confirmer l’enregistrement"
+
+#: src/Form/ConfigForm.php:123
+msgid ""
+"The text of the email to confirm the registration and to send the token."
+msgstr "Le texte du mail pour confirmer l’'enregistrement et envoyer le jeton."
+
+#: src/Form/ConfigForm.php:127
+msgid ""
+"Hi {user_name},\n"
+"You have registered for an account on {main_title} / {site_title} "
+"({site_url}).\n"
+"Please confirm your registration by following this link: {token_url}.\n"
+"If you did not request to join {main_title} please disregard this email."
+msgstr ""
+"Bonjour {user_name},\n"
+"Vous vous êtes enregistré pour créer un compte sur {main_title} / "
+"{site_title} ({site_url}).\n"
+"Merci de confirmer votre enregistrement pour en suivant le lien suivant : "
+"{token_url}.\n"
+"Si vous n'avez pas demandé de rejoindre {main_title}, merci d'ignorer ce "
+"message."
+
+#: src/Form/ConfigForm.php:138
+msgid "Email sent to update email"
+msgstr "Mail envoyé pour mettre à jour l’adresse mail"
+
+#: src/Form/ConfigForm.php:139
+msgid "The text of the email sent when the user wants to update it."
+msgstr ""
+"Le texte du mail qui sera envoyé quand l’utilisateur voudra mettre à jour "
+"son adresse."
+
+#: src/Form/ConfigForm.php:143
+msgid ""
+"Hi {user_name},\n"
+"You have requested to update email on {main_title} / {site_title} "
+"({site_url}).\n"
+"Please confirm your email by following this link: {token_url}.\n"
+"If you did not request to update your email on {main_title}, please "
+"disregard this email."
+msgstr ""
+"Bonjour {user_name},\n"
+"Vous avez demandé à mettre à jour votre adresse email sur {main_title} / "
+"{site_title} ({site_url}).\n"
+"Merci de confirmer votre email en suivant ce lien : {token_url}.\n"
+"Si vous n’avez pas demandé de mettre à jour votre mail sur {main_title}, "
+"merci d'ignorer ce message."
+
+#: src/Form/ConfigForm.php:154
+msgid "Text for terms and conditions"
+msgstr "Textes pour les termes et conditions"
+
+#: src/Form/ConfigForm.php:155
+msgid "The text to display to accept condtions."
+msgstr "Le texte à afficher pour accepter les conditions."
+
+#: src/Form/ConfigForm.php:166
+msgid "Page slug of the terms and conditions"
+msgstr "Chemin de la page des termes"
+
+#: src/Form/ConfigForm.php:167
+msgid "If the text is on a specific page, or for other usage."
+msgstr "Si le test est sur une page spécifique, ou pour un autre usage."
+
+#: src/Form/ConfigForm.php:178
+msgid "Redirect page after login"
+msgstr "Redirection après connexion"
+
+#: src/Form/ConfigForm.php:191
+msgid "Pages not to redirect"
+msgstr "Pages à ne pas rediriger"
+
+#: src/Form/ConfigForm.php:192
+msgid ""
+"Allows to keep some pages available when terms are not yet agreed. Default "
+"pages are included (logout, terms page…). This is a regex, with \"~\" "
+"delimiter, checked against the end of the url."
+msgstr ""
+"Permet de garder certaines pages disponibles lorsque les termes n’'ont pas "
+"été acceptés. Les pages par défaut sont incluses (déconnexion, page des "
+"termes…). C’'est une chaîne regex, avec le délimiteur \"~\", appliqué sur la "
+"fin de l’url."
+
+#: src/Form/ConfigForm.php:203
+msgid "Force terms agreement"
+msgstr "Forcer l’acceptation des termes"
+
+#: src/Form/ConfigForm.php:204
+msgid "If unchecked, the user will be logged out if terms are not accepted."
+msgstr ""
+"Si décoché, l’utilisateur sera déconnecté s’il n'accepte pas les termes."
+
+#: src/Form/ConfigForm.php:215
+msgid "Reset terms agreement for all guests"
+msgstr "Réinitialisation de l’acceptation des termes pour tous les invités"
+
+#: src/Form/ConfigForm.php:216
+msgid ""
+"When terms and conditions are updated, you may want guests agree them one "
+"more time. Warning: to set false will impact all guests. So warn them some "
+"time before."
+msgstr ""
+"Quand les termes et les conditions sont mis à jour, vous pouvez souhaiter "
+"que les utilisateurs invités les acceptent à nouveau. Attention : cocher la "
+"case impactera tous les invités. Il est conseillé de les prévenir auparavant."
+
+#: src/Form/ConfigForm.php:218
+msgid "No change"
+msgstr "Pas de changement"
+
+#: src/Form/ConfigForm.php:219
+msgid "Set false"
+msgstr "Indiquer vrai"
+
+#: src/Form/ConfigForm.php:220
+msgid "Set true"
+msgstr "Indiquer faux"
+
+#: src/Form/AcceptTermsForm.php:16
+msgid "I agree with terms and conditions."
+msgstr "J’'accepte les termes et conditions."
+
+#: src/Controller/Site/GuestController.php:104
+msgid "Password invalid"
+msgstr "Mot de passe incorrect"
+
+#: src/Controller/Site/GuestController.php:117
+msgid "Your modifications have been saved."
+msgstr "Vos modifications ont été enregistrées."
+
+#: src/Controller/Site/GuestController.php:133
+msgid "password"
+msgstr "mot de passe"
+
+#: src/Controller/Site/GuestController.php:172
+msgid "Email invalid"
+msgstr "Email invalide"
+
+#: src/Controller/Site/GuestController.php:180
+msgid "The new email is the same than the current one."
+msgstr "Le nouveau mail est le même que l’actuel."
+
+#: src/Controller/Site/GuestController.php:189
+#: src/Controller/Site/GuestController.php:207
+msgid "email"
+msgstr "email"
+
+#: src/Controller/Site/GuestController.php:201
+#: src/Controller/Site/AnonymousController.php:185
+msgid "An error occurred when the email was sent."
+msgstr "Une erreur est survenue lorsque le mail a été envoyé."
+
+#: src/Controller/Site/GuestController.php:217
+msgid "You already agreed the terms and conditions."
+msgstr "Vous avez déjà accepté les termes et conditions."
+
+#: src/Controller/Site/GuestController.php:247
+msgid "Form invalid"
+msgstr "Formulaire invalide"
+
+#: src/Controller/Site/GuestController.php:257
+msgid ""
+"The access to this website requires you accept the current terms and "
+"conditions."
+msgstr ""
+"L’accès au site web nécessite d’accepter les termes et conditions actuelles."
+
+#: src/Controller/Site/GuestController.php:264
+msgid "Thanks for accepting the terms and condtions."
+msgstr "Merci d’avoir accepté les termes et conditions."
+
+#: src/Controller/Site/AnonymousController.php:62
+msgid "Your account is under moderation for opening."
+msgstr "Votre compte est en cours de modération pour l’ouverture."
+
+#: src/Controller/Site/AnonymousController.php:66
+#: src/Controller/Site/AnonymousController.php:139
+msgid "Check your email to confirm your registration."
+msgstr "Vérifiez vos mails pour confirmer l’enregistrement."
+
+#: src/Controller/Site/AnonymousController.php:111
+#: src/Controller/Site/AnonymousController.php:117
+msgid "A password must be set."
+msgstr "Un mot de passe doit être indiqué."
+
+#: src/Controller/Site/AnonymousController.php:137
+msgid "Already registered."
+msgstr "Déjà enregistré."
+
+#: src/Controller/Site/AnonymousController.php:144
+msgid "Unknown error."
+msgstr "Erreur inconnue."
+
+#: src/Controller/Site/AnonymousController.php:168
+msgid "A new user is registering: {email} ({url})."
+msgstr "Un nouvel utilisateur s’est enregistré : {email} ({url})."
+
+#: src/Controller/Site/AnonymousController.php:222
+msgid ""
+"Thanks for joining {site_title}! You can now log in using the password you "
+"chose."
+msgstr ""
+"Merci d’avoir rejoint {site_title} ! Vous pouvez désormais vous identifier "
+"avec votre mot de passe."
+
+#: src/Controller/Site/AnonymousController.php:232
+msgid ""
+"Thanks for joining {site_title}! Your registration is under moderation. See "
+"you soon!"
+msgstr ""
+"Merci d’avoir rejoint {site_title} ! Votre enregistrement est en cours de "
+"modération. À bientôt !"
+
+#: src/Controller/Site/AnonymousController.php:248
+msgid "Invalid token: your email was not confirmed for {site_title}."
+msgstr "Jeton invalide : votre mail n’a pas été confirmé pour le {site_title}."
+
+#: src/Controller/Site/AnonymousController.php:249
+msgid "site_title"
+msgstr "site_title"
+
+#: src/Controller/Site/AnonymousController.php:275
+msgid "Your email \"{email}\" is confirmed for {site_title}."
+msgstr "Votre mail \"{email}\" a été confirmé pour {site_title}."
+
+#: src/Controller/Site/AnonymousController.php:280
+msgid "Your account is now under moderation for opening."
+msgstr "Votre compte est actuellement en cours de modération pour l’ouverture."
+
+#: src/Controller/Site/AnonymousController.php:390
+msgid "Email or password invalid"
+msgstr "Email ou mot de passe invalide"
+
+#: src/Controller/Site/AbstractGuestController.php:163
+msgid "Your request to join {main_title} / {site_title}"
+msgstr "Votre requête pour rejoindre {main_title} / {site_title}"
+
+#: src/Controller/Site/AbstractGuestController.php:171
+msgid "Update email on {main_title} / {site_title}"
+msgstr "Mettre à jour le mail sur {main_title} / {site_title}"
+
+#: src/Controller/Site/AbstractGuestController.php:180
+msgid "[No subject]"
+msgstr "[Pas de sujet]"
+
+#: src/Controller/Site/AbstractGuestController.php:181
+msgid "[No message]"
+msgstr ""
+"<p>Bonjour {user_name},</p>\n"
+"<p>Vous avez demandé une mise à jour de votre email sur {main_title} / "
+"{site_title} ({site_url}).</p>\n"
+"<p>Merci de confirmer votre email en suivant ce lien : {token_url}.</p>\n"
+"<p>Si vous n’avez pas fait cette demande sur {main_title}, merci de ne pas "
+"tenir compte de ce mail.</p>"
+
+#: src/Site/Navigation/Link/Register.php:12
+msgid "Guest Register"
+msgstr "Enregistrement Invité"
+
+#: src/Site/Navigation/Link/Register.php:23
+#: src/Site/Navigation/Link/Logout.php:23 src/Site/Navigation/Link/Login.php:23
+#, php-format
+msgid "Invalid navigation: link without label (%s)"
+msgstr "Navigation invalide : lien sans libellé (%s)"
+
+#: src/Site/Navigation/Link/Logout.php:12
+msgid "Guest Logout"
+msgstr "Déconnexion (Guest)"
+
+#: src/Site/Navigation/Link/LoginBoard.php:12
+msgid "Guest Login / My board"
+msgstr "Connexion (Guest) / Mon tableau de bord"
+
+#: src/Site/Navigation/Link/LoginBoard.php:23
+#: src/Site/Navigation/Link/LoginBoard.php:27
+msgid "Invalid navigation: login link missing label"
+msgstr "Navigation invalide : manque libellé du lien de connexion"
+
+#: src/Site/Navigation/Link/LoginBoard.php:38
+msgid "My board"
+msgstr "Mon tableau de bord"
+
+#: src/Site/Navigation/Link/Login.php:12
+msgid "Guest Login"
+msgstr "Connexion Invité"
+
+#: src/Mvc/Controller/Plugin/SendEmail.php:51
+msgid "The message has no recipient."
+msgstr "Le message n’a pas de destinataire."
+
+#: src/Mvc/Controller/Plugin/SendEmail.php:55
+msgid "The message has no subject."
+msgstr "Le message n’a pas de sujet."
+
+#: src/Mvc/Controller/Plugin/SendEmail.php:59
+msgid "The message has no content."
+msgstr "Le message n’a pas de contenu."
+
+#: src/Mvc/Controller/Plugin/SendEmail.php:109
+msgid "A mail was sent to {email} with subject: {subject}"
+msgstr "Un mail a été envoyé à {email} avec le sujet : {subject}"
+
+#: src/Authentication/Adapter/PasswordAdapter.php:22
+msgid "User not found."
+msgstr "Utilisateur non trouvé."
+
+#: src/Authentication/Adapter/PasswordAdapter.php:31
+msgid "Your account has not been confirmed: check your email."
+msgstr ""
+"Votre mail n’a pas encore été confirmé : veuillez vérifier votre courrier."
+
+#: src/Authentication/Adapter/PasswordAdapter.php:39
+msgid "Invalid password."
+msgstr "Mot de passe incorrect."
+
+#: config/module.config.php:143
+msgid "My dashboard"
+msgstr "Mon tableau de bord"
+
+#: config/module.config.php:148
+msgid ""
+"<p>Hi {user_name},</p>\n"
+"<p>You have registered for an account on {main_title} / {site_title} "
+"({site_url}).</p>\n"
+"<p>Please confirm your registration by following this link: {token_url}.</"
+"p>\n"
+"<p>If you did not request to join {main_title} please disregard this email.</"
+"p>"
+msgstr ""
+"<p>Bonjour {user_name},</p>\n"
+"<p>Vous vous êtes enregistré pour un compte sur {main_title} / {site_title} "
+"({site_url}).</p>\n"
+"<p>Merci de confirmer votre enregistrement en suivant ce lien : {token_url}."
+"</p>\n"
+"<p>Si vous n’avez pas demandé de rejoindre {main_title}, merci d’ignorer ce "
+"message.</p>"
+
+#: config/module.config.php:152
+msgid ""
+"<p>Hi {user_name},</p>\n"
+"<p>You have requested to update email on {main_title} / {site_title} "
+"({site_url}).</p>\n"
+"<p>Please confirm your email by following this link: {token_url}.</p>\n"
+"<p>If you did not request to update your email on {main_title}, please "
+"disregard this email.</p>"
+msgstr ""
+"<p>Hi {user_name},</p>\n"
+"<p>You have requested to update email on {main_title} / {site_title} "
+"({site_url}).</p>\n"
+"<p>Please confirm your email by following this link: {token_url}.</p>\n"
+"<p>If you did not request to update your email on {main_title}, please "
+"disregard this email.</p>"
+
+#: config/module.config.php:156
+msgid "I agree the terms and conditions."
+msgstr "J’'accepte les termes et conditions."
+
+#~ msgid "Your %s account"
+#~ msgstr "Votre compte %s"
+
+#~ msgid ""
+#~ "An admin has made your account active. You can now log in with your "
+#~ "password"
+#~ msgstr ""
+#~ "Un administrateur a activé votre compte. Vous pouvez maintenant vous "
+#~ "connecter avec votre mot de passe."
+
+#~ msgid ""
+#~ "Add a shorter version to use as a dropdown from the user bar. If empty, "
+#~ "no dropdown will appear."
+#~ msgstr ""
+#~ "Proposer un version courte sous forme d'un menu déroulant dans le menu de "
+#~ "l'usager. Si ce champ est vide, aucun menu déroulant n'apparait."
+
+#~ msgid "Allow instant access?"
+#~ msgstr "Permettre un accès instantané ?"
+
+#~ msgid "Allow instant access for 20 minutes for new users"
+#~ msgstr ""
+#~ "Permettre un accès instantané pendant 20 minutes pour les nouveaux "
+#~ "utilisateurs"
+
+#~ msgid "Failed login attempt from %s"
+#~ msgstr "Échec de la tentative de connexion depuis %s"
+
+#~ msgid ""
+#~ "You are logged in temporarily. Please check your email for a confirmation "
+#~ "message. Once you have confirmed your request, you can log in without "
+#~ "time limits."
+#~ msgstr ""
+#~ "Vous êtes connecté de façon provisoire. Merci de vérifier votre courrier "
+#~ "électronique pour le message de confirmation. Une fois la confirmation "
+#~ "faite, vous pourrez vous connecter sans limite de temps."
+
+#~ msgid ""
+#~ "Thank you for registering. Please check your email for a confirmation "
+#~ "message. Once you have confirmed your request and an administrator "
+#~ "activates your account, you will be able to log in."
+#~ msgstr ""
+#~ "Merci de vous avoir enregistré. Veuillez vérifier votre courrier "
+#~ "électronique pour le message de confirmation. Une fois la confirmation "
+#~ "faite et votre compte activé par un administrateur, vous pourrez vous "
+#~ "connecter."
+
+#~ msgid ""
+#~ "Please check the email we just sent you for the next steps! You're almost "
+#~ "there!"
+#~ msgstr ""
+#~ "Merci de vérifier le message électronique que nous venons de vous "
+#~ "envoyer. Vous êtes presque au bout de vos peines !"
+
+#~ msgid "Password again for match"
+#~ msgstr "Répétez le mot de passe pour vérification"
+
+#~ msgid "Please verify you're a human"
+#~ msgstr "Merci de confirmer que vous êtes un humain"
+
+#~ msgid "Thanks for joining %s!"
+#~ msgstr "Merci d'avoir rejoint %s !"
+
+#~ msgid ""
+#~ "When an administrator approves your account, you will receive another "
+#~ "message that you can use to log in with the password you chose."
+#~ msgstr ""
+#~ "Lorsqu'un administrateur aura approuvé votre compte, vous recevrez un "
+#~ "autre message qui vous invitera à vous connecter avec le mot de passe que "
+#~ "vous avez choisi."
+
+#~ msgid "this link"
+#~ msgstr "ce lien"
+
+#~ msgid "New request to join %s"
+#~ msgstr "Nouvelle demande pour rejoindre %s"
+
+#~ msgid "A new user has confirmed that they want to join %s : %s"
+#~ msgstr "Un nouvel usager à confirmé son souhait de rejoindre %s : %s"
+
+#~ msgid "Browse and manage your work here."
+#~ msgstr "Parcourez et gérez votre travail ici."
+
+#~ msgid "Stale Token"
+#~ msgstr "Jeton périmé"
+
+#~ msgid ""
+#~ "Your temporary access to the site has expired. Please check your email "
+#~ "for the link to follow to confirm your registration."
+#~ msgstr ""
+#~ "Votre accès temporaire au site a expiré. S'il vous plaît, vérifiez vos "
+#~ "courriels, vous recevrez un lien à suivre pour valider votre inscription."
+
+#~ msgid "You have been logged out, but can continue browsing the site."
+#~ msgstr ""
+#~ "Vous avez été déconnecté, mais vous pouvez toujours parcourir ce site"
+
+#~ msgid "Passwords do not match!"
+#~ msgstr "Les mots de passe ne correspondent pas !"
+
+#~ msgid "Update Account"
+#~ msgstr "Actualiser le compte"
