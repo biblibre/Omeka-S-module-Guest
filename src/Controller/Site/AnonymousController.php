@@ -168,7 +168,7 @@ class AnonymousController extends AbstractGuestController
                 'A new user is registering: {email} ({url}).', // @translate
                 [
                     'email' => $user->getEmail(),
-                    'url' => $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId(), ['force_canonical' => true]]),
+                    'url' => $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]),
                 ]
             );
             $this->sendEmail($emails, $this->translate('[Omeka Guest] New registration'), $message); // @translate
