@@ -47,6 +47,27 @@ class AnonymousController extends AbstractGuestController
         $adapter->setCredential($validatedData['password']);
         $result = $auth->authenticate();
         if (!$result->isValid()) {
+            // Check if the user is under moderation in order to add a message.
+            if (!$this->isOpenRegister()) {
+                $entityManager = $this->getEntityManager();
+                /** @var \Omeka\Entity\User $user */
+                $user = $entityManager->getRepository(User::class)->findOneBy([
+                    'email' => $validatedData['email'],
+                ]);
+                if ($user) {
+                    $guestToken = $entityManager->getRepository(GuestToken::class)
+                        ->findOneBy(['email' => $validatedData['email']], ['id' => 'DESC']);
+                    if (empty($guestToken) || $guestToken->isConfirmed()) {
+                        if (!$user->isActive()) {
+                            $this->messenger()->addError('Your account is under moderation for opening.'); // @translate
+                            return $view;
+                        }
+                    } else {
+                        $this->messenger()->addError('Check your email to confirm your registration.'); // @translate
+                        return $view;
+                    }
+                }
+            }
             $this->messenger()->addError(implode(';', $result->getMessages()));
             return $view;
         }
@@ -253,8 +274,12 @@ class AnonymousController extends AbstractGuestController
 
         $message = new PsrMessage('Your email "{email}" is confirmed for {site_title}.', // @translate
             ['email' => $email, 'site_title' => $siteTitle]);
-
         $this->messenger()->addSuccess($message);
+
+        if (!$this->isOpenRegister()) {
+            $this->messenger()->addError('Your account is now under moderation for opening.'); // @translate
+        }
+
         if ($this->isUserLogged()) {
             $redirectUrl = $this->url()->fromRoute('site/guest', [
                 'site-slug' => $this->currentSite()->slug(),
