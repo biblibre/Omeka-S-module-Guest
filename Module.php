@@ -554,7 +554,8 @@ class Module extends AbstractModule
         $requestUriBase = strtok($requestUri, '?');
 
         $settings = $services->get('Omeka\Settings');
-        $page = $settings->get('guest_terms_page');
+        $siteSettings = $services->get('Omeka\Settings\Site');
+        $page = $siteSettings->get('guest_terms_page') ?: $settings->get('guest_terms_page');
         $regex = $settings->get('guest_terms_request_regex');
         if ($page) {
             $regex .= ($regex ? '|' : '') . 'page/' . $page;

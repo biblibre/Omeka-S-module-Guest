@@ -62,8 +62,7 @@ class GuestController extends AbstractGuestController
         $id = $user->getId();
 
         $label = $this->getOption('guest_dashboard_label')
-            ? $this->getOption('guest_dashboard_label')
-            : $this->translate('My account'); // @translate
+            ?: $this->translate('My account'); // @translate
 
         $userRepr = $this->api()->read('users', $id)->getContent();
         $data = $userRepr->jsonSerialize();
@@ -227,8 +226,8 @@ class GuestController extends AbstractGuestController
         $form->setOption('forced', $forced);
         $form->init();
 
-        $text = $this->settings()->get('guest_terms_text');
-        $page = $this->settings()->get('guest_terms_page');
+        $text = $this->getOption('guest_terms_text');
+        $page = $this->getOption('guest_terms_page');
 
         $view = new ViewModel;
         $view->setVariable('form', $form);

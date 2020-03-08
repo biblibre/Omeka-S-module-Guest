@@ -93,8 +93,7 @@ class AnonymousController extends AbstractGuestController
         $view = new ViewModel;
         $view->setVariable('form', $form);
         $registerLabel = $this->getOption('guest_capabilities')
-            ? $this->getOption('guest_capabilities')
-            : $this->translate('Register'); // @translate
+            ?: $this->translate('Register'); // @translate
 
         $view->setVariable('registerLabel', $registerLabel);
 
@@ -162,7 +161,7 @@ class AnonymousController extends AbstractGuestController
             }
         }
 
-        $emails = $this->settings()->get('guest_notify_register');
+        $emails = $this->getOption('guest_notify_register');
         if ($emails) {
             $message = new PsrMessage(
                 'A new user is registering: {email} ({url}).', // @translate

@@ -9,7 +9,7 @@ $translate = $this->plugin('translate');
 $this->htmlElement('body')->appendAttribute('class', 'guest login');
 ?>
 
-<h1><?= $translate('Login') ?></h1>
+<?= $this->pageTitle($this->siteSetting('guest_login_text') ?: ($this->setting('guest_login_text') ?: $translate('Login'))) ?>
 
 <?= $this->messages() ?>
 

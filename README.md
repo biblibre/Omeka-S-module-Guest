@@ -60,6 +60,12 @@ A button in the config forms allows to set or unset all guests acceptation,
 in order to allow update of terms.
 
 
+TODO
+----
+
+- Move pages to a standard page, in particular register page (see module [ContactUs]).
+
+
 Warning
 -------
 
@@ -111,6 +117,7 @@ Copyright
 [Omeka S]: https://www.omeka.org/s
 [Omeka Classic]: https://omeka.org
 [Guest Api]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi
+[ContactUs]: https://github.com/Daniel-KM/Omeka-S-module-ContactUs
 [more information to upgrade templates]: https://github.com/Daniel-KM/Omeka-S-module-Guest/blob/master/Upgrade_from_GuestUser.md
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
 [modules/Guest/data/scripts/convert_guest_user_templates.sh]: https://github.com/Daniel-KM/Omeka-S-module-Guest/blob/master/data/scripts/convert_guest_user_templates.sh

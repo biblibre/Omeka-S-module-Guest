@@ -13,7 +13,7 @@ $form->prepare();
 
 <?= $this->messages() ?>
 
-<?= $this->pageTitle($translate('Register')) ?>
+<?= $this->pageTitle($this->siteSetting('guest_register_text') ?: ($this->setting('guest_register_text') ?: $translate('Register'))) ?>
 <label><?= $registerLabel ?></label>
 
 <?= $this->form()->openTag($form) ?>

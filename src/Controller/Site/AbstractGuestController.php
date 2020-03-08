@@ -65,7 +65,7 @@ abstract class AbstractGuestController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $redirect = $this->settings()->get('guest_redirect', 'home');
+        $redirect = $this->getOption('guest_redirect') ?: 'home';
         switch ($redirect) {
             case empty($redirect):
             case 'home':
@@ -85,7 +85,7 @@ abstract class AbstractGuestController extends AbstractActionController
 
     protected function getOption($key)
     {
-        return $this->settings()->get($key);
+        return $this->siteSettings()->get($key) ?: $this->settings()->get($key);
     }
 
     /**
@@ -135,6 +135,7 @@ abstract class AbstractGuestController extends AbstractActionController
     protected function prepareMessage($template, array $data)
     {
         $settings = $this->settings();
+        $siteSettings = $this->siteSettings();
         $currentSite = $this->currentSite();
         $default = [
             'main_title' => $settings->get('installation_title', 'Omeka S'),
@@ -161,7 +162,7 @@ abstract class AbstractGuestController extends AbstractActionController
         switch ($template) {
             case 'confirm-email':
                 $subject = 'Your request to join {main_title} / {site_title}'; // @translate
-                $body = $settings->get(
+                $body = $siteSettings->get('guest_message_confirm_email') ?: $settings->get(
                     'guest_message_confirm_email',
                     $this->getConfig()['guest']['config']['guest_message_confirm_email']
                 );
@@ -169,7 +170,7 @@ abstract class AbstractGuestController extends AbstractActionController
 
             case 'update-email':
                 $subject = 'Update email on {main_title} / {site_title}'; // @translate
-                $body = $settings->get(
+                $body = $siteSettings->get('guest_message_update_email') ?: $settings->get(
                     'guest_message_update_email',
                     $this->getConfig()['guest']['config']['guest_message_update_email']
                 );
