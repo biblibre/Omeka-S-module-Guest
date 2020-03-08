@@ -249,6 +249,16 @@ class Module extends AbstractModule
             'form.add_input_filters',
             [$this, 'handleMainSettingsFilters']
         );
+        $sharedEventManager->attach(
+            \Omeka\Form\SiteSettingsForm::class,
+            'form.add_elements',
+            [$this, 'handleSiteSettings']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Form\SiteSettingsForm::class,
+            'form.add_input_filters',
+            [$this, 'handleMainSettingsFilters']
+        );
     }
 
     public function getConfigForm(PhpRenderer $renderer)
@@ -287,7 +297,7 @@ class Module extends AbstractModule
     protected function prepareDataToPopulate(SettingsInterface $settings, $settingsType)
     {
         $data = parent::prepareDataToPopulate($settings, $settingsType);
-        if (in_array($settingsType, ['settings'])) {
+        if (in_array($settingsType, ['settings', 'site_settings'])) {
             if (isset($data['guest_notify_register']) && is_array($data['guest_notify_register'])) {
                 $data['guest_notify_register'] = implode("\n", $data['guest_notify_register']);
             }

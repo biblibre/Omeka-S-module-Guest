@@ -161,6 +161,27 @@ return [
             'guest_terms_page' => 'terms-and-conditions',
             'guest_redirect' => 'site',
         ],
+        'site_settings' => [
+            'guest_notify_register' => [],
+            'guest_login_text' => 'Login', // @translate
+            'guest_register_text' => 'Register', // @translate
+            'guest_dashboard_label' => 'My dashboard', // @translate
+            'guest_capabilities' => '',
+            // From Omeka classic, but not used.
+            // TODO Remove option "guest_short_capabilities" or implement it.
+            'guest_short_capabilities' => '',
+            'guest_message_confirm_email' => '<p>Hi {user_name},</p>
+<p>You have registered for an account on {main_title} / {site_title} ({site_url}).</p>
+<p>Please confirm your registration by following this link: {token_url}.</p>
+<p>If you did not request to join {main_title} please disregard this email.</p>', // @translate
+            'guest_message_update_email' => '<p>Hi {user_name},</p>
+<p>You have requested to update email on {main_title} / {site_title} ({site_url}).</p>
+<p>Please confirm your email by following this link: {token_url}.</p>
+<p>If you did not request to update your email on {main_title}, please disregard this email.</p>', // @translate
+            'guest_terms_text' => 'I agree the terms and conditions.', // @translate
+            'guest_terms_page' => 'terms-and-conditions',
+            'guest_redirect' => 'site',
+        ],
         'user_settings' => [
             'guest_agreed_terms' => false,
         ],
