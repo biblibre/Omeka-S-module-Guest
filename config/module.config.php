@@ -31,6 +31,7 @@ return [
             Form\AcceptTermsForm::class => Form\AcceptTermsForm::class,
             Form\ConfigForm::class => Form\ConfigForm::class,
             Form\EmailForm::class => Form\EmailForm::class,
+            Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
     ],
     'controllers' => [
@@ -134,10 +135,13 @@ return [
         ],
     ],
     'guest' => [
-        'config' => [
+        'settings' => [
             'guest_open' => 'moderate',
             'guest_notify_register' => [],
             'guest_recaptcha' => false,
+            'guest_terms_request_regex' => '',
+            'guest_terms_force_agree' => true,
+            // Fields default when no site setting.
             'guest_login_text' => 'Login', // @translate
             'guest_register_text' => 'Register', // @translate
             'guest_dashboard_label' => 'My dashboard', // @translate
@@ -156,8 +160,6 @@ return [
             'guest_terms_text' => 'I agree the terms and conditions.', // @translate
             'guest_terms_page' => 'terms-and-conditions',
             'guest_redirect' => 'site',
-            'guest_terms_request_regex' => '',
-            'guest_terms_force_agree' => true,
         ],
         'user_settings' => [
             'guest_agreed_terms' => false,

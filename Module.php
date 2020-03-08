@@ -40,6 +40,7 @@ use Guest\Entity\GuestToken;
 use Guest\Permissions\Acl;
 use Guest\Stdlib\PsrMessage;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
+use Omeka\Settings\SettingsInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\SharedEventManagerInterface;
 use Zend\Form\Element;
@@ -47,6 +48,7 @@ use Zend\Mvc\Controller\AbstractController;
 use Zend\Mvc\MvcEvent;
 use Zend\Permissions\Acl\Acl as ZendAcl;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\View\Renderer\PhpRenderer;
 
 class Module extends AbstractModule
 {
@@ -237,6 +239,24 @@ class Module extends AbstractModule
             'view.edit.form.before',
             [$this, 'addUserFormValue']
         );
+        $sharedEventManager->attach(
+            \Omeka\Form\SettingForm::class,
+            'form.add_elements',
+            [$this, 'handleMainSettings']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Form\SettingForm::class,
+            'form.add_input_filters',
+            [$this, 'handleMainSettingsFilters']
+        );
+    }
+
+    public function getConfigForm(PhpRenderer $renderer)
+    {
+        $services = $this->getServiceLocator();
+        $form = $services->get('FormElementManager')->get(\Guest\Form\ConfigForm::class);
+        $form->init();
+        return $renderer->formCollection($form);
     }
 
     public function handleConfigForm(AbstractController $controller)
@@ -259,7 +279,37 @@ class Module extends AbstractModule
                 $message = new PsrMessage('All guests agreed the terms.'); // @translate
                 $controller->messenger()->addSuccess($message);
                 break;
+            default:
+                break;
         }
+    }
+
+    protected function prepareDataToPopulate(SettingsInterface $settings, $settingsType)
+    {
+        $data = parent::prepareDataToPopulate($settings, $settingsType);
+        if (in_array($settingsType, ['settings'])) {
+            if (isset($data['guest_notify_register']) && is_array($data['guest_notify_register'])) {
+                $data['guest_notify_register'] = implode("\n", $data['guest_notify_register']);
+            }
+        }
+        return $data;
+    }
+
+    public function handleMainSettingsFilters(Event $event)
+    {
+        $event->getParam('inputFilter')->get('guest')
+            ->add([
+                'name' => 'guest_notify_register',
+                'required' => false,
+                'filters' => [
+                    [
+                        'name' => \Zend\Filter\Callback::class,
+                        'options' => [
+                            'callback' => [$this, 'stringToList'],
+                        ],
+                    ],
+                ],
+            ]);
     }
 
     public function appendLoginNav(Event $event)
