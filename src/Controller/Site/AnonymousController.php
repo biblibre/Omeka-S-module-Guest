@@ -187,9 +187,13 @@ class AnonymousController extends AbstractGuestController
             return $view;
         }
 
-        $message = $this->isOpenRegister()
-            ? $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.') // @translate
-            : $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and we have confirmed it, you will be able to log in.'); // @translate
+        if ($this->isOpenRegister()) {
+            $message = $this->getOption('guest_message_confirm_register_site')
+                ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
+        } else {
+            $message = $this->getOption('guest_message_confirm_register_moderate_site')
+                ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and we have confirmed it, you will be able to log in.'); // @translate
+        }
         $this->messenger()->addSuccess($message);
         return $this->redirect()->toRoute('site/guest/anonymous', ['action' => 'login'], [], true);
     }

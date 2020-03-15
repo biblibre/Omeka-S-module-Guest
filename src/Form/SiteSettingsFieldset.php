@@ -139,6 +139,34 @@ If you did not request to update your email on {main_title}, please disregard th
             ])
 
             ->add([
+                'name' => 'guest_message_confirm_register_site',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Message to confirm registration on the page', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guest_message_confirm_register_site',
+                    'required' => false,
+                    'placeholder' => 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.', // @translate
+                    'rows' => 3,
+                ],
+            ])
+
+            ->add([
+                'name' => 'guest_message_confirm_register_moderate_site',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Message to confirm registration and moderation on the page', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guest_message_confirm_register_moderate_site',
+                    'required' => false,
+                    'placeholder' => 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and we have confirmed it, you will be able to log in.', // @translate
+                    'rows' => 3,
+                ],
+            ])
+
+            ->add([
                 'name' => 'guest_terms_text',
                 'type' => CkeditorInline::class,
                 'options' => [
