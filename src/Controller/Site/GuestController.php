@@ -185,7 +185,7 @@ class GuestController extends AbstractGuestController
         if ($existUser) {
             // Avoid a hack of the database.
             sleep(2);
-            $this->messenger()->addError(new PsrMessage('The email "{email}" is not yours.', ['email' => $email])); // @translate
+            $this->messenger()->addError(new PsrMessage('The email "{user_email}" is not yours.', ['user_email' => $email])); // @translate
             return $view;
         }
 
@@ -203,7 +203,7 @@ class GuestController extends AbstractGuestController
             return $view;
         }
 
-        $message = new PsrMessage('Check your email "{email}" to confirm the change.', ['email' => $email]); // @translate
+        $message = new PsrMessage('Check your email "{user_email}" to confirm the change.', ['user_email' => $email]); // @translate
         $this->messenger()->addSuccess($message);
         return $this->redirect()->toRoute('site/guest', ['action' => 'me'], [], true);
     }

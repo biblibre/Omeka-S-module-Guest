@@ -184,7 +184,7 @@ If you did not request to update your email on {main_title}, please disregard th
                 'attributes' => [
                     'id' => 'guest_message_confirm_email_site',
                     'required' => false,
-                    'placeholder' => 'Your email "{email}" is confirmed for {site_title}.', // @translate
+                    'placeholder' => 'Your email "{user_email}" is confirmed for {site_title}.', // @translate
                     'rows' => 3,
                 ],
             ])

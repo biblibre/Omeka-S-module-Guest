@@ -163,9 +163,9 @@ class AnonymousController extends AbstractGuestController
         $emails = $this->getOption('guest_notify_register');
         if ($emails) {
             $message = new PsrMessage(
-                'A new user is registering: {email} ({url}).', // @translate
+                'A new user is registering: {user_email} ({url}).', // @translate
                 [
-                    'email' => $user->getEmail(),
+                    'user_email' => $user->getEmail(),
                     'url' => $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]),
                 ]
             );
@@ -282,9 +282,9 @@ class AnonymousController extends AbstractGuestController
 
         // The message is not the same for an existing user and a new user.
         $message = $isUpdate
-            ? 'Your email "{email}" is confirmed for {site_title}.'
+            ? 'Your email "{user_email}" is confirmed for {site_title}.'
             : $this->getOption('guest_message_confirm_email_site');
-        $message = new PsrMessage($message, ['email' => $email, 'site_title' => $siteTitle]);
+        $message = new PsrMessage($message, ['user_email' => $email, 'site_title' => $siteTitle]);
         $this->messenger()->addSuccess($message);
 
         if ($this->isUserLogged()) {

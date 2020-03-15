@@ -163,7 +163,7 @@ return [
 <p>You have requested to update email on <a href="{site_url}">{site_title}</a> ({main_title}).</p>
 <p>Please confirm your email by following this link: <a href="{token_url}">{token_url}</a>.</p>
 <p>If you did not request to update your email on {main_title}, please disregard this email.</p>', // @translate
-            'guest_message_confirm_email_site' => 'Your email "{email}" is confirmed for {site_title}.', // @translate
+            'guest_message_confirm_email_site' => 'Your email "{user_email}" is confirmed for {site_title}.', // @translate
             'guest_message_confirm_register_site' => 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.', // @translate
             'guest_message_confirm_register_moderate_site' => 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and we have confirmed it, you will be able to log in.', // @translate
             'guest_terms_text' => 'I agree the terms and conditions.', // @translate
@@ -193,7 +193,7 @@ return [
 <p>You have requested to update email on <a href="{site_url}">{site_title}</a> ({main_title}).</p>
 <p>Please confirm your email by following this link: <a href="{token_url}">{token_url}</a>.</p>
 <p>If you did not request to update your email on {main_title}, please disregard this email.</p>', // @translate
-            'guest_message_confirm_email_site' => 'Your email "{email}" is confirmed for {site_title}.', // @translate
+            'guest_message_confirm_email_site' => 'Your email "{user_email}" is confirmed for {site_title}.', // @translate
             'guest_message_confirm_register_site' => 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.', // @translate
             'guest_message_confirm_register_moderate_site' => 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and we have confirmed it, you will be able to log in.', // @translate
             'guest_terms_text' => 'I agree the terms and conditions.', // @translate
