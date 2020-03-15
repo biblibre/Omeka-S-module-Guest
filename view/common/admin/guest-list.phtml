@@ -16,6 +16,9 @@ $translate = $this->plugin('translate');
             <li>
                 <?= sprintf($translate('Site: %s'), $guestSite ? $guestSite->link($guestSite->title()) : $this->translate('none')) ?>
             </li>
+            <li>
+                <?= sprintf($translate('Agreed terms: %s'), $userSettings->get('guest_agreed_terms') ? $translate('Yes') : $translate('No')) ?>
+            </li>
         </ul>
     </div>
 </div>

@@ -15,5 +15,8 @@ $translate = $this->plugin('translate');
         <div>
             <?= sprintf($translate('Site: %s'), $guestSite ? $guestSite->link($guestSite->title()) : $translate('none')) ?>
         </div>
+        <div>
+            <?= sprintf($translate('Agreed terms: %s'), $userSettings->get('guest_agreed_terms') ? $translate('Yes') : $translate('No')) ?>
+        </div>
     </div>
 </div>
