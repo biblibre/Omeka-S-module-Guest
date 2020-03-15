@@ -65,7 +65,7 @@ abstract class AbstractGuestController extends AbstractActionController
             return $this->redirect()->toUrl($redirectUrl);
         }
 
-        $redirect = $this->getOption('guest_redirect') ?: 'home';
+        $redirect = $this->getOption('guest_redirect');
         switch ($redirect) {
             case empty($redirect):
             case 'home':
@@ -83,9 +83,22 @@ abstract class AbstractGuestController extends AbstractActionController
         }
     }
 
-    protected function getOption($key)
+    /**
+     * Get a site setting, or the main setting if empty, or the default config.
+     *
+     * It is mainly used to get messages.
+     *
+     * @todo The option to skip config is probably useless.
+     *
+     * @param string $key
+     * @param bool $skipConfig Return the setting even if empty. Allow to get an
+     * empty message in some cases.
+     * @return string|mixed
+     */
+    protected function getOption($key, $skipConfigIfEmpty = false)
     {
-        return $this->siteSettings()->get($key) ?: $this->settings()->get($key);
+        $value = $this->siteSettings()->get($key) ?: $this->settings()->get($key);
+        return $value || $skipConfigIfEmpty ? $value : $this->getConfig()['guest']['settings'][$key];
     }
 
     /**
@@ -135,7 +148,6 @@ abstract class AbstractGuestController extends AbstractActionController
     protected function prepareMessage($template, array $data)
     {
         $settings = $this->settings();
-        $siteSettings = $this->siteSettings();
         $currentSite = $this->currentSite();
         $default = [
             'main_title' => $settings->get('installation_title', 'Omeka S'),
@@ -159,40 +171,31 @@ abstract class AbstractGuestController extends AbstractActionController
             );
         }
 
-        switch ($template) {
-            case 'confirm-email':
-                $subject = $siteSettings->get('guest_message_confirm_email_subject')
-                    ?: $settings->get('guest_message_confirm_email_subject',
-                        $this->getConfig()['guest']['settings']['guest_message_confirm_email_subject']);
-                $body = $siteSettings->get('guest_message_confirm_email')
-                    ?: $settings->get('guest_message_confirm_email',
-                        $this->getConfig()['guest']['settings']['guest_message_confirm_email']);
-                break;
-
-            case 'update-email':
-                $subject= $siteSettings->get('guest_message_update_email_subject')
-                    ?: $settings->get('guest_message_update_email_subject',
-                        $this->getConfig()['guest']['settings']['guest_message_update_email_subject']);
-                $body = $siteSettings->get('guest_message_update_email')
-                    ?: $settings->get('guest_message_update_email',
-                        $this->getConfig()['guest']['settings']['guest_message_update_email']);
-                break;
-
-            // Allows to manage derivative modules.
-            default:
-                $subject = !empty($data['subject']) ? $data['subject'] : '[No subject]'; // @translate
-                $body = !empty($data['body']) ? $data['body'] : '[No message]'; // @translate
-                break;
+        $mapTemplateOptions = [
+            'confirm-email' => [
+                'subject' => 'guest_message_confirm_email_subject',
+                'body' => 'guest_message_confirm_email',
+            ],
+            'update-email' => [
+                'subject' => 'guest_message_update_email_subject',
+                'body' => 'guest_message_update_email',
+            ],
+        ];
+        if (isset($mapTemplateOptions[$template])) {
+            $subject = $this->getOption($mapTemplateOptions[$template]['subject']);
+            $body = $this->getOption($mapTemplateOptions[$template]['body']);
         }
-
+        // Allows to manage derivative modules.
+        else {
+            $subject = !empty($data['subject']) ? $data['subject'] : '[No subject]'; // @translate
+            $body = !empty($data['body']) ? $data['body'] : '[No message]'; // @translate
+        }
         unset($data['subject']);
         unset($data['body']);
-        $subject = new PsrMessage($subject, $data);
-        $body = new PsrMessage($body, $data);
 
         return [
-            'subject' => $subject,
-            'body' => $body,
+            'subject' => new PsrMessage($subject, $data),
+            'body' => new PsrMessage($body, $data),
         ];
     }
 

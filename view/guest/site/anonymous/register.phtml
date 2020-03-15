@@ -2,7 +2,7 @@
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \Guest\Form\UserForm $form
- * @var string $registerLabel
+ * @var string $capabilities
  */
 
 $translate = $this->plugin('translate');
@@ -14,7 +14,7 @@ $form->prepare();
 <?= $this->messages() ?>
 
 <?= $this->pageTitle($this->siteSetting('guest_register_text') ?: ($this->setting('guest_register_text') ?: $translate('Register'))) ?>
-<label><?= $registerLabel ?></label>
+<div><?= $capabilities ?></div>
 
 <?= $this->form()->openTag($form) ?>
 <?= $this->formCollection($form, false) ?>

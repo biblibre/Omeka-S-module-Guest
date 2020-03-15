@@ -91,11 +91,9 @@ class AnonymousController extends AbstractGuestController
         $form = $this->_getForm($user);
 
         $view = new ViewModel;
-        $view->setVariable('form', $form);
-        $registerLabel = $this->getOption('guest_capabilities')
-            ?: $this->translate('Register'); // @translate
-
-        $view->setVariable('registerLabel', $registerLabel);
+        $view
+            ->setVariable('form', $form)
+            ->setVariable('capabilities', $this->getOption('guest_capabilities'));
 
         if (!$this->checkPostAndValidForm($form)) {
             return $view;
@@ -164,7 +162,7 @@ class AnonymousController extends AbstractGuestController
         // Save the site on which the user registered.
         $userSettings->set('guest_site', $this->currentSite()->id(), $id);
 
-        $emails = $this->getOption('guest_notify_register');
+        $emails = $this->getOption('guest_notify_register', true);
         if ($emails) {
             $message = new PsrMessage(
                 'A new user is registering: {email} ({url}).', // @translate
@@ -190,13 +188,9 @@ class AnonymousController extends AbstractGuestController
             return $view;
         }
 
-        if ($this->isOpenRegister()) {
-            $message = $this->getOption('guest_message_confirm_register_site')
-                ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
-        } else {
-            $message = $this->getOption('guest_message_confirm_register_moderate_site')
-                ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request and we have confirmed it, you will be able to log in.'); // @translate
-        }
+        $message = $this->isOpenRegister()
+            ? $this->getOption('guest_message_confirm_register_site')
+            : $this->getOption('guest_message_confirm_register_moderate_site');
         $this->messenger()->addSuccess($message);
         return $this->redirect()->toRoute('site/guest/anonymous', ['action' => 'login'], [], true);
     }
@@ -289,13 +283,9 @@ class AnonymousController extends AbstractGuestController
         $entityManager->flush();
 
         // The message is not the same for an existing user and a new user.
-        if ($isUpdate) {
-            $message = 'Your email "{email}" is confirmed for {site_title}.'; // @translate
-        } else {
-            $message = $this->getOption('guest_message_confirm_email_site')
-                ?: 'Your email "{email}" is confirmed for {site_title}.'; // @translate
-        }
-
+        $message = $isUpdate
+            ? 'Your email "{email}" is confirmed for {site_title}.'
+            : $this->getOption('guest_message_confirm_email_site');
         $message = new PsrMessage($message, ['email' => $email, 'site_title' => $siteTitle]);
         $this->messenger()->addSuccess($message);
 

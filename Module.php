@@ -601,15 +601,13 @@ class Module extends AbstractModule
 
         $siteSettings = $services->get('Omeka\Settings\Site');
         $siteSettings->setTargetId($guestSite->id());
+        $config = $this->getConfig()['settings']['guest'];
         $subject = $siteSettings->get('guest_message_confirm_registration_email_subject')
             ?: $settings->get('guest_message_confirm_registration_email_subject');
-        $message = $siteSettings->get('guest_message_confirm_registration_email')
+        $body = $siteSettings->get('guest_message_confirm_registration_email')
             ?: $settings->get('guest_message_confirm_registration_email');
-
-        $subject = $subject ?: '[{site_title}] Account open';
-        $message = $message ?: '<p>Hi {user_name},</p>
-<p>We are happy to open access to {main_title} / {site_title} ({site_url}).</p>
-<p>You can now login and discover the site.</p>';
+        $subject = $subject ?: $config['guest_message_confirm_registration_email_subject'];
+        $body = $body ?: $config['guest_message_confirm_registration_email'];
 
         // TODO Factorize creation of email.
         $data = [
@@ -620,7 +618,7 @@ class Module extends AbstractModule
             'user_name' => $user->getName(),
         ];
         $subject = new PsrMessage($subject, $data);
-        $body = new PsrMessage($message, $data);
+        $body = new PsrMessage($body, $data);
 
         $sendEmail = $services->get('ControllerPluginManager')->get('sendEmail');
         $result = $sendEmail($user->getEmail(), $subject, $body, $user->getName());
