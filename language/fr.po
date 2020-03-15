@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Omeka\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-24 00:00+0100\n"
-"PO-Revision-Date: 2020-02-24 00:00+0100\n"
+"POT-Creation-Date: 2020-03-16 00:00+0100\n"
+"PO-Revision-Date: 2020-03-16 00:00+0100\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/omeka/language/"
 "fr/)\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 2.3\n"
 
-#: Module.php:606
+#: Module.php:923
 msgid ""
 "This module cannot be used at the same time as module GuestUser for versions "
 "lower than 3.3.5. So it should be upgraded first, or disabled. When ready, "
@@ -32,36 +32,11 @@ msgstr ""
 "d’abord, ou désactivé. Ensuite, les utilisateurs et les paramètres pourront "
 "être à mis à niveau pour toutes les versions."
 
-#: src/Controller/Site/AnonymousController.php:97
-#: view/guest/site/anonymous/register.phtml:16
-#: view/guest/site/anonymous/register.phtml:23
-msgid "Register"
-msgstr "Enregistrez-vous"
-
-#: src/Controller/Site/AnonymousController.php:174
+#: src/Controller/Site/AnonymousController.php:172
 msgid "[Omeka Guest] New registration"
-msgstr "[Omeka Invité] Nouvel enregistrement"
+msgstr "[Omeka Invité] Nouvelle inscription"
 
-#: src/Controller/Site/AnonymousController.php:192
-msgid ""
-"Thank you for registering. Please check your email for a confirmation "
-"message. Once you have confirmed your request, you will be able to log in."
-msgstr ""
-"Merci de vous avoir enregistré. Veuillez vérifier votre courrier "
-"électronique pour le message de confirmation. Une fois la confirmation "
-"faite, vous pourrez vous connecter."
-
-#: src/Controller/Site/AnonymousController.php:193
-msgid ""
-"Thank you for registering. Please check your email for a confirmation "
-"message. Once you have confirmed your request and we have confirmed it, you "
-"will be able to log in."
-msgstr ""
-"Merci de vous être enregistré. Veuillez vérifier vos mails pour le message "
-"de confirmation. Une fois l’adresse mail confirmée, vous pourrez vous "
-"connecter."
-
-#: src/Controller/Site/AnonymousController.php:204
+#: src/Controller/Site/AnonymousController.php:202
 msgid "Invalid token stop"
 msgstr "Jeton invalide"
 
@@ -69,21 +44,21 @@ msgstr "Jeton invalide"
 msgid "My Account"
 msgstr "Mon compte"
 
-#: src/Controller/Site/GuestController.php:66
+#: src/Controller/Site/GuestController.php:65
 msgid "My account"
 msgstr "Mon compte"
 
-#: src/Generic/AbstractModule.php:542
+#: src/Generic/AbstractModule.php:552
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr "Ce module requiert le module \"%s\"."
 
-#: src/Generic/AbstractModule.php:562
+#: src/Generic/AbstractModule.php:572
 #, php-format
 msgid "This module requires modules \"%s\"."
 msgstr "Ce module requiert les modules \"%s\"."
 
-#: src/Generic/AbstractModule.php:630
+#: src/Generic/AbstractModule.php:640
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
@@ -96,13 +71,45 @@ msgstr ""
 msgid "default"
 msgstr "défaut"
 
-#: view/common/navigation-link-form/login-board.phtml:19
+#: view/common/admin/guest-list.phtml:13 view/common/admin/guest.phtml:13
+msgid "Guest account"
+msgstr "Compte invité"
+
+#: view/common/admin/guest-list.phtml:17 view/common/admin/guest.phtml:16
+#, php-format
+msgid "Site: %s"
+msgstr "Site : %s"
+
+#: view/common/admin/guest-list.phtml:17 view/common/admin/guest.phtml:16
+msgid "none"
+msgstr "aucun"
+
+#: view/common/admin/guest-list.phtml:20 view/common/admin/guest.phtml:19
+#, php-format
+msgid "Agreed terms: %s"
+msgstr "A accepté les termes : %s"
+
+#: view/common/navigation-link-form/login-board.phtml:21
 msgid "Label Login"
 msgstr "Libellé de la connexion"
 
-#: view/common/navigation-link-form/login-board.phtml:20
+#: view/common/navigation-link-form/login-board.phtml:22
 msgid "Label My board"
 msgstr "Libellé Mon tableau de bord"
+
+#: view/common/navigation-link-form/login-board.phtml:24
+msgid "Use name when connected"
+msgstr "Afficher le nom lorsque connecté"
+
+#: view/common/navigation-link-form/login-board.phtml:28
+#: view/common/navigation-link-form/login-board.phtml:32
+msgid "Display label My board"
+msgstr "Afficher le libellé Mon tableau de bord"
+
+#: view/common/navigation-link-form/login-board.phtml:29
+#: view/common/navigation-link-form/login-board.phtml:31
+msgid "Display user name"
+msgstr "Afficher le nom de l’utilisateur"
 
 #: view/guest/site/anonymous/auth-error.phtml:9
 msgid "Authentication error"
@@ -137,6 +144,11 @@ msgstr ""
 "Votre compte semble avoir une erreur. Contactez votre administrateur pour "
 "vous connecter."
 
+#: view/guest/site/anonymous/register.phtml:18
+#: view/guest/site/anonymous/register.phtml:25
+msgid "Register"
+msgstr "Inscrivez-vous"
+
 #: view/guest/site/guest/accept-terms.phtml:17
 msgid "Accept terms and conditions"
 msgstr "Accepter les termes et les conditions"
@@ -162,27 +174,71 @@ msgstr "Actualiser les infos et le mot de passe du compte"
 msgid "Update email"
 msgstr "Mettre à jour le mail"
 
-#: Module.php:115
+#: Module.php:131 src/Form/SettingsFieldset.php:13
+#: src/Form/SiteSettingsFieldset.php:13
 msgid "Guest"
 msgstr "Invité"
 
-#: Module.php:254
+#: Module.php:311
 msgid "All guests must agreed the terms one more time."
 msgstr "Tous les invités doivent accepter les termes une nouvelle fois."
 
-#: Module.php:259
+#: Module.php:316
 msgid "All guests agreed the terms."
 msgstr "Tous les invités ont accepté les termes."
 
-#: Module.php:300 Module.php:331
+#: Module.php:463 Module.php:513
 msgid "Agreed terms"
 msgstr "A accepté les termes"
 
-#: Module.php:351
+#: Module.php:496
+msgid "Guest site"
+msgstr "Site utilisateur"
+
+#: Module.php:497
+msgid ""
+"This parameter is used to manage some site related features, in particular "
+"messages."
+msgstr ""
+"Ce paramètre est utilisé pour gérer certaines fonctionnalités liées à "
+"certains sites, en particulier les messages."
+
+#: Module.php:524
+msgid ""
+"Send an email to confirm registration after moderation (user should be "
+"activated first)"
+msgstr ""
+"Envoyer un mail pour confirmer l’inscription après la modération "
+"(l’utilisateur doit être d’abord activé)"
+
+#: Module.php:543
 msgid "Clear registration token"
 msgstr "Supprimer le jeton d’enregistrement"
 
-#: Module.php:611
+#: Module.php:635
+msgid "You cannot send a message to confirm registration: user is not active."
+msgstr ""
+"Vous ne pouvez pas envoyer un message de confirmation de l’inscription : "
+"l’utilisateur n’est pas actif."
+
+#: Module.php:652
+msgid ""
+"A default site should be set or the user should have a site in order to "
+"confirm registration."
+msgstr ""
+"Un site par défaut doit être défini pour que l’utilisateur puisse confirmer "
+"son inscription."
+
+#: Module.php:684
+msgid "The message of confirmation of the registration has been sent."
+msgstr "Le message de confirmation de l’inscription a été envoyé."
+
+#: Module.php:687 src/Controller/Site/GuestController.php:200
+#: src/Controller/Site/AnonymousController.php:183
+msgid "An error occurred when the email was sent."
+msgstr "Une erreur est survenue lorsque le mail a été envoyé."
+
+#: Module.php:928
 msgid ""
 "The module GuestUser is installed. Users and settings from this module are "
 "upgraded."
@@ -190,18 +246,18 @@ msgstr ""
 "Le module GuestUser est installé. Les utilisateurs et les paramètres de ce "
 "module sont mis à niveau."
 
-#: Module.php:617
+#: Module.php:934
 #, php-format
 msgid "To upgrade customized templates from module GuestUser, see %sreadme%s."
 msgstr ""
 "Pour mettre à niveau les gabarits du module GuestUser, consulter le %sreadme"
 "%s."
 
-#: src/Form/ConfigForm.php:17
+#: src/Form/SettingsFieldset.php:24
 msgid "Registration"
-msgstr "Enregistrement"
+msgstr "Inscription"
 
-#: src/Form/ConfigForm.php:18
+#: src/Form/SettingsFieldset.php:25
 msgid ""
 "Allow guest registration without administrator approval. The link to use is "
 "\"/s/my-site/guest/register\"."
@@ -209,90 +265,125 @@ msgstr ""
 "Permet aux visiteurs de s’inscrire sans approbation d’un administrateur. Le "
 "lien à utiliser est \"/s/my-site/guest/register\"."
 
-#: src/Form/ConfigForm.php:20
+#: src/Form/SettingsFieldset.php:27
 msgid "Open to everyone"
 msgstr "Ouvert à tous"
 
-#: src/Form/ConfigForm.php:21
+#: src/Form/SettingsFieldset.php:28
 msgid "Open with moderation"
 msgstr "Ouvert avec modération"
 
-#: src/Form/ConfigForm.php:22
+#: src/Form/SettingsFieldset.php:29
 msgid "Closed to visitors"
 msgstr "Fermé aux visiteurs"
 
-#: src/Form/ConfigForm.php:34
-msgid "Notify registrations by email"
-msgstr "Notifier les enregistrements par email"
+#: src/Form/SettingsFieldset.php:41
+msgid "Default emails to notify registrations"
+msgstr "Adresses mails par défaut pour informer des inscriptions"
 
-#: src/Form/ConfigForm.php:35
+#: src/Form/SettingsFieldset.php:42 src/Form/SiteSettingsFieldset.php:23
 msgid "The list of emails to notify when a user registers, one by row."
 msgstr ""
-"La liste d’adresses mail à notifier quand un visiteur s’enregistre, une par "
+"La liste d’adresses mail à notifier quand un visiteur s’inscrit, une par "
 "ligne."
 
-#: src/Form/ConfigForm.php:48
+#: src/Form/SettingsFieldset.php:55
 msgid "Require ReCaptcha"
 msgstr "Exiger ReCaptcha"
 
-#: src/Form/ConfigForm.php:49
+#: src/Form/SettingsFieldset.php:56
 msgid "Check this to require passing a ReCaptcha test when registering"
 msgstr "Case à cocher pour activer le test ReCaptcha lors de l'enregistrement"
 
-#: src/Form/ConfigForm.php:60
-msgid "Login Text"
-msgstr "Infos sur l'identifiant"
+#: src/Form/SettingsFieldset.php:67
+msgid "Pages not to redirect"
+msgstr "Pages à ne pas rediriger"
 
-#: src/Form/ConfigForm.php:61
+#: src/Form/SettingsFieldset.php:68
+msgid ""
+"Allows to keep some pages available when terms are not yet agreed. Default "
+"pages are included (logout, terms page…). This is a regex, with \"~\" "
+"delimiter, checked against the end of the url."
+msgstr ""
+"Permet de garder certaines pages disponibles lorsque les termes n’'ont pas "
+"été acceptés. Les pages par défaut sont incluses (déconnexion, page des "
+"termes…). C’'est une chaîne regex, avec le délimiteur \"~\", appliqué sur la "
+"fin de l’url."
+
+#: src/Form/SettingsFieldset.php:79
+msgid "Force terms agreement"
+msgstr "Forcer l’acceptation des termes"
+
+#: src/Form/SettingsFieldset.php:80
+msgid "If unchecked, the user will be logged out if terms are not accepted."
+msgstr ""
+"Si décoché, l’utilisateur sera déconnecté s’il n'accepte pas les termes."
+
+#: src/Form/SettingsFieldset.php:93
+msgid "Default login text"
+msgstr "Texte par défaut de la connexion"
+
+#: src/Form/SettingsFieldset.php:94 src/Form/SiteSettingsFieldset.php:37
 msgid "The text to use for the \"Login\" link in the user bar"
 msgstr ""
 "Le libellé à utiliser pour le lien d'identification dans la barre utilisateur"
 
-#: src/Form/ConfigForm.php:72
-msgid "Register Text"
-msgstr "Infos sur l'enregistrement"
+#: src/Form/SettingsFieldset.php:105
+msgid "Default register text"
+msgstr "Texte par défaut pour l’inscription"
 
-#: src/Form/ConfigForm.php:73
+#: src/Form/SettingsFieldset.php:106 src/Form/SiteSettingsFieldset.php:49
 msgid "The text to use for the \"Register\" link in the user bar"
 msgstr ""
-"Le libellé à utiliser pour le lien d’enregistrement dans la barre utilisateur"
+"Le libellé à utiliser pour le lien d’inscription dans la barre utilisateur"
 
-#: src/Form/ConfigForm.php:84
-msgid "Dashboard Label"
-msgstr "Intitulé du tableau de bord"
+#: src/Form/SettingsFieldset.php:117
+msgid "Default dashboard label"
+msgstr "Intitulé par défaut du tableau de bord"
 
-#: src/Form/ConfigForm.php:85
+#: src/Form/SettingsFieldset.php:118 src/Form/SiteSettingsFieldset.php:61
 msgid "The text to use for the label on the user’s dashboard"
 msgstr "Le libellé à utiliser pour le titre du tableau de bord utilisateur"
 
-#: src/Form/ConfigForm.php:96
-msgid "Registration Features"
-msgstr "Informations d'enregistrement"
+#: src/Form/SettingsFieldset.php:129
+msgid "Default registration features"
+msgstr "Informations par défaut sur l’inscription"
 
-#: src/Form/ConfigForm.php:97
+#: src/Form/SettingsFieldset.php:130 src/Form/SiteSettingsFieldset.php:73
 msgid ""
 "Add some text to the registration screen so people will know what they get "
 "for registering. As you enable and configure plugins that make use of the "
 "guest, please give them guidance about what they can and cannot do."
 msgstr ""
-"Texte à ajouter à la page d'enregistrement pour expliquer les suites de "
+"Texte à ajouter à la page d’inscription pour expliquer les suites de "
 "l’enregistrement. Comme les modules peuvent les étendre, il est conseillé "
 "d'indiquer ce que les utilisateurs peuvent faire et ne pas faire."
 
-#: src/Form/ConfigForm.php:100
+#: src/Form/SettingsFieldset.php:133 src/Form/SiteSettingsFieldset.php:76
 msgid "guest-capabilities"
 msgstr "guest-capabilities"
 
-#: src/Form/ConfigForm.php:122
-msgid "Email sent to confirm registration"
-msgstr "Mail envoyé pour confirmer l’enregistrement"
+#: src/Form/SettingsFieldset.php:155
+msgid "Default subject of the email sent to confirm email"
+msgstr "Sujet par défaut du mail envoyé pour confirmer l’adresse mail"
 
-#: src/Form/ConfigForm.php:123
+#: src/Form/SettingsFieldset.php:159 src/Form/SettingsFieldset.php:214
+#: src/Form/SiteSettingsFieldset.php:102 src/Form/SiteSettingsFieldset.php:157
+#: config/module.config.php:152 config/module.config.php:161
+#: config/module.config.php:182 config/module.config.php:191
+msgid "[{site_title}] Confirm email"
+msgstr "[{site_title}] Confirmer l’adresse mail"
+
+#: src/Form/SettingsFieldset.php:167
+msgid "Default email sent to confirm registration"
+msgstr "Mail par défaut envoyé pour confirmer l’inscription"
+
+#: src/Form/SettingsFieldset.php:168 src/Form/SiteSettingsFieldset.php:111
 msgid ""
 "The text of the email to confirm the registration and to send the token."
 msgstr "Le texte du mail pour confirmer l’'enregistrement et envoyer le jeton."
 
-#: src/Form/ConfigForm.php:127
+#: src/Form/SettingsFieldset.php:172 src/Form/SiteSettingsFieldset.php:115
 msgid ""
 "Hi {user_name},\n"
 "You have registered for an account on {main_title} / {site_title} "
@@ -303,22 +394,62 @@ msgstr ""
 "Bonjour {user_name},\n"
 "Vous vous êtes enregistré pour créer un compte sur {main_title} / "
 "{site_title} ({site_url}).\n"
-"Merci de confirmer votre enregistrement pour en suivant le lien suivant : "
+"Merci de confirmer votre inscription en suivant le lien suivant : "
 "{token_url}.\n"
 "Si vous n'avez pas demandé de rejoindre {main_title}, merci d'ignorer ce "
 "message."
 
-#: src/Form/ConfigForm.php:138
-msgid "Email sent to update email"
-msgstr "Mail envoyé pour mettre à jour l’adresse mail"
+#: src/Form/SettingsFieldset.php:183
+msgid ""
+"Default subject of the email sent to confirm registration after moderation"
+msgstr ""
+"Sujet par défaut du mail pour confirmer l’'inscription après modération"
 
-#: src/Form/ConfigForm.php:139
+#: src/Form/SettingsFieldset.php:187 src/Form/SiteSettingsFieldset.php:130
+#: config/module.config.php:157 config/module.config.php:187
+msgid "[{site_title}] Account open"
+msgstr "[{site_title}] Compte ouvert"
+
+#: src/Form/SettingsFieldset.php:195
+msgid "Default email sent to confirm registration after moderation"
+msgstr "Mail par défaut envoyé pour confirmer l’inscription après modération"
+
+#: src/Form/SettingsFieldset.php:196 src/Form/SiteSettingsFieldset.php:139
+msgid ""
+"When the moderation is set, the user may be informed automatically when the "
+"admin activates account (check box in second user tab)."
+msgstr ""
+"Quand l’inscription est modérée, l’utilisateur peut être informé "
+"automatiquement quand l’admin active son compte (cocher la case dans le "
+"deuxième onglet)."
+
+#: src/Form/SettingsFieldset.php:200 src/Form/SiteSettingsFieldset.php:143
+msgid ""
+"Hi {user_name},\n"
+"We are happy to open your account on {main_title} / {site_title} "
+"({site_url}).\n"
+"You can now login and discover the site."
+msgstr ""
+"Bonjour {user_name},\n"
+"Nous sommes heureux d’ouvrir votre compte sur {main_title} / {site_title} "
+"({site_url}).\n"
+"Vous pouvez maintenant vous connecter et découvrir le site."
+
+#: src/Form/SettingsFieldset.php:210
+msgid "Default subject of email sent to update email"
+msgstr "Sujet par défaut du mail envoyé pour mettre à jour l’adresse mail"
+
+#: src/Form/SettingsFieldset.php:222
+msgid "Default email sent to update email"
+msgstr "Mail par défaut envoyé pour mettre à jour l’adresse mail"
+
+#: src/Form/SettingsFieldset.php:223 src/Form/SiteSettingsFieldset.php:166
 msgid "The text of the email sent when the user wants to update it."
 msgstr ""
 "Le texte du mail qui sera envoyé quand l’utilisateur voudra mettre à jour "
 "son adresse."
 
-#: src/Form/ConfigForm.php:143
+#: src/Form/SettingsFieldset.php:227 src/Form/SiteSettingsFieldset.php:170
 msgid ""
 "Hi {user_name},\n"
 "You have requested to update email on {main_title} / {site_title} "
@@ -331,58 +462,78 @@ msgstr ""
 "Vous avez demandé à mettre à jour votre adresse email sur {main_title} / "
 "{site_title} ({site_url}).\n"
 "Merci de confirmer votre email en suivant ce lien : {token_url}.\n"
-"Si vous n’avez pas demandé de mettre à jour votre mail sur {main_title}, "
-"merci d'ignorer ce message."
+"Si vous n’avez pas demandé de mettre à jour votre adresse sur {main_title}, "
+"merci d’ignorer ce message."
 
-#: src/Form/ConfigForm.php:154
-msgid "Text for terms and conditions"
-msgstr "Textes pour les termes et conditions"
+#: src/Form/SettingsFieldset.php:238
+msgid "Default message to confirm email on the page"
+msgstr "Message par défaut sur la page pour confirmer le mail"
 
-#: src/Form/ConfigForm.php:155
+#: src/Form/SettingsFieldset.php:239 src/Form/SiteSettingsFieldset.php:182
+msgid "The message to  display after confirmation of a mail."
+msgstr "Le message à afficher après confirmation du mail."
+
+#: src/Form/SettingsFieldset.php:244 src/Form/SiteSettingsFieldset.php:187
+#: config/module.config.php:166 config/module.config.php:196
+msgid "Your email \"{user_email}\" is confirmed for {site_title}."
+msgstr "Votre mail \"{user_email}\" a été confirmé pour {site_title}."
+
+#: src/Form/SettingsFieldset.php:253
+msgid "Default message to confirm registration on the page"
+msgstr "Message par défaut pour confirmer l’inscription sur la page"
+
+#: src/Form/SettingsFieldset.php:258 src/Form/SiteSettingsFieldset.php:201
+#: config/module.config.php:167 config/module.config.php:197
+msgid ""
+"Thank you for registering. Please check your email for a confirmation "
+"message. Once you have confirmed your request, you will be able to log in."
+msgstr ""
+"Merci de vous être enregistré. Veuillez vérifier votre courrier électronique "
+"pour le message de confirmation. Une fois la confirmation faite, vous "
+"pourrez vous connecter."
+
+#: src/Form/SettingsFieldset.php:267
+msgid "Default message to confirm registration and moderation on the page"
+msgstr ""
+"Le message par défaut pour confirmer l’'inscription et la modération sur la "
+"page"
+
+#: src/Form/SettingsFieldset.php:272 src/Form/SiteSettingsFieldset.php:215
+#: config/module.config.php:168 config/module.config.php:198
+msgid ""
+"Thank you for registering. Please check your email for a confirmation "
+"message. Once you have confirmed your request and we have confirmed it, you "
+"will be able to log in."
+msgstr ""
+"Merci de vous être enregistré. Veuillez vérifier vos mails pour le message "
+"de confirmation. Une fois l’adresse mail confirmée et notre vérification, "
+"vous pourrez vous connecter."
+
+#: src/Form/SettingsFieldset.php:281
+msgid "Default text for terms and conditions"
+msgstr "Texte par défaut pour les termes et conditions"
+
+#: src/Form/SettingsFieldset.php:282 src/Form/SiteSettingsFieldset.php:225
 msgid "The text to display to accept condtions."
 msgstr "Le texte à afficher pour accepter les conditions."
 
-#: src/Form/ConfigForm.php:166
-msgid "Page slug of the terms and conditions"
-msgstr "Chemin de la page des termes"
+#: src/Form/SettingsFieldset.php:293
+msgid "Default page slug of the terms and conditions"
+msgstr "Chemin par défaut de la page des termes et conditions"
 
-#: src/Form/ConfigForm.php:167
+#: src/Form/SettingsFieldset.php:294 src/Form/SiteSettingsFieldset.php:237
 msgid "If the text is on a specific page, or for other usage."
-msgstr "Si le test est sur une page spécifique, ou pour un autre usage."
+msgstr "Si le texte est sur une page spécifique, ou pour un autre usage."
 
-#: src/Form/ConfigForm.php:178
-msgid "Redirect page after login"
-msgstr "Redirection après connexion"
+#: src/Form/SettingsFieldset.php:305
+msgid "Default redirect page after login"
+msgstr "Page de redirection par défaut après connexion"
 
-#: src/Form/ConfigForm.php:191
-msgid "Pages not to redirect"
-msgstr "Pages à ne pas rediriger"
-
-#: src/Form/ConfigForm.php:192
-msgid ""
-"Allows to keep some pages available when terms are not yet agreed. Default "
-"pages are included (logout, terms page…). This is a regex, with \"~\" "
-"delimiter, checked against the end of the url."
-msgstr ""
-"Permet de garder certaines pages disponibles lorsque les termes n’'ont pas "
-"été acceptés. Les pages par défaut sont incluses (déconnexion, page des "
-"termes…). C’'est une chaîne regex, avec le délimiteur \"~\", appliqué sur la "
-"fin de l’url."
-
-#: src/Form/ConfigForm.php:203
-msgid "Force terms agreement"
-msgstr "Forcer l’acceptation des termes"
-
-#: src/Form/ConfigForm.php:204
-msgid "If unchecked, the user will be logged out if terms are not accepted."
-msgstr ""
-"Si décoché, l’utilisateur sera déconnecté s’il n'accepte pas les termes."
-
-#: src/Form/ConfigForm.php:215
+#: src/Form/ConfigForm.php:16
 msgid "Reset terms agreement for all guests"
 msgstr "Réinitialisation de l’acceptation des termes pour tous les invités"
 
-#: src/Form/ConfigForm.php:216
+#: src/Form/ConfigForm.php:17
 msgid ""
 "When terms and conditions are updated, you may want guests agree them one "
 "more time. Warning: to set false will impact all guests. So warn them some "
@@ -392,68 +543,131 @@ msgstr ""
 "que les utilisateurs invités les acceptent à nouveau. Attention : cocher la "
 "case impactera tous les invités. Il est conseillé de les prévenir auparavant."
 
-#: src/Form/ConfigForm.php:218
+#: src/Form/ConfigForm.php:19
 msgid "No change"
 msgstr "Pas de changement"
 
-#: src/Form/ConfigForm.php:219
+#: src/Form/ConfigForm.php:20
 msgid "Set false"
 msgstr "Indiquer vrai"
 
-#: src/Form/ConfigForm.php:220
+#: src/Form/ConfigForm.php:21
 msgid "Set true"
 msgstr "Indiquer faux"
 
+#: src/Form/SiteSettingsFieldset.php:22
+msgid "Emails to notify registrations"
+msgstr "Adresses mails pour informer des inscriptions"
+
+#: src/Form/SiteSettingsFieldset.php:36
+msgid "Login Text"
+msgstr "Infos sur l'identifiant"
+
+#: src/Form/SiteSettingsFieldset.php:48
+msgid "Register Text"
+msgstr "Infos sur l’inscription"
+
+#: src/Form/SiteSettingsFieldset.php:60
+msgid "Dashboard Label"
+msgstr "Intitulé du tableau de bord"
+
+#: src/Form/SiteSettingsFieldset.php:72
+msgid "Registration Features"
+msgstr "Informations d’inscription"
+
+#: src/Form/SiteSettingsFieldset.php:98
+msgid "Subject of the email sent to confirm email"
+msgstr "Sujet du mail envoyé pour confirmer le mail"
+
+#: src/Form/SiteSettingsFieldset.php:110
+msgid "Email sent to confirm registration"
+msgstr "Mail envoyé pour confirmer l’inscription"
+
+#: src/Form/SiteSettingsFieldset.php:126
+msgid "Subject of the email sent to confirm registration after moderation"
+msgstr "Sujet du mail envoyer pour confirmer l’inscription après modération"
+
+#: src/Form/SiteSettingsFieldset.php:138
+msgid "Email sent to confirm registration after moderation"
+msgstr "Mail envoyé pour confirmer l’inscription après modération"
+
+#: src/Form/SiteSettingsFieldset.php:153
+msgid "Subject of email sent to update email"
+msgstr "Sujet du mail envoyé pour mettre à jour l’adresse mail"
+
+#: src/Form/SiteSettingsFieldset.php:165
+msgid "Email sent to update email"
+msgstr "Mail envoyé pour mettre à jour l’adresse mail"
+
+#: src/Form/SiteSettingsFieldset.php:181
+msgid "Message to confirm email on the page"
+msgstr "Message sur la page pour confirmer l’adresse mail"
+
+#: src/Form/SiteSettingsFieldset.php:196
+msgid "Message to confirm registration on the page"
+msgstr "Message sur la page pour confirmer l’inscription"
+
+#: src/Form/SiteSettingsFieldset.php:210
+msgid "Message to confirm registration and moderation on the page"
+msgstr "Message sur la page pour confirmer l’inscription et la modération"
+
+#: src/Form/SiteSettingsFieldset.php:224
+msgid "Text for terms and conditions"
+msgstr "Texte pour les termes et conditions"
+
+#: src/Form/SiteSettingsFieldset.php:236
+msgid "Page slug of the terms and conditions"
+msgstr "Chemin de la page des termes et conditions"
+
+#: src/Form/SiteSettingsFieldset.php:248
+msgid "Redirect page after login"
+msgstr "Redirection après connexion"
+
 #: src/Form/AcceptTermsForm.php:16
 msgid "I agree with terms and conditions."
-msgstr "J’'accepte les termes et conditions."
+msgstr "J’accepte les termes et conditions."
 
-#: src/Controller/Site/GuestController.php:104
+#: src/Controller/Site/GuestController.php:103
 msgid "Password invalid"
 msgstr "Mot de passe incorrect"
 
-#: src/Controller/Site/GuestController.php:117
+#: src/Controller/Site/GuestController.php:116
 msgid "Your modifications have been saved."
 msgstr "Vos modifications ont été enregistrées."
 
-#: src/Controller/Site/GuestController.php:133
+#: src/Controller/Site/GuestController.php:132
 msgid "password"
 msgstr "mot de passe"
 
-#: src/Controller/Site/GuestController.php:172
+#: src/Controller/Site/GuestController.php:171
 msgid "Email invalid"
 msgstr "Email invalide"
 
-#: src/Controller/Site/GuestController.php:180
+#: src/Controller/Site/GuestController.php:179
 msgid "The new email is the same than the current one."
 msgstr "Le nouveau mail est le même que l’actuel."
 
-#: src/Controller/Site/GuestController.php:189
-#: src/Controller/Site/GuestController.php:207
-msgid "email"
-msgstr "email"
+#: src/Controller/Site/GuestController.php:188
+#: src/Controller/Site/GuestController.php:206
+msgid "user_email"
+msgstr "user_email"
 
-#: src/Controller/Site/GuestController.php:201
-#: src/Controller/Site/AnonymousController.php:185
-msgid "An error occurred when the email was sent."
-msgstr "Une erreur est survenue lorsque le mail a été envoyé."
-
-#: src/Controller/Site/GuestController.php:217
+#: src/Controller/Site/GuestController.php:216
 msgid "You already agreed the terms and conditions."
 msgstr "Vous avez déjà accepté les termes et conditions."
 
-#: src/Controller/Site/GuestController.php:247
+#: src/Controller/Site/GuestController.php:246
 msgid "Form invalid"
 msgstr "Formulaire invalide"
 
-#: src/Controller/Site/GuestController.php:257
+#: src/Controller/Site/GuestController.php:256
 msgid ""
 "The access to this website requires you accept the current terms and "
 "conditions."
 msgstr ""
 "L’accès au site web nécessite d’accepter les termes et conditions actuelles."
 
-#: src/Controller/Site/GuestController.php:264
+#: src/Controller/Site/GuestController.php:263
 msgid "Thanks for accepting the terms and condtions."
 msgstr "Merci d’avoir accepté les termes et conditions."
 
@@ -462,28 +676,28 @@ msgid "Your account is under moderation for opening."
 msgstr "Votre compte est en cours de modération pour l’ouverture."
 
 #: src/Controller/Site/AnonymousController.php:66
-#: src/Controller/Site/AnonymousController.php:139
+#: src/Controller/Site/AnonymousController.php:134
 msgid "Check your email to confirm your registration."
-msgstr "Vérifiez vos mails pour confirmer l’enregistrement."
+msgstr "Vérifiez vos mails pour confirmer l’inscription."
 
-#: src/Controller/Site/AnonymousController.php:111
-#: src/Controller/Site/AnonymousController.php:117
+#: src/Controller/Site/AnonymousController.php:106
+#: src/Controller/Site/AnonymousController.php:112
 msgid "A password must be set."
 msgstr "Un mot de passe doit être indiqué."
 
-#: src/Controller/Site/AnonymousController.php:137
+#: src/Controller/Site/AnonymousController.php:132
 msgid "Already registered."
 msgstr "Déjà enregistré."
 
-#: src/Controller/Site/AnonymousController.php:144
+#: src/Controller/Site/AnonymousController.php:139
 msgid "Unknown error."
 msgstr "Erreur inconnue."
 
-#: src/Controller/Site/AnonymousController.php:168
-msgid "A new user is registering: {email} ({url})."
-msgstr "Un nouvel utilisateur s’est enregistré : {email} ({url})."
+#: src/Controller/Site/AnonymousController.php:166
+msgid "A new user is registering: {user_email} ({url})."
+msgstr "Un nouvel utilisateur s’est inscrit : {user_email} ({url})."
 
-#: src/Controller/Site/AnonymousController.php:222
+#: src/Controller/Site/AnonymousController.php:220
 msgid ""
 "Thanks for joining {site_title}! You can now log in using the password you "
 "chose."
@@ -491,59 +705,37 @@ msgstr ""
 "Merci d’avoir rejoint {site_title} ! Vous pouvez désormais vous identifier "
 "avec votre mot de passe."
 
-#: src/Controller/Site/AnonymousController.php:232
+#: src/Controller/Site/AnonymousController.php:230
 msgid ""
 "Thanks for joining {site_title}! Your registration is under moderation. See "
 "you soon!"
 msgstr ""
-"Merci d’avoir rejoint {site_title} ! Votre enregistrement est en cours de "
+"Merci d’avoir rejoint {site_title} ! Votre inscription est en cours de "
 "modération. À bientôt !"
 
-#: src/Controller/Site/AnonymousController.php:248
+#: src/Controller/Site/AnonymousController.php:256
 msgid "Invalid token: your email was not confirmed for {site_title}."
 msgstr "Jeton invalide : votre mail n’a pas été confirmé pour le {site_title}."
 
-#: src/Controller/Site/AnonymousController.php:249
+#: src/Controller/Site/AnonymousController.php:257
 msgid "site_title"
 msgstr "site_title"
 
-#: src/Controller/Site/AnonymousController.php:275
-msgid "Your email \"{email}\" is confirmed for {site_title}."
-msgstr "Votre mail \"{email}\" a été confirmé pour {site_title}."
-
-#: src/Controller/Site/AnonymousController.php:280
-msgid "Your account is now under moderation for opening."
-msgstr "Votre compte est actuellement en cours de modération pour l’ouverture."
-
-#: src/Controller/Site/AnonymousController.php:390
+#: src/Controller/Site/AnonymousController.php:397
 msgid "Email or password invalid"
 msgstr "Email ou mot de passe invalide"
 
-#: src/Controller/Site/AbstractGuestController.php:163
-msgid "Your request to join {main_title} / {site_title}"
-msgstr "Votre requête pour rejoindre {main_title} / {site_title}"
-
-#: src/Controller/Site/AbstractGuestController.php:171
-msgid "Update email on {main_title} / {site_title}"
-msgstr "Mettre à jour le mail sur {main_title} / {site_title}"
-
-#: src/Controller/Site/AbstractGuestController.php:180
+#: src/Controller/Site/AbstractGuestController.php:190
 msgid "[No subject]"
 msgstr "[Pas de sujet]"
 
-#: src/Controller/Site/AbstractGuestController.php:181
+#: src/Controller/Site/AbstractGuestController.php:191
 msgid "[No message]"
-msgstr ""
-"<p>Bonjour {user_name},</p>\n"
-"<p>Vous avez demandé une mise à jour de votre email sur {main_title} / "
-"{site_title} ({site_url}).</p>\n"
-"<p>Merci de confirmer votre email en suivant ce lien : {token_url}.</p>\n"
-"<p>Si vous n’avez pas fait cette demande sur {main_title}, merci de ne pas "
-"tenir compte de ce mail.</p>"
+msgstr "[Pas de message]"
 
 #: src/Site/Navigation/Link/Register.php:12
 msgid "Guest Register"
-msgstr "Enregistrement Invité"
+msgstr "Inscription Invité"
 
 #: src/Site/Navigation/Link/Register.php:23
 #: src/Site/Navigation/Link/Logout.php:23 src/Site/Navigation/Link/Login.php:23
@@ -564,7 +756,7 @@ msgstr "Connexion (Guest) / Mon tableau de bord"
 msgid "Invalid navigation: login link missing label"
 msgstr "Navigation invalide : manque libellé du lien de connexion"
 
-#: src/Site/Navigation/Link/LoginBoard.php:38
+#: src/Site/Navigation/Link/LoginBoard.php:41
 msgid "My board"
 msgstr "Mon tableau de bord"
 
@@ -585,8 +777,8 @@ msgid "The message has no content."
 msgstr "Le message n’a pas de contenu."
 
 #: src/Mvc/Controller/Plugin/SendEmail.php:109
-msgid "A mail was sent to {email} with subject: {subject}"
-msgstr "Un mail a été envoyé à {email} avec le sujet : {subject}"
+msgid "A mail was sent to {user_email} with subject: {subject}"
+msgstr "Un mail a été envoyé à {user_email} avec le sujet : {subject}"
 
 #: src/Authentication/Adapter/PasswordAdapter.php:22
 msgid "User not found."
@@ -601,47 +793,74 @@ msgstr ""
 msgid "Invalid password."
 msgstr "Mot de passe incorrect."
 
-#: config/module.config.php:143
+#: config/module.config.php:147 config/module.config.php:177
 msgid "My dashboard"
 msgstr "Mon tableau de bord"
 
-#: config/module.config.php:148
+#: config/module.config.php:153 config/module.config.php:183
 msgid ""
 "<p>Hi {user_name},</p>\n"
-"<p>You have registered for an account on {main_title} / {site_title} "
-"({site_url}).</p>\n"
-"<p>Please confirm your registration by following this link: {token_url}.</"
-"p>\n"
-"<p>If you did not request to join {main_title} please disregard this email.</"
-"p>"
+"<p>You have registered for an account on <a href=\"{site_url}\">{site_title}"
+"</a> ({main_title}).</p>\n"
+"<p>Please confirm your registration by following this link: <a href="
+"\"{token_url}\"> {token_url}</a></p>\n"
+"<p>If you did not request to join {main_title} / {site_title}, please "
+"disregard this email.</p>"
 msgstr ""
 "<p>Bonjour {user_name},</p>\n"
-"<p>Vous vous êtes enregistré pour un compte sur {main_title} / {site_title} "
-"({site_url}).</p>\n"
-"<p>Merci de confirmer votre enregistrement en suivant ce lien : {token_url}."
-"</p>\n"
-"<p>Si vous n’avez pas demandé de rejoindre {main_title}, merci d’ignorer ce "
-"message.</p>"
+"<p>Vous vous êtes enregistré pour un compte sur <a href="
+"\"{site_url}\">{site_title}</a> ({main_title}).</p>\n"
+"<p>Merci de confirmer votre enregistrement en suivant ce lien : <a href="
+"\"{token_url}\"> {token_url}</a></p>\n"
+"<p>Si vous n’avez pas demandé de rejoindre {main_title} / {site_title}, "
+"merci d’ignorer ce message.</p>"
 
-#: config/module.config.php:152
+#: config/module.config.php:158 config/module.config.php:188
 msgid ""
 "<p>Hi {user_name},</p>\n"
-"<p>You have requested to update email on {main_title} / {site_title} "
-"({site_url}).</p>\n"
-"<p>Please confirm your email by following this link: {token_url}.</p>\n"
+"<p>We are happy to open your account on <a href=\"{site_url}\">{site_title}</"
+"a> ({main_title}).</p>\n"
+"<p>You can now login and discover the site.</p>"
+msgstr ""
+"<p>Bonjour {user_name},</p>\n"
+"<p>Nous sommes heureux d’ouvrir votre compte sur <a href="
+"\"{site_url}\">{site_title}</a> ({main_title}).</p>\n"
+"<p>Vous pouvez maintenant vous connecter et découvrir le site.</p>"
+
+#: config/module.config.php:162 config/module.config.php:192
+msgid ""
+"<p>Hi {user_name},</p>\n"
+"<p>You have requested to update email on <a href=\"{site_url}\">{site_title}"
+"</a> ({main_title}).</p>\n"
+"<p>Please confirm your email by following this link: <a href="
+"\"{token_url}\">{token_url}</a>.</p>\n"
 "<p>If you did not request to update your email on {main_title}, please "
 "disregard this email.</p>"
 msgstr ""
-"<p>Hi {user_name},</p>\n"
-"<p>You have requested to update email on {main_title} / {site_title} "
-"({site_url}).</p>\n"
-"<p>Please confirm your email by following this link: {token_url}.</p>\n"
-"<p>If you did not request to update your email on {main_title}, please "
-"disregard this email.</p>"
+"<p>Bonjour {user_name},</p>\n"
+"<p>Vous avez demander une mise à jour de votre adresse mail sur <a href="
+"\"{site_url}\">{site_title}</a> ({main_title}).</p>\n"
+"<p>Merci de confirmer ce mail en suivant ce lien : <a href="
+"\"{token_url}\">{token_url}</a>.</p>\n"
+"<p>Si vous n’avez pas demandé à mettre à jour votre mail sur {main_title}, "
+"merci d’ignorer ce message.</p>"
 
-#: config/module.config.php:156
+#: config/module.config.php:169 config/module.config.php:199
 msgid "I agree the terms and conditions."
-msgstr "J’'accepte les termes et conditions."
+msgstr "J’accepte les termes et conditions."
+
+#~ msgid "Notify registrations by email"
+#~ msgstr "Notifier les enregistrements par email"
+
+#~ msgid "Your account is now under moderation for opening."
+#~ msgstr ""
+#~ "Votre compte est actuellement en cours de modération pour l’ouverture."
+
+#~ msgid "Your request to join {main_title} / {site_title}"
+#~ msgstr "Votre requête pour rejoindre {main_title} / {site_title}"
+
+#~ msgid "Update email on {main_title} / {site_title}"
+#~ msgstr "Mettre à jour le mail sur {main_title} / {site_title}"
 
 #~ msgid "Your %s account"
 #~ msgstr "Votre compte %s"
