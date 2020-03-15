@@ -153,6 +153,9 @@ return [
 <p>You have registered for an account on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your registration by following this link: {token_url}.</p>
 <p>If you did not request to join {main_title} please disregard this email.</p>', // @translate
+            'guest_message_confirm_registration_email' => '<p>Hi {user_name},</p>
+<p>We are happy to open your account on {main_title} / {site_title} ({site_url}).</p>
+<p>You can now login and discover the site.</p>', // @translate
             'guest_message_update_email' => '<p>Hi {user_name},</p>
 <p>You have requested to update email on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your email by following this link: {token_url}.</p>
@@ -177,6 +180,9 @@ return [
 <p>You have registered for an account on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your registration by following this link: {token_url}.</p>
 <p>If you did not request to join {main_title} please disregard this email.</p>', // @translate
+            'guest_message_confirm_registration_email' => '<p>Hi {user_name},</p>
+<p>We are happy to open your account on {main_title} / {site_title} ({site_url}).</p>
+<p>You can now login and discover the site.</p>', // @translate
             'guest_message_update_email' => '<p>Hi {user_name},</p>
 <p>You have requested to update email on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your email by following this link: {token_url}.</p>

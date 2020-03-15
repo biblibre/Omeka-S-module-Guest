@@ -108,6 +108,21 @@ If you did not request to join {main_title} please disregard this email.', // @t
             ])
 
             ->add([
+                'name' => 'guest_message_confirm_registration_email',
+                'type' => CkeditorInline::class,
+                'options' => [
+                    'label' => 'Email sent to confirm registration after moderation', // @translate
+                    'info' => 'When the moderation is set, the user may be informed automatically when the admin activates account (check box in second user tab).', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guest_message_confirm_registration_email',
+                    'placeholder' => 'Hi {user_name},
+We are happy to open your account on {main_title} / {site_title} ({site_url}).
+You can now login and discover the site.', // @translate
+                ],
+            ])
+
+            ->add([
                 'name' => 'guest_message_update_email',
                 'type' => CkeditorInline::class,
                 'options' => [

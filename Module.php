@@ -365,24 +365,15 @@ class Module extends AbstractModule
         $this->viewUserData($view, $user, 'common/admin/guest-list');
     }
 
-    protected function viewUserData(PhpRenderer $view, UserRepresentation $user, $partial)
+    protected function viewUserData(PhpRenderer $view, UserRepresentation $user, $template)
     {
         $services = $this->getServiceLocator();
-        $api = $services->get('Omeka\ApiManager');
         $userSettings = $services->get('Omeka\Settings\User');
         $userSettings->setTargetId($user->id());
 
-        try {
-            $guestSite = $userSettings->get('guest_site');
-            if ($guestSite) {
-                $guestSite = $api->read('sites', ['id' => $guestSite])->getContent();
-            };
-        } catch (\Omeka\Api\Exception\NotFoundException $e) {
-            $guestSite = null;
-        }
-
+        $guestSite = $this->guestSite($user);
         echo $view->partial(
-            $partial,
+            $template,
             [
                 'user' => $user,
                 'userSettings' => $userSettings,
@@ -468,6 +459,16 @@ class Module extends AbstractModule
                     'id' => 'guest_agreed_terms',
                     'value' => $agreedTerms,
                 ],
+            ])
+            ->add([
+                'name' => 'guest_send_email_moderated_registration',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Send an email to confirm registration after moderation (user should be activated first)', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guest_send_email_moderated_registration',
+                ],
             ]);
 
         /** @var \Guest\Entity\GuestToken $guestToken */
@@ -506,6 +507,25 @@ class Module extends AbstractModule
             return;
         }
 
+        $inputFilter = $event->getParam('inputFilter');
+        $inputFilter->get('user-settings')
+            ->add([
+                'name' => 'guest_site',
+                'required' => false,
+            ])
+            ->add([
+                'name' => 'guest_send_email_moderated_registration',
+                'required' => false,
+                'filters' => [
+                    [
+                        'name' => \Zend\Filter\Callback::class,
+                        'options' => [
+                            'callback' => [$this, 'sendEmailModeration'],
+                        ],
+                    ],
+                ],
+            ]);
+
         $entityManager = $services->get('Omeka\EntityManager');
         /** @var \Omeka\Entity\User $user */
         $user = $entityManager->getRepository(\Omeka\Entity\User::class)->find($userId);
@@ -517,12 +537,7 @@ class Module extends AbstractModule
             return;
         }
 
-        $inputFilter = $event->getParam('inputFilter');
         $inputFilter->get('user-settings')
-            ->add([
-                'name' => 'guest_site',
-                'required' => false,
-            ])
             ->add([
                 'name' => 'guest_clear_token',
                 'required' => false,
@@ -535,6 +550,87 @@ class Module extends AbstractModule
                     ],
                 ],
             ]);
+    }
+
+    public function sendEmailModeration($value)
+    {
+        static $isSent = false;
+
+        if ($isSent || !$value) {
+            return;
+        }
+
+        $services = $this->getServiceLocator();
+        // The user is not the current user, but the user in the form.
+        $userId = $services->get('Application')->getMvcEvent()->getRouteMatch()->getParam('id');
+        if (!$userId) {
+            return;
+        }
+
+        $messenger = new \Omeka\Mvc\Controller\Plugin\Messenger();
+
+        $entityManager = $services->get('Omeka\EntityManager');
+        /** @var \Omeka\Entity\User $user */
+        $user = $entityManager->getRepository(\Omeka\Entity\User::class)->find($userId);
+
+        if (!$user->isActive()) {
+            $message = new \Omeka\Stdlib\Message(
+                'You cannot send a message to confirm registration: user is not active.' // @translate
+            );
+            $messenger->addError($message);
+            return;
+        }
+
+        $settings = $services->get('Omeka\Settings');
+
+        $api = $services->get('Omeka\ApiManager');
+        $userRepresentation = $api->read('users', ['id' => $user->getId()])->getContent();
+
+        $guestSite = $this->guestSite($userRepresentation);
+        if (!$guestSite) {
+            try {
+                $guestSite = $api->read('sites', ['id' => $settings->get('default_site', 1)])->getContent();
+            } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                $message = new \Omeka\Stdlib\Message(
+                    'A default site should be set or the user should have a site in order to confirm registration.' // @translate
+                );
+                $messenger->addError($message);
+                return;
+            }
+        }
+
+        $siteSettings = $services->get('Omeka\Settings\Site');
+        $siteSettings->setTargetId($guestSite->id());
+        $message = $siteSettings->get('guest_message_confirm_registration_email')
+            ?: $settings->get('guest_message_confirm_registration_email');
+
+        $message = $message ?: '<p>Hi {user_name},</p>
+<p>We are happy to open access to {main_title} / {site_title} ({site_url}).</p>
+<p>You can now login and discover the site.</p>';
+
+        // TODO Factorize creation of email.
+        $data = [
+            'main_title' => $settings->get('installation_title', 'Omeka S'),
+            'site_title' => $guestSite->title(),
+            'site_url' => $guestSite->siteUrl(null, true),
+            'user_email' => $user->getEmail(),
+            'user_name' => $user->getName(),
+        ];
+        $subject = 'Confirmation of registration on {main_title} / {site_title}'; // @translate
+        $body = new PsrMessage($message, $data);
+
+        $sendEmail = $services->get('ControllerPluginManager')->get('sendEmail');
+        $result = $sendEmail($user->getEmail(), $subject, $body, $user->getName());
+        if ($result) {
+            $isSent = true;
+            $message = new PsrMessage('The message of confirmation of the registration has been sent.'); // @translate
+            $messenger->addSuccess($message);
+        } else {
+            $message = new PsrMessage('An error occurred when the email was sent.'); // @translate
+            $messenger->addError($message);
+            $logger = $services->get('Omeka\Logger');
+            $logger->err('[Guest] ' . $message);
+        }
     }
 
     public function clearToken($value)
@@ -597,6 +693,30 @@ class Module extends AbstractModule
         }
         $em->remove($token);
         $em->flush();
+    }
+
+    /**
+     * Get the site of a user (option "guest_site").
+     *
+     * @param UserRepresentation $user
+     * @return \Omeka\Api\Representation\SiteRepresentation|null
+     */
+    protected function guestSite(UserRepresentation $user)
+    {
+        $services = $this->getServiceLocator();
+        $api = $services->get('Omeka\ApiManager');
+        $userSettings = $services->get('Omeka\Settings\User');
+        $userSettings->setTargetId($user->id());
+        $guestSite = $userSettings->get('guest_site');
+
+        if ($guestSite) {
+            try {
+                $guestSite = $api->read('sites', ['id' => $guestSite])->getContent();
+            } catch (\Omeka\Api\Exception\NotFoundException $e) {
+                $guestSite = null;
+            }
+        }
+        return $guestSite;
     }
 
     /**
