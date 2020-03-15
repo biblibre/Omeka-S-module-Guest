@@ -39,6 +39,7 @@ use Generic\AbstractModule;
 use Guest\Entity\GuestToken;
 use Guest\Permissions\Acl;
 use Guest\Stdlib\PsrMessage;
+use Omeka\Api\Representation\UserRepresentation;
 use Omeka\Form\Element\SiteSelect;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
 use Omeka\Settings\SettingsInterface;
@@ -222,6 +223,18 @@ class Module extends AbstractModule
             [$this, 'deleteGuestToken']
         );
 
+        // Add the guest main infos  to the user show admin pages.
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\User',
+            'view.details',
+            [$this, 'viewUserDetails']
+        );
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\User',
+            'view.show.after',
+            [$this, 'viewUserShowAfter']
+        );
+
         // Add the guest element form to the user form.
         $sharedEventManager->attach(
             \Omeka\Form\UserForm::class,
@@ -240,6 +253,7 @@ class Module extends AbstractModule
             'view.edit.form.before',
             [$this, 'addUserFormValue']
         );
+
         $sharedEventManager->attach(
             \Omeka\Form\SettingForm::class,
             'form.add_elements',
@@ -335,6 +349,46 @@ class Module extends AbstractModule
         } else {
             $view->headStyle()->appendStyle('li a.logoutlink { display:none; }');
         }
+    }
+
+    public function viewUserDetails(Event $event)
+    {
+        $view = $event->getTarget();
+        $user = $view->resource;
+        $this->viewUserData($view, $user, 'common/admin/guest');
+    }
+
+    public function viewUserShowAfter(Event $event)
+    {
+        $view = $event->getTarget();
+        $user = $view->vars()->user;
+        $this->viewUserData($view, $user, 'common/admin/guest-list');
+    }
+
+    protected function viewUserData(PhpRenderer $view, UserRepresentation $user, $partial)
+    {
+        $services = $this->getServiceLocator();
+        $api = $services->get('Omeka\ApiManager');
+        $userSettings = $services->get('Omeka\Settings\User');
+        $userSettings->setTargetId($user->id());
+
+        try {
+            $guestSite = $userSettings->get('guest_site');
+            if ($guestSite) {
+                $guestSite = $api->read('sites', ['id' => $guestSite])->getContent();
+            };
+        } catch (\Omeka\Api\Exception\NotFoundException $e) {
+            $guestSite = null;
+        }
+
+        echo $view->partial(
+            $partial,
+            [
+                'user' => $user,
+                'userSettings' => $userSettings,
+                'guestSite' => $guestSite,
+            ]
+        );
     }
 
     public function addUserFormElement(Event $event)
