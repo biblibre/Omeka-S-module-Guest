@@ -244,6 +244,16 @@ class AnonymousController extends AbstractGuestController
 
     public function confirmEmailAction()
     {
+        return $this->confirmEmail(false);
+    }
+
+    public function validateEmailAction()
+    {
+        return $this->confirmEmail(true);
+    }
+
+    protected function confirmEmail($isUpdate)
+    {
         $token = $this->params()->fromQuery('token');
         $entityManager = $this->getEntityManager();
 
@@ -278,8 +288,14 @@ class AnonymousController extends AbstractGuestController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        $message = $this->getOption('guest_message_confirm_email_site')
-            ?: 'Your email "{email}" is confirmed for {site_title}.'; // @translate
+        // The message is not the same for an existing user and a new user.
+        if ($isUpdate) {
+            $message = 'Your email "{email}" is confirmed for {site_title}.'; // @translate
+        } else {
+            $message = $this->getOption('guest_message_confirm_email_site')
+                ?: 'Your email "{email}" is confirmed for {site_title}.'; // @translate
+        }
+
         $message = new PsrMessage($message, ['email' => $email, 'site_title' => $siteTitle]);
         $this->messenger()->addSuccess($message);
 

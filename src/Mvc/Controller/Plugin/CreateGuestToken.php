@@ -24,8 +24,8 @@ class CreateGuestToken extends AbstractPlugin
      * @todo Clear old tokens (7 days).
      *
      * @param User $user
-     * @param string $identifier Another identifier than the user email, for
-     * example for an update.
+     * @param string $identifier Another identifier than the user email. For
+     * example for an update, it will be the new email.
      * @param bool $short If set, the token will be an integer of 6 numbers (for
      * example for phone confirmation). Else, it will be an alphanumeric code
      * (for email confirmation, default).

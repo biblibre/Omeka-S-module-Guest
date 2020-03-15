@@ -189,7 +189,7 @@ class GuestController extends AbstractGuestController
             return $view;
         }
 
-        $guestToken = $this->createGuestToken($user);
+        $guestToken = $this->createGuestToken($user, $email);
         $message = $this->prepareMessage('update-email', [
             'user_email' => $email,
             'user_name' => $user->getName(),

@@ -153,8 +153,8 @@ abstract class AbstractGuestController extends AbstractActionController
             $urlOptions = ['force_canonical' => true];
             $urlOptions['query']['token'] = $data['token'];
             $data['token_url'] = $this->url()->fromRoute(
-                $template === 'update-email' ? 'site/guest/guest' : 'site/guest/anonymous',
-                ['site-slug' => $currentSite->slug(), 'action' => $template],
+                'site/guest/anonymous',
+                ['site-slug' => $currentSite->slug(), 'action' => $template === 'update-email' ? 'validate-email' : 'confirm-email'],
                 $urlOptions
             );
         }
