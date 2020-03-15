@@ -32,10 +32,15 @@ class LoginBoard implements LinkInterface
 
     public function getLabel(array $data, SiteRepresentation $site)
     {
-        if ($site->getServiceLocator()->get('Omeka\AuthenticationService')->hasIdentity()) {
-            return isset($data['label-board']) && trim($data['label-board']) !== ''
-                ? $data['label-board']
-                : 'My board'; // @translate
+        /** @var \Omeka\Entity\User $user */
+        $user = $site->getServiceLocator()->get('Omeka\AuthenticationService')->getIdentity();
+        if ($user) {
+            if (isset($data['display-label']) && $data['display-label'] === 'board') {
+                return isset($data['label-board']) && trim($data['label-board']) !== ''
+                    ? $data['label-board']
+                    : 'My board'; // @translate
+            }
+            return $user->getName();
         }
 
         return isset($data['label-login']) && trim($data['label-login']) !== ''
@@ -45,9 +50,12 @@ class LoginBoard implements LinkInterface
 
     public function toZend(array $data, SiteRepresentation $site)
     {
-        if ($site->getServiceLocator()->get('Omeka\AuthenticationService')->hasIdentity()) {
+        /** @var \Omeka\Entity\User $user */
+        $user = $site->getServiceLocator()->get('Omeka\AuthenticationService')->getIdentity();
+        if ($user) {
+            $label = isset($data['display-label']) && $data['display-label'] === 'board' ? $data['label-board'] : $user->getName();
             return [
-                'label' => $data['label-board'],
+                'label' => $label,
                 'route' => 'site/guest',
                 'class' => 'guest-board-link',
                 'params' => [
@@ -75,6 +83,7 @@ class LoginBoard implements LinkInterface
         return [
             'label-login' => isset($data['label-login']) ? trim($data['label-login']) : '',
             'label-board' => isset($data['label-board']) ? trim($data['label-board']) : '',
+            'display-label' => isset($data['display-label']) && $data['display-label'] === 'board' ? 'board' : 'username',
         ];
     }
 }
