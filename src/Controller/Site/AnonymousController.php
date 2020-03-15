@@ -280,10 +280,6 @@ class AnonymousController extends AbstractGuestController
         $message = new PsrMessage($message, ['email' => $email, 'site_title' => $siteTitle]);
         $this->messenger()->addSuccess($message);
 
-        if (!$this->isOpenRegister()) {
-            $this->messenger()->addError('Your account is now under moderation for opening.'); // @translate
-        }
-
         if ($this->isUserLogged()) {
             $redirectUrl = $this->url()->fromRoute('site/guest', [
                 'site-slug' => $this->currentSite()->slug(),
