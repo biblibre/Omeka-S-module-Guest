@@ -1,11 +1,13 @@
 <?php
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
- * @var \Guest\Form\UserForm $form
- * @var string $capabilities
+ * @var \Omeka\Form\UserForm $form
  */
 
-$translate = $this->plugin('translate');
+$plugins = $this->getHelperPluginManager();
+$translate = $plugins->get('translate');
+$setting = $plugins->get('setting');
+$siteSetting = $plugins->get('siteSetting');
 
 $this->htmlElement('body')->appendAttribute('class', 'guest register');
 $form->prepare();
@@ -13,8 +15,8 @@ $form->prepare();
 
 <?= $this->messages() ?>
 
-<?= $this->pageTitle($this->siteSetting('guest_register_text') ?: ($this->setting('guest_register_text') ?: $translate('Register'))) ?>
-<div><?= $capabilities ?></div>
+<?= $this->pageTitle($siteSetting('guest_register_text') ?: ($setting('guest_register_text') ?: $translate('Register'))) ?>
+<div><?= $siteSetting('guest_capabilities') ?: ($setting('guest_capabilities')) ?></div>
 
 <?= $this->form()->openTag($form) ?>
 <?= $this->formCollection($form, false) ?>

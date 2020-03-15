@@ -91,9 +91,7 @@ class AnonymousController extends AbstractGuestController
         $form = $this->_getForm($user);
 
         $view = new ViewModel;
-        $view
-            ->setVariable('form', $form)
-            ->setVariable('capabilities', $this->getOption('guest_capabilities'));
+        $view->setVariable('form', $form);
 
         if (!$this->checkPostAndValidForm($form)) {
             return $view;
@@ -162,7 +160,7 @@ class AnonymousController extends AbstractGuestController
         // Save the site on which the user registered.
         $userSettings->set('guest_site', $this->currentSite()->id(), $id);
 
-        $emails = $this->getOption('guest_notify_register', true);
+        $emails = $this->getOption('guest_notify_register');
         if ($emails) {
             $message = new PsrMessage(
                 'A new user is registering: {email} ({url}).', // @translate
