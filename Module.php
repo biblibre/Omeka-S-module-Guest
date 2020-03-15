@@ -601,9 +601,12 @@ class Module extends AbstractModule
 
         $siteSettings = $services->get('Omeka\Settings\Site');
         $siteSettings->setTargetId($guestSite->id());
+        $subject = $siteSettings->get('guest_message_confirm_registration_email_subject')
+            ?: $settings->get('guest_message_confirm_registration_email_subject');
         $message = $siteSettings->get('guest_message_confirm_registration_email')
             ?: $settings->get('guest_message_confirm_registration_email');
 
+        $subject = $subject ?: '[{site_title}] Account open';
         $message = $message ?: '<p>Hi {user_name},</p>
 <p>We are happy to open access to {main_title} / {site_title} ({site_url}).</p>
 <p>You can now login and discover the site.</p>';
@@ -616,7 +619,7 @@ class Module extends AbstractModule
             'user_email' => $user->getEmail(),
             'user_name' => $user->getName(),
         ];
-        $subject = 'Confirmation of registration on {main_title} / {site_title}'; // @translate
+        $subject = new PsrMessage($subject, $data);
         $body = new PsrMessage($message, $data);
 
         $sendEmail = $services->get('ControllerPluginManager')->get('sendEmail');

@@ -149,6 +149,18 @@ info@example2.org',
             */
 
             ->add([
+                'name' => 'guest_message_confirm_email_subject',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Default subject of the email sent to confirm email', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guest_message_confirm_email_subject',
+                    'placeholder' => '[{site_title}] Confirm email', // @translate
+                ],
+            ])
+
+            ->add([
                 'name' => 'guest_message_confirm_email',
                 'type' => CkeditorInline::class,
                 'options' => [
@@ -165,6 +177,18 @@ If you did not request to join {main_title} please disregard this email.', // @t
             ])
 
             ->add([
+                'name' => 'guest_message_confirm_registration_email_subject',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Default subject of the email sent to confirm registration after moderation', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guest_message_confirm_registration_email_subject',
+                    'placeholder' => '[{site_title}] Account open', // @translate
+                ],
+            ])
+
+            ->add([
                 'name' => 'guest_message_confirm_registration_email',
                 'type' => CkeditorInline::class,
                 'options' => [
@@ -176,6 +200,18 @@ If you did not request to join {main_title} please disregard this email.', // @t
                     'placeholder' => 'Hi {user_name},
 We are happy to open your account on {main_title} / {site_title} ({site_url}).
 You can now login and discover the site.', // @translate
+                ],
+            ])
+
+            ->add([
+                'name' => 'guest_message_update_email_subject',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Default subject of email sent to update email', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guest_message_update_email_subject',
+                    'placeholder' => '[{site_title}] Confirm email', // @translate
                 ],
             ])
 

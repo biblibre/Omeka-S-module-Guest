@@ -161,19 +161,21 @@ abstract class AbstractGuestController extends AbstractActionController
 
         switch ($template) {
             case 'confirm-email':
-                $subject = 'Your request to join {main_title} / {site_title}'; // @translate
-                $body = $siteSettings->get('guest_message_confirm_email') ?: $settings->get(
-                    'guest_message_confirm_email',
-                    $this->getConfig()['guest']['config']['guest_message_confirm_email']
-                );
+                $subject = $siteSettings->get('guest_message_confirm_email_subject')
+                    ?: $settings->get('guest_message_confirm_email_subject',
+                        $this->getConfig()['guest']['settings']['guest_message_confirm_email_subject']);
+                $body = $siteSettings->get('guest_message_confirm_email')
+                    ?: $settings->get('guest_message_confirm_email',
+                        $this->getConfig()['guest']['settings']['guest_message_confirm_email']);
                 break;
 
             case 'update-email':
-                $subject = 'Update email on {main_title} / {site_title}'; // @translate
-                $body = $siteSettings->get('guest_message_update_email') ?: $settings->get(
-                    'guest_message_update_email',
-                    $this->getConfig()['guest']['config']['guest_message_update_email']
-                );
+                $subject= $siteSettings->get('guest_message_update_email_subject')
+                    ?: $settings->get('guest_message_update_email_subject',
+                        $this->getConfig()['guest']['settings']['guest_message_update_email_subject']);
+                $body = $siteSettings->get('guest_message_update_email')
+                    ?: $settings->get('guest_message_update_email',
+                        $this->getConfig()['guest']['settings']['guest_message_update_email']);
                 break;
 
             // Allows to manage derivative modules.
