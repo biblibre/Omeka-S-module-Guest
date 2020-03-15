@@ -1,7 +1,7 @@
 <?php
 /*
  * Copyright BibLibre, 2016
- * Copyright Daniel Berthereau, 2017-2019
+ * Copyright Daniel Berthereau, 2017-2020
  *
  * This software is governed by the CeCILL license under French law and abiding
  * by the rules of distribution of free software.  You can use, modify and/ or
@@ -69,29 +69,41 @@ class Module extends AbstractModule
         $this->checkAgreement($event);
     }
 
-    public function install(ServiceLocatorInterface $serviceLocator)
+    protected function preInstall()
     {
-        $this->setServiceLocator($serviceLocator);
-        $hasOldGuestUser = $this->checkOldGuestUser();
+        $this->hasOldGuestUser = $this->checkOldGuestUser();
+    }
 
-        parent::install($serviceLocator);
+    protected function postInstall()
+    {
+        // Prepare all translations one time.
+        $translatables = [
+            'guest_login_text',
+            'guest_register_text',
+            'guest_dashboard_label',
+            'guest_capabilities',
+            'guest_short_capabilities',
+            'guest_message_confirm_email_subject',
+            'guest_message_confirm_email',
+            'guest_message_confirm_registration_email_subject',
+            'guest_message_confirm_registration_email',
+            'guest_message_update_email_subject',
+            'guest_message_update_email',
+            'guest_message_confirm_email_site',
+            'guest_message_confirm_register_site',
+            'guest_message_confirm_register_moderate_site',
+            'guest_terms_text',
+        ];
+        $config = $this->getConfig()['guest']['settings'];
+        $translate = $this->getServiceLocator()->get('ControllerPluginManager')->get('translate');
+        $translatables = array_filter(array_map(function ($v) use ($translate, $config) {
+            return !empty($config[$v]) ? $translate($config[$v]) : null;
+        }, array_combine($translatables, $translatables)));
 
-        $settings = $serviceLocator->get('Omeka\Settings');
-        $t = $serviceLocator->get('MvcTranslator');
-        $config = $this->getConfig();
-        $space = strtolower(__NAMESPACE__);
-        foreach ($config[$space]['config'] as $name => $value) {
-            switch ($name) {
-                case 'guest_login_text':
-                case 'guest_register_text':
-                case 'guest_dashboard_label':
-                    $value = $t->translate($value);
-                    $settings->set($name, $value);
-                    break;
-            }
-        }
+        $this->manageMainSettings('update', $translatables);
+        $this->manageSiteSettings('update', $translatables);
 
-        if ($hasOldGuestUser) {
+        if ($this->hasOldGuestUser) {
             require_once __DIR__ . '/data/scripts/upgrade_guest_user.php';
         }
     }
@@ -307,6 +319,38 @@ class Module extends AbstractModule
             default:
                 break;
         }
+    }
+
+    protected function initDataToPopulate(SettingsInterface $settings, $settingsType, $id = null, array $values = [])
+    {
+        if ($settingsType !== 'site_settings') {
+            return parent::initDataToPopulate($settings, $settingsType, $id, $values);
+        }
+
+        $translatables = [
+            'guest_login_text',
+            'guest_register_text',
+            'guest_dashboard_label',
+            'guest_capabilities',
+            'guest_short_capabilities',
+            'guest_message_confirm_email_subject',
+            'guest_message_confirm_email',
+            'guest_message_confirm_registration_email_subject',
+            'guest_message_confirm_registration_email',
+            'guest_message_update_email_subject',
+            'guest_message_update_email',
+            'guest_message_confirm_email_site',
+            'guest_message_confirm_register_site',
+            'guest_message_confirm_register_moderate_site',
+            'guest_terms_text',
+        ];
+        $config = $this->getConfig()['guest']['site_settings'];
+        $translate = $this->getServiceLocator()->get('ControllerPluginManager')->get('translate');
+        $translatables = array_filter(array_map(function ($v) use ($translate, $config) {
+            return !empty($config[$v]) ? $translate($config[$v]) : null;
+        }, array_combine($translatables, $translatables)));
+
+        return parent::initDataToPopulate($settings, $settingsType, $id, $translatables);
     }
 
     protected function prepareDataToPopulate(SettingsInterface $settings, $settingsType)
