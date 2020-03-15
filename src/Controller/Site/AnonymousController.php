@@ -271,8 +271,9 @@ class AnonymousController extends AbstractGuestController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        $message = new PsrMessage('Your email "{email}" is confirmed for {site_title}.', // @translate
-            ['email' => $email, 'site_title' => $siteTitle]);
+        $message = $this->getOption('guest_message_confirm_email_site')
+            ?: 'Your email "{email}" is confirmed for {site_title}.'; // @translate
+        $message = new PsrMessage($message, ['email' => $email, 'site_title' => $siteTitle]);
         $this->messenger()->addSuccess($message);
 
         if (!$this->isOpenRegister()) {

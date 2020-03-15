@@ -124,6 +124,21 @@ If you did not request to update your email on {main_title}, please disregard th
             ])
 
             ->add([
+                'name' => 'guest_message_confirm_email_site',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Message to confirm email on the page', // @translate
+                    'info' => 'The message to  display after confirmation of a mail.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guest_message_confirm_email_site',
+                    'required' => false,
+                    'placeholder' => 'Your email "{email}" is confirmed for {site_title}.', // @translate
+                    'rows' => 3,
+                ],
+            ])
+
+            ->add([
                 'name' => 'guest_terms_text',
                 'type' => CkeditorInline::class,
                 'options' => [
