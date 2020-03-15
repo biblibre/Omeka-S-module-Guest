@@ -154,12 +154,15 @@ class AnonymousController extends AbstractGuestController
         $user->setIsActive($isOpenRegister);
 
         $id = $user->getId();
+        $userSettings = $this->userSettings();
         if (!empty($values['user-settings'])) {
-            $userSettings = $this->userSettings();
             foreach ($values['user-settings'] as $settingId => $settingValue) {
                 $userSettings->set($settingId, $settingValue, $id);
             }
         }
+
+        // Save the site on which the user registered.
+        $userSettings->set('guest_site', $this->currentSite()->id(), $id);
 
         $emails = $this->getOption('guest_notify_register');
         if ($emails) {

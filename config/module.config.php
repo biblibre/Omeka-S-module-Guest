@@ -189,6 +189,7 @@ return [
             'guest_redirect' => 'site',
         ],
         'user_settings' => [
+            'guest_site' => null,
             'guest_agreed_terms' => false,
         ],
     ],

@@ -39,6 +39,7 @@ use Generic\AbstractModule;
 use Guest\Entity\GuestToken;
 use Guest\Permissions\Acl;
 use Guest\Stdlib\PsrMessage;
+use Omeka\Form\Element\SiteSelect;
 use Omeka\Permissions\Assertion\IsSelfAssertion;
 use Omeka\Settings\SettingsInterface;
 use Zend\EventManager\Event;
@@ -378,12 +379,31 @@ class Module extends AbstractModule
         /** @var \Omeka\Entity\User $user */
         $user = $entityManager->getRepository(\Omeka\Entity\User::class)->find($userId);
 
-        $services->get('Omeka\Settings\User')->setTargetId($userId);
-        $agreedTerms = $services->get('Omeka\Settings\User')->get('guest_agreed_terms');
+        $userSettings = $services->get('Omeka\Settings\User');
+        $userSettings->setTargetId($userId);
+        $agreedTerms = $userSettings->get('guest_agreed_terms');
+        $siteRegistration = $userSettings->get('guest_site', $services->get('Omeka\Settings')->get('default_site', 1));
 
         // Admin board.
         $fieldset = $form->get('user-settings');
         $fieldset
+            ->add([
+                'name' => 'guest_site',
+                'type' => SiteSelect::class,
+                'options' => [
+                    'label' => 'Guest site', // @translate
+                    'info' => 'This parameter is used to manage some site related features, in particular messages.', // @translate
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    'id' => 'guest_site',
+                    'class' => 'chosen-select',
+                    'value' => $siteRegistration,
+                    'required' => false,
+                    'multiple' => false,
+                    'data-placeholder' => 'Select site…', // @translate
+                ],
+            ])
             ->add([
                 'name' => 'guest_agreed_terms',
                 'type' => Element\Checkbox::class,
@@ -445,6 +465,10 @@ class Module extends AbstractModule
 
         $inputFilter = $event->getParam('inputFilter');
         $inputFilter->get('user-settings')
+            ->add([
+                'name' => 'guest_site',
+                'required' => false,
+            ])
             ->add([
                 'name' => 'guest_clear_token',
                 'required' => false,
