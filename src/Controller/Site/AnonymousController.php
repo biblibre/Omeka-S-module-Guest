@@ -279,7 +279,16 @@ class AnonymousController extends AbstractGuestController
 
         $guestToken->setConfirmed(true);
         $entityManager->persist($guestToken);
+
+        // Validate all tokens with the same email to avoid issues when the
+        // email is checked after login.
         $email = $guestToken->getEmail();
+        $guestTokens = $entityManager->getRepository(GuestToken::class)->findBy(['email' => $email]);
+        foreach ($guestTokens as $gToken) {
+            $gToken->setConfirmed(true);
+            $entityManager->persist($gToken);
+        }
+
         $user = $entityManager->find(User::class, $guestToken->getUser()->getId());
         // Bypass api, so no check of acl 'activate-user' for the user himself.
         $user->setEmail($email);
