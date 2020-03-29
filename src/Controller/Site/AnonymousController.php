@@ -169,7 +169,13 @@ class AnonymousController extends AbstractGuestController
                     'url' => $this->url()->fromRoute('admin/id', ['controller' => 'user', 'id' => $user->getId()], ['force_canonical' => true]),
                 ]
             );
-            $this->sendEmail($emails, $this->translate('[Omeka Guest] New registration'), $message); // @translate
+            $result = $this->sendEmail($emails, $this->translate('[Omeka Guest] New registration'), $message); // @translate
+            if (!$result) {
+                $message = new PsrMessage('An error occurred when the notification email was sent.'); // @translate
+                $this->messenger()->addError($message);
+                $this->logger()->err('[Guest] ' . $message);
+                return $view;
+            }
         }
 
         $guestToken = $this->createGuestToken($user);

@@ -38,7 +38,7 @@ class SendEmail extends AbstractPlugin
      * @param string $subject
      * @param string $body
      * @param string $name
-     * @return bool|string True, or a message in case of error.
+     * @return bool
      */
     public function __invoke($recipients, $subject, $body, $name = null)
     {
@@ -46,21 +46,26 @@ class SendEmail extends AbstractPlugin
             $recipients = [$recipients];
         }
 
-        $recipients = array_filter(array_unique(array_map('trim', $recipients)));
-        if (empty($recipients)) {
-            return new PsrMessage('The message has no recipient.'); // @translate
-        }
         $subject = trim($subject);
         if (empty($subject)) {
-            return new PsrMessage('The message has no subject.'); // @translate
+            $message = new PsrMessage('Email not sent: the subject is missing.'); // @translate
+            $this->logger->err($message);
+            return false;
         }
         $body = trim($body);
         if (empty($body)) {
-            return new PsrMessage('The message has no content.'); // @translate
+            $message = new PsrMessage('Email not sent: content is missing (subject: {subject}).', ['subject' => $subject]); // @translate
+            $this->logger->err($message);
+            return false;
+        }
+        $recipients = array_filter(array_unique(array_map('trim', $recipients)));
+        if (empty($recipients)) {
+            $message = new PsrMessage('Email not sent: no recipient (subject: {subject}).', ['subject' => $subject]); // @translate
+            $this->logger->err($message);
+            return false;
         }
 
-        $mailer = $this->mailer;
-        $message = $mailer->createMessage();
+        $message = $this->mailer->createMessage();
 
         $isHtml = strpos($body, '<') === 0;
         if ($isHtml) {
@@ -103,17 +108,18 @@ BODY;
             ->setBody($body);
 
         try {
-            $mailer->send($message);
+            $this->mailer->send($message);
             // Log email sent for security purpose.
-            $msg = new PsrMessage(
-                'A mail was sent to {user_email} with subject: {subject}', // @translate
-                ['user_email' => implode(', ', $recipients), 'subject' => $subject]
-            );
-            $this->logger->info($msg->getMessage(), $msg->getContext());
-            return true;
         } catch (\Exception $e) {
             $this->logger->err((string) $e);
-            return (string) $e;
+            return false;
         }
+
+        $msg = new PsrMessage(
+            'A mail was sent to {user_email} with subject: {subject}', // @translate
+            ['user_email' => implode(', ', $recipients), 'subject' => $subject]
+        );
+        $this->logger->info($msg->getMessage(), $msg->getContext());
+        return true;
     }
 }
