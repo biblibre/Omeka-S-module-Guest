@@ -67,7 +67,7 @@ class GuestController extends AbstractGuestController
         $userRepr = $this->api()->read('users', $id)->getContent();
         $data = $userRepr->jsonSerialize();
 
-        $form = $this->_getForm($user);
+        $form = $this->getUserForm($user);
         $form->get('user-information')->populateValues($data);
         $form->get('change-password')->populateValues($data);
 

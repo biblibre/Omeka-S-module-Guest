@@ -88,7 +88,7 @@ class AnonymousController extends AbstractGuestController
         $user = new User();
         $user->setRole(\Guest\Permissions\Acl::ROLE_GUEST);
 
-        $form = $this->_getForm($user);
+        $form = $this->getUserForm($user);
 
         $view = new ViewModel;
         $view->setVariable('form', $form);

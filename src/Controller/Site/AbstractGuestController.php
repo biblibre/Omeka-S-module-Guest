@@ -108,7 +108,7 @@ abstract class AbstractGuestController extends AbstractActionController
      * @param array $options
      * @return UserForm
      */
-    protected function _getForm(User $user = null, array $options = [])
+    protected function getUserForm(User $user = null, array $options = [])
     {
         $defaultOptions = [
             'is_public' => true,
