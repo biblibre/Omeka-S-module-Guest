@@ -5,7 +5,9 @@ use Omeka\Authentication\Adapter\PasswordAdapter as OmekaPasswordAdapter;
 use Zend\Authentication\Result;
 
 /**
- * Auth adapter for checking passwords through Doctrine.
+ * Auth adapter for checking passwords through Doctrine
+ *
+ * Same as omeka password manager, except a check of the guest token.
  */
 class PasswordAdapter extends OmekaPasswordAdapter
 {
