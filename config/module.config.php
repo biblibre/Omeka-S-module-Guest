@@ -32,6 +32,7 @@ return [
             Form\ConfigForm::class => Form\ConfigForm::class,
             Form\EmailForm::class => Form\EmailForm::class,
             Form\SettingsFieldset::class => Form\SettingsFieldset::class,
+            Form\SiteSettingsFieldset::class => Form\SiteSettingsFieldset::class,
         ],
     ],
     'controllers' => [
