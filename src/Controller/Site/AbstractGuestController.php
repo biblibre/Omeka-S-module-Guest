@@ -116,6 +116,8 @@ abstract class AbstractGuestController extends AbstractActionController
             'include_password' => true,
             'include_role' => false,
             'include_key' => false,
+            'include_site_role_remove' => false,
+            'include_site_role_add' => false,
         ];
         $options += $defaultOptions;
 
