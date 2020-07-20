@@ -31,7 +31,7 @@ class UserSites extends AbstractPlugin
     {
         if ($firstSite) {
             $sitePermission = $this->entityManager->getRepository(\Omeka\Entity\SitePermission::class)
-                ->findOneBy(['user' => $user->getId()]);
+                ->findOneBy(['user' => $user->getId()], ['id' => 'ASC']);
             return $sitePermission
                 ? $sitePermission->getSite()
                 : null;
