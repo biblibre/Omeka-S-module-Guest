@@ -25,7 +25,7 @@ class UserSites extends AbstractPlugin
      *
      * @param User $user
      * @param bool $firstSite
-     * @return Site[]|Site
+     * @return Site[]|Site|null
      */
     public function __invoke(User $user, $firstSite = false)
     {
