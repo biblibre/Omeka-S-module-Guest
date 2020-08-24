@@ -1,7 +1,9 @@
 Guest (module for Omeka S)
 ==========================
 
-[![Build Status](https://travis-ci.org/Daniel-KM/Omeka-S-module-Guest.svg?branch=master)](https://travis-ci.org/Daniel-KM/Omeka-S-module-Guest)
+
+> __New versions of this module and support for Omeka S version 3.0 and above
+> are available on [GitLab], which seems to respect users and privacy better.__
 
 [Guest] is a module for [Omeka S] that creates a role called `guest`, and
 provides configuration options for a login and registration screen. Guests
@@ -108,23 +110,24 @@ Copyright
 ---------
 
 * Copyright Biblibre, 2016-2017
-* Copyright Daniel Berthereau, 2017-2020 (see [Daniel-KM] on GitHub)
+* Copyright Daniel Berthereau, 2017-2020 (see [Daniel-KM] on GitLab)
 
 
-[Guest]: https://github.com/Daniel-KM/Omeka-S-module-Guest
-[Guest User]: https://github.com/omeka/plugin-GuestUser
+[Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
+[Guest User]: https://gitlab.com/omeka/plugin-GuestUser
 [GuestUser]: https://github.com/biblibre/omeka-s-module-GuestUser
 [Omeka S]: https://www.omeka.org/s
+[GitLab]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
 [Omeka Classic]: https://omeka.org
-[Guest Api]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi
-[ContactUs]: https://github.com/Daniel-KM/Omeka-S-module-ContactUs
-[more information to upgrade templates]: https://github.com/Daniel-KM/Omeka-S-module-Guest/blob/master/Upgrade_from_GuestUser.md
+[Guest Api]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi
+[ContactUs]: https://gitlab.com/Daniel-KM/Omeka-S-module-ContactUs
+[more information to upgrade templates]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest/blob/master/Upgrade_from_GuestUser.md
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
-[modules/Guest/data/scripts/convert_guest_user_templates.sh]: https://github.com/Daniel-KM/Omeka-S-module-Guest/blob/master/data/scripts/convert_guest_user_templates.sh
-[module issues]: https://github.com/Daniel-KM/Omeka-S-module-Guest/issues
+[modules/Guest/data/scripts/convert_guest_user_templates.sh]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest/blob/master/data/scripts/convert_guest_user_templates.sh
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
 [BibLibre]: https://github.com/biblibre
-[Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
+[Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"
