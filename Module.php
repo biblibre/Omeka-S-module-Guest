@@ -104,6 +104,7 @@ class Module extends AbstractModule
         $this->manageSiteSettings('update', $translatables);
 
         if ($this->hasOldGuestUser) {
+            $serviceLocator = $this->getServiceLocator();
             require_once __DIR__ . '/data/scripts/upgrade_guest_user.php';
         }
     }
